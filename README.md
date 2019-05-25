@@ -4,7 +4,7 @@ Credit to http://reddit.com/u/NoBullet for the name!
 
 ![Image](https://i.imgur.com/9TxcOQg.png)
 
-The Open Store VR is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup. 
+The SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup. 
 
 It is important to follow the instructions in the setup screen before you start - particularily installing the OpenStore Launcher app to be able to find the apps on your device once they are installed.
 
@@ -23,7 +23,7 @@ It is important to follow the instructions in the setup screen before you start 
 
 ## Setup 
 
-When you first launch OpenStore VR it will download the repositories and also download the ADB tools. Once this is done you should go to the Setup menu option and follow through the one time setup to get your device ready to install apps. 
+When you first launch SideQuest it will download the repositories and also download the ADB tools. Once this is done you should go to the Setup menu option and follow through the one time setup to get your device ready to install apps. 
 
 If you have any problems you can hit the debugger icon to capture any errors - these will really help to find and fix bugs.
 
