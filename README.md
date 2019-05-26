@@ -4,7 +4,7 @@ Credit to http://reddit.com/u/NoBullet for the name!
 
 ![Image](https://i.imgur.com/9TxcOQg.png)
 
-The SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup. 
+SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup. 
 
 It is important to follow the instructions in the setup screen before you start - particularily installing the OpenStore Launcher app to be able to find the apps on your device once they are installed.
 
