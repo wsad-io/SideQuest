@@ -48,10 +48,10 @@ I will be adding more apps to the repos and I will be notifying of repo updates 
 
 [Oculus TV subreddit](https://www.reddit.com/r/oculustv/)
 
-[Games that can now be played with Oculus TV as of 1.1.17](https://www.reddit.com/comments/9uney8)
-
-[Oculus TV media app compatibility list](https://www.reddit.com/comments/9x07yj)
-
 [Guide: Launching Android apps in vrshell.desktop instead of Oculus TV](https://www.reddit.com/r/OculusGo/comments/ba6ul9/guide_launching_android_apps_in_vrshelldesktop/)
 
 [Android Subreddit Curated Apps](https://www.reddit.com/r/android/wiki/apps)
+
+[Games that can now be played with Oculus TV as of 1.1.17](https://www.reddit.com/comments/9uney8)
+
+[Oculus TV media app compatibility list](https://www.reddit.com/comments/9x07yj)
