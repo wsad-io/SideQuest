@@ -34,7 +34,9 @@ If you have any problems you can hit the debugger icon to capture any errors - t
 
 I will be adding more apps to the repos and I will be notifying of repo updates on my [discord server](https://discord.gg/Q2a5BkZ) - you can then manually update the repos in the repos section to get the new app listings. 
 
+## Important
 
+Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
 
 ## More Info:
 
