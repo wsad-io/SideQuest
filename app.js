@@ -12,7 +12,8 @@ function createWindow () {
         frame: false,
         webPreferences: {
             nodeIntegration: true
-        }
+        },
+        //icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png')
     });
     mainWindow.loadFile('desktop-app/index.html');
     //mainWindow.webContents.openDevTools();

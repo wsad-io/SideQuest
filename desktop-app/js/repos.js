@@ -14,7 +14,7 @@ class Repos {
                 });
         });
         this.openMenuRepos();
-        fs.readFile(__dirname + "/sources.txt",'utf8',(err,data)=>{
+        fs.readFile(appData + "/sources.txt",'utf8',(err,data)=>{
             if(!err){
                 this.app.toggleLoader(true);
                 this.app.spinner_loading_message.innerText = 'Loading default repos';
@@ -35,11 +35,9 @@ class Repos {
             fs.unlinkSync(cachePath);
         }
         this.repos.splice(index,1);
-        this.openRepos();
-        this.openMenuRepos();
     }
     saveRepos(){
-        fs.writeFile(__dirname + "/sources.txt",this.repos.map(d=>d.url).join('\n'),err=>{
+        fs.writeFile(appData + "/sources.txt",this.repos.map(d=>d.url).join('\n'),err=>{
             if(err)alert("Failed to write sources.txt:" + err);
         });
     }
@@ -73,6 +71,8 @@ class Repos {
             child.querySelector('.delete-repo').addEventListener('click',()=>{
                 this.deleteRepo(i);
                 this.saveRepos();
+                this.openRepos();
+                this.openMenuRepos();
             });
             child.querySelector('.update-repo').addEventListener('click',()=>{
                 let url = r.url;

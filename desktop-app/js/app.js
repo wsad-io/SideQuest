@@ -9,13 +9,16 @@ const path = require('path');
 const request = require('request');
 const md5 = require('md5');
 const Readable = require('stream').Readable;
-const appData = path.join(eApp.getPath('appData'),'OpenStoreVR');
+const appData = path.join(eApp.getPath('appData'),'SideQuest');
 const semver = require('semver');
 class App{
     constructor(){
         M.AutoInit();
         fs.mkdir(appData,()=>{
             fs.mkdir(path.join(appData,'sources'),()=>{
+                if(!fs.existsSync(path.join(appData,'sources.txt'))){
+                    fs.createReadStream(path.join(__dirname,'sources.txt')).pipe(fs.createWriteStream(path.join(appData,'sources.txt')));
+                }
                 this.current_data = [];
                 this.setupMenu();
                 this.setup = new Setup(this);
@@ -248,11 +251,17 @@ class App{
         if(!this.setup.status === 'connected'){
             this.container.innerHTML = '<h4 class="grey-text">No device connected...</h4>'
         }else{
-            this.setup.devicePackages.forEach(p=>{
+            this.setup.devicePackages.filter(p=>!(p.startsWith('com.oculus')||p.startsWith('com.android')||p.startsWith('com.qualcomm')||p.startsWith('android.ext')||p==='android'||p==='oculus.platform')).forEach((p,i)=>{
                 let child = this.packageItem.content.cloneNode(true);
+                if(i%2===0){
+                    [].slice.call(child.querySelectorAll('.package-height')).forEach(ele=>{
+                        ele.style.backgroundColor = '#cfcfcf';
+                    });
+                }
                 child.querySelector('.chip').innerText = p;
                 child.querySelector('.uninstall-package').addEventListener('click',()=>{
                     this.current_uninstall_package = p;
+                    document.getElementById('app-remove-name').innerText = 'Are you sure you want to remove '+p+'?';
                     //this.setup.uninstallApk(p);
                 });
                 this.container.appendChild(child);
@@ -273,14 +282,19 @@ class App{
         this.install_launcher = document.querySelector('.install-launcher');
         this.install_launcher_loader = document.querySelector('.install-launcher-loading');
         this.install_launcher_container = document.querySelector('.install-launcher-container');
+
         if(~this.setup.devicePackages.indexOf('com.openappstore.wrapper') && ~this.setup.devicePackages.indexOf('com.openappstore.launcher')) {
+            this.setup.uninstallApk('com.openappstore.wrapper')
+                .then(()=>this.setup.uninstallApk('com.openappstore.launcher'));
+        }
+        if(~this.setup.devicePackages.indexOf('com.sidequest.wrapper') && ~this.setup.devicePackages.indexOf('com.sidequest.launcher')) {
             this.install_launcher_container.innerHTML = 'Already Installed!';
         }else {
             this.install_launcher.addEventListener('click', () => {
                 this.install_launcher.style.display = 'none';
                 this.install_launcher_loader.style.display = 'inline-block';
-                this.setup.installApk('https://cdn.theexpanse.app/OpenAppStoreWrapper.apk')
-                    .then(() => this.setup.installApk('https://cdn.theexpanse.app/OpenAppStoreLauncher.apk'))
+                this.setup.installApk('https://cdn.theexpanse.app/SideQuestWrapper.apk')
+                    .then(() => this.setup.installApk('https://cdn.theexpanse.app/SideQuestLauncher.apk'))
                     .then(() => {
                         this.install_launcher_container.innerHTML = 'Done!';
                     })
@@ -295,7 +309,7 @@ class App{
             this.install_expanse.addEventListener('click',()=>{
                 this.install_expanse.style.display = 'none';
                 this.install_expanse_loader.style.display = 'inline-block';
-                this.setup.installApk('https://cdn.theexpanse.app/TheExpanse.GearVR.apk').then(()=>{
+                this.setup.installApk('https://cdn.theexpanse.app/TheExpanse.apk').then(()=>{
                     this.install_expanse_container.innerHTML = 'Done!';
                 })
             });

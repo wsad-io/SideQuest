@@ -58,13 +58,13 @@
             <svg style="display:none" class="install-launcher-loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
             <a  href="#" class="waves-effect waves-light btn install-launcher">Install App Launcher</a>
         </p>
-        <p style="text-align: center" >You will then be able to install apps to your headset and open them from the launcher. You can find it in the side menu of the library under the Unknown Sources section called <span class="chip">* Open App Store VR</span>. This will show you all the apps on the device even hidden ones you would otherwise not see. </p>
+        <p style="text-align: center" >You will then be able to install apps to your headset and open them from the launcher. You can find it in the side menu of the library under the Unknown Sources section called <span class="chip">SideQuest</span>. This will show you all the apps on the device even hidden ones you would otherwise not see. </p>
         <p style="text-align: center" class="install-expanse-container">
             <svg style="display:none" class="install-expanse-loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
             <a  href="#" class="waves-effect waves-light btn install-expanse">Install Your First App - The Expanse</a>
         </p>
         <p style="text-align: center" >If you want to install your own APK files just drag and drop them over this window.</p>
-        <p style="text-align: center" >If you have any problems or want to say hi drop us a line on discord - <span class="link" data-url="https://discord.gg/HNnDPSu">discord</span>.</p>
+        <p style="text-align: center" >Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. <br>If you have any problems or want to say hi drop us a line on discord - <span class="link" data-url="https://discord.gg/HNnDPSu">discord</span>.</p>
         <br><br>
     </div>
 </template>
@@ -141,7 +141,7 @@
     </div>
 </template>
 <template id="packageItem">
-    <div class="col s8 package-height">
+    <div class="col s8 package-height chip-padding">
         <span class="chip"></span>
     </div>
     <div class="col s4 package-height">
@@ -232,7 +232,7 @@
 <!-- Modal Structure -->
 <div id="modal2" class="modal bottom-sheet modal-fixed-footer">
     <div class="modal-content">
-        <h4>Are you sure?</h4>
+        <h4 id="app-remove-name">Are you sure?</h4>
         Some of these apps could be related to the core function of your device. Please be very careful when uninstalling things from your device. We accept no liability if you break your device.
 
         <h5>Continue at your own risk!</h5>
