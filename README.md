@@ -36,7 +36,7 @@ I will be adding more apps to the repos and I will be notifying of repo updates 
 
 ## Important
 
-Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
+Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. Also some users reported issues with k9 web filter, if you use this then you might need to unblock `http://keepsummersafe.x10host.com/` and `http://showmewhatyougot.x10host.com/` - these are the default repo urls, then only have json index files on them and are totally safe. 
 
 ## More Info:
 
