@@ -4,9 +4,9 @@ class App{
             try{
                 data = JSON.parse(data);
                 if(data.beatsaber){
-                    this.spinner_loading_message.innerText = 'Sideloading Beatsaber Song...';
-                    this.toggleLoader(true);
                     if(this.bsaber){
+                        this.spinner_loading_message.innerText = 'Sideloading Beatsaber Song...';
+                        this.toggleLoader(true);
                         this.bsaber.downloadSong(data.beatsaber)
                             .then(path=>{
                                 this.bsaber.pushSongToDevice(path)
@@ -17,6 +17,20 @@ class App{
                                 alert(e);
                                 this.toggleLoader(false);
                             })
+                    }
+                }
+                if(data.beatsaberRemove){
+                    if(this.bsaber) {
+                        this.spinner_loading_message.innerText = 'Removing Beatsaber Song...';
+                        this.toggleLoader(true);
+                        this.bsaber.removeSong(data.beatsaberRemove)
+                            .then(()=>new Promise(r=>setTimeout(r,500)))
+                            .then(() => this.toggleLoader(false))
+                            .then(() => this.bsaber.getCurrentDeviceSongs(true))
+                            .catch(e => {
+                                alert(e);
+                                this.toggleLoader(false);
+                            });
                     }
                 }
             }catch(e){
@@ -35,6 +49,7 @@ class App{
                 this.repos = new Repos(this);
                 this.bsaber = new Bsaber(this);
                 this.setup = new Setup(this,()=>{});
+                this.bsaber.downloadConverterBinary();
             });
         });
     }
@@ -214,6 +229,13 @@ class App{
             }
             .bsaber-tooltip.-sidequest::after {
                 content: "Install now with SideQuest";
+            }
+            .-sidequest-remove{
+                background-image: url('https://i.imgur.com/5ZPR9L1.png');
+                background-size: 15px 15px;
+            }
+            .bsaber-tooltip.-sidequest-remove::after {
+                content: "Remove Custom Level";
             }`;
         let customJS = `
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatdrop')).forEach(e=>e.style.display = 'none');
@@ -231,19 +253,31 @@ class App{
                         })
                     );
                 });
+                let removeButton = document.createElement('a');
+                removeButton.className = 'action post-icon bsaber-tooltip -sidequest-remove';
+                removeButton.style.display = 'none';
+                removeButton.href='javascript:void(0)';
+                removeButton.addEventListener('click',()=>{
+                    window.Bridge.sendMessage(
+                        JSON.stringify({
+                            beatsaberRemove:hrefParts[hrefParts.length-1]
+                        })
+                    );
+                });
                 let alreadyInstalled = document.createElement('span');
                 alreadyInstalled.className = 'beat-already-installed';
                 alreadyInstalled.innerText = 'INSTALLED';
                 alreadyInstalled.style.display = 'none';
-                e.parentElement.appendChild(alreadyInstalled);
+                e.parentElement.appendChild(removeButton);
                 e.parentElement.appendChild(downloadButton);
+                e.parentElement.appendChild(alreadyInstalled);
             });
         `;
         let webaddress = document.getElementById('web_address');
         let back_button = document.querySelector('.browser-back-button');
         let forward_button = document.querySelector('.browser-forward-button');
         let send_button = document.querySelector('.browser-send-button');
-        let fix_address = ()=>{if(webaddress.value.substr(0,7) !== 'http://'&&webaddress.value.substr(0,7) !== 'https://')webaddress.value = 'http://'+webaddress.value};
+        let fix_address = ()=>{if(webaddress.value.substr(0,7) !== 'http://'&&webaddress.value.substr(0,8) !== 'https://')webaddress.value = 'http://'+webaddress.value};
         webaddress.addEventListener('keyup',e=>{
             if(e.keyCode === 13){
                 fix_address();
