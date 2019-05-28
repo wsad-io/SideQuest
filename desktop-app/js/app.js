@@ -1,28 +1,40 @@
-const opn = require('opn');
-const remote = require('electron').remote;
-const eApp = require('electron').remote.app;
-const adb = require('adbkit');
-const extract = require('extract-zip');
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const request = require('request');
-const md5 = require('md5');
-const Readable = require('stream').Readable;
-const appData = path.join(eApp.getPath('appData'),'SideQuest');
-const semver = require('semver');
 class App{
     constructor(){
+        ipcRenderer.on('info' , (event , data)=>{
+            try{
+                data = JSON.parse(data);
+                if(data.beatsaber){
+                    this.spinner_loading_message.innerText = 'Sideloading Beatsaber Song...';
+                    this.toggleLoader(true);
+                    if(this.bsaber){
+                        this.bsaber.downloadSong(data.beatsaber)
+                            .then(path=>{
+                                this.bsaber.pushSongToDevice(path)
+                                    .then(()=>this.toggleLoader(false))
+                                    .then(()=>this.bsaber.getCurrentDeviceSongs(true));
+                            })
+                            .catch(e=>{
+                                alert(e);
+                                this.toggleLoader(false);
+                            })
+                    }
+                }
+            }catch(e){
+
+            }
+        });
         M.AutoInit();
         fs.mkdir(appData,()=>{
             fs.mkdir(path.join(appData,'sources'),()=>{
+                fs.mkdir(path.join(appData,'bsaber'),()=>{});
                 if(!fs.existsSync(path.join(appData,'sources.txt'))){
                     fs.createReadStream(path.join(__dirname,'sources.txt')).pipe(fs.createWriteStream(path.join(appData,'sources.txt')));
                 }
                 this.current_data = [];
                 this.setupMenu();
-                this.setup = new Setup(this);
                 this.repos = new Repos(this);
+                this.bsaber = new Bsaber(this);
+                this.setup = new Setup(this,()=>{});
             });
         });
     }
@@ -36,12 +48,13 @@ class App{
         this.filter_select = document.querySelector('#filterDropdown');
         this.filter_select.addEventListener('change',()=>this.searchFilter());
         this.spinner_loading_message = document.querySelector('.spinner-loading-message');
-
+        this.apkInstall = document.querySelector('.apk-install')
         this.search_box = document.querySelector('#searchBox');
         this.search_box.addEventListener('keyup',()=>this.searchFilter());
-
+        this.browser_bar = document.getElementById('browser-bar');
         this.container = document.querySelector('#container');
-
+        this.browser_loading = document.querySelector('.browser-loading');
+        this.beatView = document.getElementById('beatView');
         this.setupInstructions = document.querySelector('#setupInstructions');
         this.appItem = document.querySelector('#appItem');
         this.template = document.querySelector('#listItem');
@@ -51,9 +64,6 @@ class App{
         this.title = document.querySelector('.header-title');
         this.searchFilterContainer = document.querySelector('#searchFilterContainer');
 
-        [].slice.call(document.querySelectorAll('.menu')).forEach(menu=>{
-            menu.addEventListener('click',()=>this.openScreen(menu.dataset.type));
-        });
         this.setup_menu = document.querySelector('.setup-menu');
         this.setup_menu.addEventListener('click',()=>this.openSetupScreen());
 
@@ -70,6 +80,9 @@ class App{
                 this.setup.uninstallApk(this.current_uninstall_package)
                     .then(()=>this.openPackageList());
             }
+        });
+        document.querySelector('.beat-menu').addEventListener('click',()=>{
+            this.openBeat();
         });
         document.addEventListener('DOMContentLoaded', function() {
             let elems = document.querySelectorAll('.modal');
@@ -109,6 +122,7 @@ class App{
             }
             return false;
         };
+        this.setupWebview();
     }
     toggleLoader(show){
         document.querySelector('.spinner').style.display =
@@ -181,6 +195,94 @@ class App{
         });
         return output;
     }
+    setupWebview(){
+        let customCss = `
+            ::-webkit-scrollbar {
+                height: 16px;
+                width: 16px;
+                background: #e0e0e0;
+            }
+            ::-webkit-scrollbar-corner {
+                background: #cfcfcf;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #009688;
+            }
+            .-sidequest{
+                background-image: url('https://i.imgur.com/Hy2oclv.png');
+                background-size: 12.814px 15px;
+            }
+            .bsaber-tooltip.-sidequest::after {
+                content: "Install now with SideQuest";
+            }`;
+        let customJS = `
+            [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatdrop')).forEach(e=>e.style.display = 'none');
+            [].slice.call(document.querySelectorAll('.bsaber-tooltip.-download-zip')).forEach(e=>{
+                e.style.display = 'none';
+                let hrefParts = e.href.split('/');
+                let songIdParts = hrefParts[hrefParts.length-1].split('-');
+                let downloadButton = document.createElement('a');
+                downloadButton.className = 'action post-icon bsaber-tooltip -sidequest';
+                downloadButton.href='javascript:void(0)';
+                downloadButton.addEventListener('click',()=>{
+                    window.Bridge.sendMessage(
+                        JSON.stringify({
+                            beatsaber:'https://beatsaver.com/storage/songs/'+songIdParts[0]+'/'+songIdParts[0]+'-'+songIdParts[1]+'.zip'
+                        })
+                    );
+                });
+                let alreadyInstalled = document.createElement('span');
+                alreadyInstalled.className = 'beat-already-installed';
+                alreadyInstalled.innerText = 'INSTALLED';
+                alreadyInstalled.style.display = 'none';
+                e.parentElement.appendChild(alreadyInstalled);
+                e.parentElement.appendChild(downloadButton);
+            });
+        `;
+        let webaddress = document.getElementById('web_address');
+        let back_button = document.querySelector('.browser-back-button');
+        let forward_button = document.querySelector('.browser-forward-button');
+        let send_button = document.querySelector('.browser-send-button');
+        let fix_address = ()=>{if(webaddress.value.substr(0,7) !== 'http://'&&webaddress.value.substr(0,7) !== 'https://')webaddress.value = 'http://'+webaddress.value};
+        webaddress.addEventListener('keyup',e=>{
+            if(e.keyCode === 13){
+                fix_address();
+                this.beatView.loadURL(webaddress.value);
+            }
+        });
+        this.beatView.addEventListener('did-start-loading', e=>{
+            webaddress.value = this.beatView.getURL();
+            this.browser_loading.style.display = 'inline-block';
+            this.beatView.insertCSS(customCss);
+        });
+        this.beatView.addEventListener('did-stop-loading', async e=>{
+            webaddress.value = this.beatView.getURL();
+            this.browser_loading.style.display = 'none';
+            this.beatView.insertCSS(customCss);
+
+            let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
+            if(isBeatSaberInstalled){
+                this.beatView.executeJavaScript(customJS);
+                this.bsaber.makeCustomDirectory()
+                    .then(()=>this.bsaber.getCurrentDeviceSongs());
+            }
+        });
+        send_button.addEventListener('click',()=>{
+            fix_address();
+            this.beatView.loadURL(webaddress.value);
+        });
+        back_button.addEventListener('click',()=>{
+            if(this.beatView.canGoBack()){
+                this.beatView.goBack()
+            }
+        });
+        forward_button.addEventListener('click',()=>{
+            if(this.beatView.canGoForward()){
+                this.beatView.goForward()
+            }
+        });
+        //this.beatView.openDevTools();
+    }
     async showInstalledPackage(child, app,appPackage){
         child.querySelector('.app-meta').innerHTML = this.getAppMetadata(app);
         this.setup.updateConnectedStatus(await this.setup.connectedStatus());
@@ -204,7 +306,10 @@ class App{
         this.add_repo.style.display = 'none';
         this.container.innerHTML = '';
         this.searchFilterContainer.style.display = 'none';
+        this.browser_bar.style.display = 'none';
         this.title.innerHTML = app.name;
+        this.beatView.style.left = '-100%';
+        this.apkInstall.style.display = 'block';
         let child = this.appItem.content.cloneNode(true);
         child.querySelector('.app-image').src = app.icon;
         child.querySelector('.summary').innerHTML = this.getAppSummary(app)+'<br><br>'+this.getLongMetaData(app)+'<br><br>';
@@ -247,7 +352,10 @@ class App{
         this.add_repo.style.display = 'none';
         this.container.innerHTML = '';
         this.searchFilterContainer.style.display = 'none';
+        this.browser_bar.style.display = 'none';
+        this.apkInstall.style.display = 'block';
         this.title.innerHTML = "Installed Packages";
+        this.beatView.style.left = '-100%';
         if(!this.setup.status === 'connected'){
             this.container.innerHTML = '<h4 class="grey-text">No device connected...</h4>'
         }else{
@@ -262,17 +370,28 @@ class App{
                 child.querySelector('.uninstall-package').addEventListener('click',()=>{
                     this.current_uninstall_package = p;
                     document.getElementById('app-remove-name').innerText = 'Are you sure you want to remove '+p+'?';
-                    //this.setup.uninstallApk(p);
                 });
                 this.container.appendChild(child);
             });
         }
+    }
+    async openBeat(){
+        this.add_repo.style.display = 'none';
+        this.container.innerHTML = '';
+        this.searchFilterContainer.style.display = 'none';
+        this.title.innerHTML = "Beast Saber - Custom Songs";
+        this.beatView.style.left = '0';
+        this.apkInstall.style.display = 'none';
+        this.browser_bar.style.display = 'block';
     }
     openSetupScreen(){
         this.add_repo.style.display = 'none';
         this.container.innerHTML = '';
         this.searchFilterContainer.style.display = 'none';
         this.title.innerHTML = "Setup Instructions";
+        this.beatView.style.left = '-100%';
+        this.apkInstall.style.display = 'block';
+        this.browser_bar.style.display = 'none';
 
         let child = this.setupInstructions.content.cloneNode(true);
         this.container.appendChild(child);
@@ -315,13 +434,6 @@ class App{
             });
         }
     }
-    openScreen(type){
-        this.add_repo.style.display = 'none';
-        this.container.innerHTML = '<h4 class="grey-text">Loading apps...</h4>';
-        this.searchFilterContainer.style.display = 'block';
-        this.title.innerHTML = type.charAt(0).toUpperCase() + type.slice(1);
-        this.getItems(this.db_root+type+".json","","");
-    }
     searchFilter(){
         this.container.innerHTML = '';
         this.current_data.body.apps.filter(d=>{
@@ -350,14 +462,6 @@ class App{
             }
             this.container.appendChild(child);
         });
-    }
-    getItems(db){
-        fetch(db)
-            .then(res=>res.json())
-            .then(json=>{
-                this.current_data = json;
-                this.searchFilter();
-            })
     }
 }
 new App();

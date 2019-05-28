@@ -1,7 +1,6 @@
 class Setup {
-    constructor(app) {
+    constructor(app,callback) {
         this.app = app;
-
         this.devicePackages = [];
         this.deviceStatus = 'disconnected';
         this.deviceSerial = '';
@@ -11,6 +10,7 @@ class Setup {
         this.setupAdb()
             .then(async ()=>{
                 this.updateConnectedStatus(await this.connectedStatus());
+                callback();
                 setInterval(async ()=>{
                     this.updateConnectedStatus(await this.connectedStatus());
                 },5000);
@@ -22,6 +22,9 @@ class Setup {
         } catch(err) {
             return false;
         }
+    }
+    makeDirectory(dir){
+        return this.app.setup.adb.shell(this.app.setup.deviceSerial,'mkdir '+dir)
     }
     updateConnectedStatus(status){
         this.deviceStatus = status;

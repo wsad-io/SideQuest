@@ -30,7 +30,7 @@ class Repos {
         });
     }
     deleteRepo(index){
-        const cachePath = path.join(__dirname,'sources',md5(this.repos[index].url)+".json");
+        const cachePath = path.join(appData,'sources',md5(this.repos[index].url)+".json");
         if(fs.existsSync(cachePath)){
             fs.unlinkSync(cachePath);
         }
@@ -57,6 +57,9 @@ class Repos {
         this.app.container.innerHTML = '<h4 class="grey-text">Loading apps...</h4>';
         this.app.searchFilterContainer.style.display = 'block';
         this.app.title.innerHTML = repo.name;
+        this.app.beatView.style.left = '-100%';
+        this.app.apkInstall.style.display = 'none';
+        this.app.browser_bar.style.display = 'none';
         this.app.searchFilter();
     }
     openRepos(){

@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setComponent(new ComponentName("com.oculus.vrshell", "com.oculus.vrshell.MainActivity"));
-        intent.setData(Uri.parse("com.oculus.tv"));
+        intent.setData(Uri.parse("com.oculus.tv"));//com.oculus.vrshell.desktop
         intent.putExtra("uri", targetIntent.getComponent().flattenToString());
         this.startActivity(intent);
     }

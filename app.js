@@ -1,4 +1,5 @@
 const {app, BrowserWindow} = require('electron');
+const path = require('path');
 let mainWindow;
 
 function createWindow () {
@@ -13,7 +14,7 @@ function createWindow () {
         webPreferences: {
             nodeIntegration: true
         },
-        //icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png')
+        icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png')
     });
     mainWindow.loadFile('desktop-app/index.html');
     //mainWindow.webContents.openDevTools();
@@ -31,3 +32,6 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
     if (mainWindow === null) createWindow()
 });
+global.receiveMessage = function(text) {
+    mainWindow.webContents.send('info', text );
+};
