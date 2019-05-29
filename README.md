@@ -23,7 +23,7 @@ It is important to follow the instructions in the setup screen before you start 
 ## SideQuest Features
 
 * Automatic download of ADB platform-tools for your platform - win/mac/linux.
-* Setup instructions for enablding developer mode on your device.
+* Setup instructions for enabling developer mode on your device.
 * On device launcher app to be able to open the apps once installed.
 * Drag and drop support for installing arbitrary apps.
 * Repository seeding via sources.txt file to preload your own repos for distribution.
