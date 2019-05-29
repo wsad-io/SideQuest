@@ -1,9 +1,10 @@
 # SideQuest
+Credit to http://reddit.com/u/NoBullet for the name!
+
 
 [Latest Download](https://github.com/the-expanse/SideQuest/releases)
 
 
-Credit to http://reddit.com/u/NoBullet for the name!
 
 ## Discord
 [Join us on Discord](https://discord.gg/Q2a5BkZ)
