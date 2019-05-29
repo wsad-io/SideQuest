@@ -1,6 +1,8 @@
 # SideQuest
 
-[#Download Noe](https://github.com/the-expanse/SideQuest/releases)
+[Latest Download](https://github.com/the-expanse/SideQuest/releases)
+
+
 Credit to http://reddit.com/u/NoBullet for the name!
 
 ## Discord
