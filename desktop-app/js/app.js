@@ -1,5 +1,8 @@
 class App{
     constructor(){
+        this.spinner_drag = document.querySelector('.spinner-drag');
+        this.spinner_background = document.querySelector('.spinner-background');
+        this.spinner_loading_message = document.querySelector('.spinner-loading-message');
         ipcRenderer.on('info' , (event , data)=>{
             try{
                 data = JSON.parse(data);
@@ -38,31 +41,42 @@ class App{
             }
         });
         M.AutoInit();
-        fs.mkdir(appData,()=>{
-            fs.mkdir(path.join(appData,'sources'),()=>{
-                fs.mkdir(path.join(appData,'bsaber'),()=>{});
+        this.mkdir(appData)
+            .then(()=>this.mkdir(path.join(appData,'sources')))
+            .then(()=>this.mkdir(path.join(appData,'bsaber')))
+            .then(()=>this.mkdir(path.join(appData,'saber-quest-patch')))
+            .then(async ()=>{
                 if(!fs.existsSync(path.join(appData,'sources.txt'))){
                     fs.createReadStream(path.join(__dirname,'sources.txt')).pipe(fs.createWriteStream(path.join(appData,'sources.txt')));
                 }
                 this.current_data = [];
+                this.setup = new Setup(this);
+                this.toggleLoader(true);
+                this.spinner_loading_message.innerText = 'Downloading...';
+                await this.setup.setup();
                 this.setupMenu();
                 this.repos = new Repos(this);
                 this.bsaber = new Bsaber(this);
-                this.setup = new Setup(this,()=>{});
                 this.bsaber.downloadConverterBinary();
+                this.bsaber.hasRightJavaVersion = await this.bsaber.checkJava64();
+                this.spinner_loading_message.innerText = 'Downloading...';
+                this.bsaber.downloadQuestSaberPatch();
+                this.bsaber.downloadAppSigner();
+                this.bsaber.backUpBeatSaberBinary();
             });
-        });
+    }
+    async mkdir(path){
+        return new Promise(resolve=>{
+            fs.mkdir(path,resolve);
+        })
     }
     setupMenu(){
-        this.spinner_drag = document.querySelector('.spinner-drag');
-        this.spinner_background = document.querySelector('.spinner-background');
         this.add_repo = document.querySelector('.add-repo');
         this.add_repo_button = document.querySelector('.add-repo-button');
         this.add_repo_url = document.querySelector('#repoUrl');
         this.menu_container = document.querySelector('.menu-items');
         this.filter_select = document.querySelector('#filterDropdown');
         this.filter_select.addEventListener('change',()=>this.searchFilter());
-        this.spinner_loading_message = document.querySelector('.spinner-loading-message');
         this.apkInstall = document.querySelector('.apk-install')
         this.search_box = document.querySelector('#searchBox');
         this.search_box.addEventListener('keyup',()=>this.searchFilter());
@@ -137,7 +151,6 @@ class App{
             }
             return false;
         };
-        this.setupWebview();
     }
     toggleLoader(show){
         document.querySelector('.spinner').style.display =
@@ -293,12 +306,13 @@ class App{
             webaddress.value = this.beatView.getURL();
             this.browser_loading.style.display = 'none';
             this.beatView.insertCSS(customCss);
-
-            let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
-            if(isBeatSaberInstalled){
-                this.beatView.executeJavaScript(customJS);
-                this.bsaber.makeCustomDirectory()
-                    .then(()=>this.bsaber.getCurrentDeviceSongs());
+            if(this.bsaber){
+                let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
+                if(isBeatSaberInstalled){
+                    this.beatView.executeJavaScript(customJS);
+                    this.bsaber.makeCustomDirectory()
+                        .then(()=>this.bsaber.getCurrentDeviceSongs());
+                }
             }
         });
         send_button.addEventListener('click',()=>{

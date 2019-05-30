@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "electron": "^4.1.4",
-    "electron-rebuild": "^1.8.4"
+    "electron-rebuild": "^1.8.4",
+    "targz": "^1.0.1"
   }
 }

@@ -2,53 +2,150 @@ class Bsaber{
     constructor(app) {
         this.app = app;
         this.customLevels = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
+        this.beatSaberPackage = 'com.beatgames.beatsaber-1';
+        this.beatBackupPath = path.join(appData,this.beatSaberPackage+".apk");
     }
-    convertSong(dir){
-        return new Promise((resolve,reject)=>{
-            const { spawn } = require('child_process');
-            const ls = spawn(this.converterBinaryPath, [path.join(dir,'info.json')]);
-            ls.stdout.on('data', (data) => {
-               // console.log(`stdout: ${data}`);
-            });
-
-            ls.stderr.on('data', (data) => {
-               // console.log(`stderr: ${data}`);
-            });
-
+    setExecutable(){
+        return new Promise((resolve)=>{
+            const ls = spawn('chmod', ['+x',this.converterBinaryPath]);
             ls.on('close', (code) => {
                 resolve();
-                //console.log(`child process exited with code ${code}`);
             });
         });
     }
-    downloadConverterBinary(){
-        const requestOptions = {timeout: 30000, 'User-Agent': this.app.setup.getUserAgent()};
-        let song_converter_LIN = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.2/songe-converter';
-        let song_converter_MAC = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.2/songe-converter-mac';
-        let song_converter_WIN = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.2/songe-converter.exe';
-        let downloadUrl = song_converter_LIN;
+    convertSong(dir){
+        return new Promise((resolve)=>{
+            const ls = spawn(this.converterBinaryPath, [path.join(dir,'info.json')]);
+            ls.on('close', (code) => {
+                resolve();
+            });
+        });
+    }
+    checkJava64(){
+        return new Promise(resolve=>{
+            const ls = spawn('java', ['-d64','-version']);//,{env: process.env}
+            let isInstalled = false;
+            let callback = (data) => {
+                resolve(!~data.indexOf("Please install the desired version."));
+            };
+            ls.stdout.on('data', callback);
+            ls.stderr.on('data', callback);
+
+        });
+    }
+    signAPK(dir){
+        return new Promise(resolve=>{
+            const ls = spawn('java', ['-jar',this.questUberSignerPath,'','']);
+            ls.on('close', (code) => {
+                resolve();
+            });
+        });
+    }
+    questSaberPatch(dir){
+        return new Promise(resolve=>{
+            const ls = spawn(this.questSaberBinaryPath, []);
+            ls.on('close', (code) => {
+                resolve();
+            });
+        });
+    }
+    async patchAPK() {
+        return new Promise((resolve,reject)=>{
+            fs.copyFile(this.beatBackupPath, this.beatBackupPath+"_patched.apk", (err) => {
+                if (err) return reject(err);
+                this.questSaberPatch(dir)
+                    .then(()=>this.signAPK(dir));
+            });
+        })
+    }
+    downloadAppSigner(){
+        let url = 'https://github.com/patrickfav/uber-apk-signer/releases/download/v1.0.0/uber-apk-signer-1.0.0.jar';
+        let urlParts = url.split('/');
+        let downloadPath = path.join(appData, urlParts[urlParts.length - 1]);
+        if(this.app.setup.doesFileExist(downloadPath)) return Promise.resolve();
+        return new Promise((resolve,reject)=> {
+            this.app.setup.downloadFile(url, url, url, () => downloadPath)
+                .then(path => {
+                    this.questUberSignerPath = path;
+                    return resolve();
+                });
+        });
+    }
+    downloadQuestSaberPatch(){
+        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.2.0/questsaberpatch-v0.2-';
+        let name = 'windows.zip';
         switch (os.platform()) {
             case 'win32':
-                downloadUrl = song_converter_WIN;
+                name = 'app.exe';
                 break;
             case 'darwin':
-                downloadUrl = song_converter_MAC;
+                name = 'app';
                 break;
             case 'linux':
-                downloadUrl = song_converter_LIN;
+                name = 'app';
                 break;
         }
-        let urlParts = downloadUrl.split('/');
-        this.converterBinaryPath = path.join(appData,urlParts[urlParts.length-1]);
-        return new Promise((resolve,reject)=>{
-            request(downloadUrl, requestOptions)
-                .on('error', (error)  => {
-                    debug(`Request Error ${error}`);
-                    reject(error);
-                })
-                .pipe(fs.createWriteStream(this.converterBinaryPath))
-                .on('finish', ()=>resolve());
-        })
+        let downloadPath = path.join(appData, 'saber-quest-patch',name);
+        if(this.app.setup.doesFileExist(downloadPath)) return Promise.resolve();
+        return new Promise((resolve,reject)=> {
+            this.app.setup.downloadFile(url + 'windows.zip', url + 'linux.tar.gz', url + 'osx.tar.gz', downloadUrl => {
+                let urlParts = downloadUrl.split('/');
+                return path.join(appData,urlParts[urlParts.length - 1]);
+            })
+                .then(_path => {
+                    let callback = error => {
+                        if(error) return reject(error);
+                        this.questSaberBinaryPath = _path;
+                        fs.unlink(_path, err => {
+                            if(err) return reject(err);
+                            return resolve();
+                        });
+                    };
+                    if (os.platform() === 'darwin' || os.platform() === 'linux') {
+                        targz.decompress({
+                            src: _path,
+                            dest: path.join(appData, 'saber-quest-patch')
+                        }, callback);
+                        return this.setExecutable()
+                            .then(() => resolve());
+                    }else{
+                        extract(_path, {dir: path.join(appData, 'saber-quest-patch')}, callback);
+                    }
+                });
+        });
+    }
+    downloadConverterBinary(){
+        let url = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.2/songe-converter';
+        let name = 'windows.zip';
+        switch (os.platform()) {
+            case 'win32':
+                name = '.exe';
+                break;
+            case 'darwin':
+                name = '-mac';
+                break;
+            case 'linux':
+                name = '';
+                break;
+        }
+        let urlParts = (url+name).split('/');
+        let downloadPath = path.join(appData, urlParts[urlParts.length - 1]);
+        if(this.app.setup.doesFileExist(downloadPath)) return Promise.resolve();
+        return new Promise((resolve,reject)=> {
+            this.app.setup.downloadFile(url + '.exe', url, url + '-mac', downloadUrl => {
+                let urlParts = downloadUrl.split('/');
+                return path.join(appData, urlParts[urlParts.length - 1]);
+            })
+                .then(path => {
+                    this.converterBinaryPath = path;
+                    if (os.platform() === 'darwin' || os.platform() === 'linux') {
+                        return this.setExecutable()
+                            .then(() => resolve());
+                    } else {
+                        return resolve()
+                    }
+                });
+        });
     }
     removeSong(id){
         return this.app.setup.adb.shell(this.app.setup.deviceSerial,'rm -r '+path.posix.join(this.customLevels,id));
@@ -66,7 +163,23 @@ class Bsaber{
             fs.rmdirSync(path);
         }
     }
-    isBeatSaberInstalled(){
+    async backUpBeatSaberBinary(){
+        if(this.app.setup.doesFileExist(this.beatBackupPath)) return Promise.reject("File already exists");
+        if(!~this.app.setup.devicePackages.indexOf(this.beatSaberPackage)) return Promise.reject("Not installed");
+        return this.app.setup.adb.shell(this.app.setup.deviceSerial,'pm path '+this.beatSaberPackage)
+            .then(adb.util.readAll)
+            .then(res=>res.toString().trim())
+            .then(apkPath=>this.app.setup.adb.pull(this.app.setup.deviceSerial,apkPath))
+            .then(transfer=>new Promise((resolve, reject)=>{
+                    transfer.on('progress', function(stats) {});
+                    transfer.on('end', resolve);
+                    transfer.on('error', reject);
+                    transfer.pipe(fs.createWriteStream(this.beatBackupPath));
+                }));
+    }
+    async isBeatSaberInstalled(){
+        // await this.app.setup.getPackages();
+        // return ~this.app.setup.devicePackages.indexOf(this.beatSaberPackage);
         return this.app.setup.adb.shell(this.app.setup.deviceSerial,'ls /sdcard/Android/data/')
             .then(adb.util.readAll)
             .then(res=>!!~res.toString().split('\n').map(d=>d.trim()).indexOf('com.beatgames.beatsaber'));
@@ -74,7 +187,12 @@ class Bsaber{
     makeCustomDirectory(){
         return this.app.setup.makeDirectory(this.customLevels);
     }
-    getCurrentDeviceSongs(forceUpdate){
+    getCurrentDeviceSongs(forceUpdate) {
+        if (this.currentSongs && !forceUpdate) return Promise.resolve(this.currentSongs);
+        this.currentSongs = [];
+        return this.currentSongs;
+    }
+    getCurrentDeviceSongsNew(forceUpdate){
         if(this.currentSongs&&!forceUpdate)return Promise.resolve(this.currentSongs);
         return this.app.setup.adb.shell(this.app.setup.deviceSerial,'ls '+this.customLevels)
             .then(adb.util.readAll)

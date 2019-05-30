@@ -1,5 +1,5 @@
 class Setup {
-    constructor(app,callback) {
+     constructor(app,callback) {
         this.app = app;
         this.devicePackages = [];
         this.deviceStatus = 'disconnected';
@@ -7,18 +7,22 @@ class Setup {
         this.adbPath = path.join(appData,'platform-tools');
         this.connection_refresh = document.getElementById('connection-refresh');
         this.connection_refresh_loading = document.getElementById('connection-refresh-loading');
-        this.setupAdb()
+    }
+    async setup(){
+        await this.setupAdb()
             .then(async ()=>{
                 this.updateConnectedStatus(await this.connectedStatus());
-                callback();
                 setInterval(async ()=>{
                     this.updateConnectedStatus(await this.connectedStatus());
                 },5000);
             });
     }
     isAdbDownloaded(){
+        return this.doesFileExist(this.adbPath);
+    }
+    doesFileExist(path){
         try {
-            return fs.existsSync(this.adbPath);
+            return fs.existsSync(path);
         } catch(err) {
             return false;
         }
@@ -125,7 +129,7 @@ class Setup {
             });
     }
     getPackages(){
-        this.adb.getPackages(this.deviceSerial)
+        return this.adb.getPackages(this.deviceSerial)
             .then(packages=>{
                 this.devicePackages = packages;
             });
@@ -184,46 +188,89 @@ class Setup {
                 return 'adb';
         }
     }
-    async downloadTools(){
-        document.getElementById('connection-status-message').innerHTML = 'Please see the Setup screen to get started. - <a class="help-link">Setup</a> ';
-        setTimeout(()=>{
-            document.getElementById('connection-status-message').innerHTML = 'Downloading ADB please wait...';
-        },3000);
-        const WINDOWS_URL = 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip';
-        const LINUX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip';
-        const OSX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip';
-        let downloadUrl = LINUX_URL;
+    async downloadFile(winUrl, linUrl, macUrl, getPath){
+        const requestOptions = {timeout: 30000, 'User-Agent': this.getUserAgent()};
+        let downloadUrl = linUrl;
         switch (os.platform()) {
             case 'win32':
-                downloadUrl = WINDOWS_URL;
+                downloadUrl = winUrl;
                 break;
             case 'darwin':
-                downloadUrl = OSX_URL;
+                downloadUrl = macUrl;
                 break;
             case 'linux':
-                downloadUrl = LINUX_URL;
+                downloadUrl = linUrl;
                 break;
         }
-        let zipPath = this.adbPath+".zip";
-        const requestOptions = {timeout: 30000, 'User-Agent': this.getUserAgent()};
+        if(!downloadUrl)return;
+        console.log(downloadUrl);
+        let downloadPath = getPath(downloadUrl);
         return new Promise((resolve,reject)=>{
             request(downloadUrl, requestOptions)
                 .on('error', (error)  => {
                     debug(`Request Error ${error}`);
                     reject(error);
                 })
-                .pipe(fs.createWriteStream(zipPath))
-                .on('finish', ()  => {
-                    extract(zipPath, {dir: appData},(error) => {
-                        if(error) {
-                            reject(error);
-                        }else{
-                            fs.unlink(zipPath, (err) => {
-                                resolve();
-                            });
-                        }
-                    });
+                .pipe(fs.createWriteStream(downloadPath))
+                .on('finish', ()=>{
+                    return resolve(downloadPath);
                 });
         })
+    }
+    async downloadTools(){
+        document.getElementById('connection-status-message').innerHTML = 'Please see the Setup screen to get started. - <a class="help-link">Setup</a> ';
+        setTimeout(()=>{
+            document.getElementById('connection-status-message').innerHTML = 'Downloading ADB please wait...';
+        },3000);
+        let url = 'https://dl.google.com/android/repository/platform-tools-latest-';
+        return new Promise((resolve,reject)=>{
+            this.downloadFile(url+'windows.zip',url+'linux.zip',url+'darwin.zip',url=>this.adbPath+".zip")
+                .then(path=>extract(path, {dir: appData},(error) => {
+                    if(error) {
+                        reject(error);
+                    }else{
+                        fs.unlink(path, err => {
+                            if(err) return reject(err);
+                            resolve();
+                        });
+                    }
+                }));
+        });
+        // const WINDOWS_URL = 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip';
+        // const LINUX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-linux.zip';
+        // const OSX_URL = 'https://dl.google.com/android/repository/platform-tools-latest-darwin.zip';
+        // let downloadUrl = LINUX_URL;
+        // switch (os.platform()) {
+        //     case 'win32':
+        //         downloadUrl = WINDOWS_URL;
+        //         break;
+        //     case 'darwin':
+        //         downloadUrl = OSX_URL;
+        //         break;
+        //     case 'linux':
+        //         downloadUrl = LINUX_URL;
+        //         break;
+        // }
+        // let zipPath = this.adbPath+".zip";
+        // const requestOptions = {timeout: 30000, 'User-Agent': this.getUserAgent()};
+        // return new Promise((resolve,reject)=>{
+        //     request(downloadUrl, requestOptions)
+        //         .on('error', (error)  => {
+        //             debug(`Request Error ${error}`);
+        //             reject(error);
+        //         })
+        //         .pipe(fs.createWriteStream(zipPath))
+        //         .on('finish', ()  => {
+        //             extract(zipPath, {dir: appData},(error) => {
+        //                 if(error) {
+        //                     reject(error);
+        //                 }else{
+        //                     fs.unlink(zipPath, (err) => {
+        //                         resolve();
+        //                     });
+        //                 }
+        //             });
+        //         });
+        // })
     }
 }

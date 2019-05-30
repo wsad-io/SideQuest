@@ -16,8 +16,6 @@ class Repos {
         this.openMenuRepos();
         fs.readFile(appData + "/sources.txt",'utf8',(err,data)=>{
             if(!err){
-                this.app.toggleLoader(true);
-                this.app.spinner_loading_message.innerText = 'Loading default repos';
                 let done = ()=>{
                     this.openMenuRepos();
                     this.app.toggleLoader(false);
