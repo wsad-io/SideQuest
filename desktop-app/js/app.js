@@ -101,12 +101,16 @@ class App{
             e.preventDefault();
             this.spinner_drag.style.display = 'none';
             this.spinner_background.style.display = 'none';
-            for (let f of e.dataTransfer.files) {
+            const allowedFiles = ["application/vnd.android.package-archive"]//, "application/x-zip-compressed"]
+            let installableFiles = Object.keys(e.dataTransfer.files).filter((val, index) => {
+                return allowedFiles.includes(e.dataTransfer.files[index].type)
+            })
+            installableFiles.forEach((val, index) => {
                 this.spinner_loading_message.innerText = 'Installing APK, Please wait...';
                 this.toggleLoader(true);
-                this.setup.installLocalApk(f.path)
-                    .then(()=>this.toggleLoader(false));
-            }
+                this.setup.installLocalApk(e.dataTransfer.files[val].path)
+                    .then(() => this.toggleLoader(false));
+            })
             return false;
         };
     }
