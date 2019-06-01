@@ -15,11 +15,11 @@
     "md5": "^2.2.1",
     "opn": "^6.0.0",
     "request": "^2.88.0",
-    "semver": "^6.0.0"
+    "semver": "^6.0.0",
+    "targz": "^1.0.1"
   },
   "devDependencies": {
     "electron": "^4.1.4",
-    "electron-rebuild": "^1.8.4",
-    "targz": "^1.0.1"
+    "electron-rebuild": "^1.8.4"
   }
 }

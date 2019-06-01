@@ -4,6 +4,9 @@ class Repos {
         this.template = document.querySelector('#repoItem');
         this.menuTemplate = document.querySelector('#menuItem');
         this.repos = [];
+        this.repoCount = 0;
+    }
+    setupRepos(){
         this.app.add_repo_button.addEventListener('click',()=>{
             this.addRepoInput(this.app.add_repo_url.value)
                 .then(()=>{
@@ -12,6 +15,7 @@ class Repos {
                     this.saveRepos();
                     this.app.add_repo_url.value = '';
                 });
+
         });
         this.openMenuRepos();
         fs.readFile(appData + "/sources.txt",'utf8',(err,data)=>{
@@ -33,6 +37,8 @@ class Repos {
             fs.unlinkSync(cachePath);
         }
         this.repos.splice(index,1);
+        this.repoCount--;
+        this.app.showStatus('Repo Deleted!!');
     }
     saveRepos(){
         fs.writeFile(appData + "/sources.txt",this.repos.map(d=>d.url).join('\n'),err=>{
@@ -41,17 +47,23 @@ class Repos {
     }
     openMenuRepos(){
         this.app.menu_container.innerHTML = '';
+        this.repos.sort((a, b)=>a.order - b.order);
         this.repos.forEach((r,i)=>{
             let child = this.menuTemplate.content.cloneNode(true);
             child.querySelector('.menu-name').innerText = r.name;
             child.querySelector('.menu-icon').src = r.url+'icons/'+r.icon;
-            child.querySelector('.menu-item-inner').addEventListener('click',()=>this.openRepo(r));
+            let menu_item_inner = child.querySelector('.menu-item-inner');
+            menu_item_inner.dataset.tooltip = r.body.repo.description;
+            menu_item_inner.addEventListener('click',()=>this.openRepo(r));
             this.app.menu_container.appendChild(child);
         });
+        M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
     }
     async openRepo(repo){
         this.app.current_data = repo;
+        this.app.sync_songs.style.display = 'none';
         this.app.add_repo.style.display = 'none';
+        this.app.sync_songs_now.style.display = 'none';
         this.app.container.innerHTML = '<h4 class="grey-text">Loading apps...</h4>';
         this.app.searchFilterContainer.style.display = 'block';
         this.app.title.innerHTML = repo.name;
@@ -62,9 +74,14 @@ class Repos {
     }
     openRepos(){
         this.app.add_repo.style.display = 'block';
+        this.app.sync_songs.style.display = 'none';
+        this.app.sync_songs_now.style.display = 'none';
         this.app.container.innerHTML = '';
         this.app.searchFilterContainer.style.display = 'none';
         this.app.title.innerHTML = "F-Droid Repos";
+        this.app.beatView.style.left = '-100%';
+        this.app.apkInstall.style.display = 'block';
+        this.app.browser_bar.style.display = 'none';
         this.repos.forEach((r,i)=>{
             let child = this.template.content.cloneNode(true);
             child.querySelector('.repo-description').innerText = r.name+" - "+r.url;
@@ -75,17 +92,17 @@ class Repos {
                 this.openRepos();
                 this.openMenuRepos();
             });
-            child.querySelector('.update-repo').addEventListener('click',()=>{
-                let url = r.url;
-                this.deleteRepo(i);
-                this.addRepoInput(url)
-                    .then(()=>{
-                        this.saveRepos();
-                        this.openRepos();
-                        this.openMenuRepos();
-                    });
-
-            });
+            // child.querySelector('.update-repo').addEventListener('click',()=>{
+            //     let url = r.url;
+            //     this.deleteRepo(i);
+            //     this.addRepoInput(url)
+            //         .then(()=>{
+            //             this.saveRepos();
+            //             this.openRepos();
+            //             this.openMenuRepos();
+            //         });
+            //
+            // });
             this.app.container.appendChild(child);
         });
     }
@@ -100,43 +117,46 @@ class Repos {
         return this.addRepo(url)
             .then(()=>{
                 this.app.toggleLoader(false);
+                this.app.showStatus('Repo added.');
             })
             .catch(error=>{
                 alert(error);
                 this.app.toggleLoader(false);
+                this.app.showStatus('Problem adding repo...',true);
             });
     }
     addRepo(url){
         this.app.spinner_loading_message.innerText = 'Loading '+url;
+        let index  = ++this.repoCount;
         url = url.trim();
         if(url[url.length -1] !== '/'){
             url+='/';
         }
         return new Promise(async (resolve,reject)=>{
-            let isCached = false;
-            const cachePath = path.join(__dirname,'sources',md5(url)+".json");
-            if(fs.existsSync(cachePath)){
-                isCached = true;
-                await new Promise(_resolve=>{
-                    fs.readFile(cachePath,'utf8',(err,data)=>{
-                        if(err){
-                            fs.unlink(cachePath);
-                            isCached = false;
-                            return _resolve();
-                        }
-                        try{
-                            let source = JSON.parse(data);
-                            resolve(source);
-                            _resolve();
-                        }catch(e){
-                            fs.unlink(cachePath);
-                            isCached = false;
-                            _resolve();
-                        }
-                    })
-                })
-            }
-            if(isCached)return;
+            // let isCached = false;
+            // const cachePath = path.join(__dirname,'sources',md5(url)+".json");
+            // if(fs.existsSync(cachePath)){
+            //     isCached = true;
+            //     await new Promise(_resolve=>{
+            //         fs.readFile(cachePath,'utf8',(err,data)=>{
+            //             if(err){
+            //                 fs.unlink(cachePath);
+            //                 isCached = false;
+            //                 return _resolve();
+            //             }
+            //             try{
+            //                 let source = JSON.parse(data);
+            //                 resolve(source);
+            //                 _resolve();
+            //             }catch(e){
+            //                 fs.unlink(cachePath);
+            //                 isCached = false;
+            //                 _resolve();
+            //             }
+            //         })
+            //     })
+            // }
+            // if(isCached)return;
             if(~this.repos.map(d=>d.url).indexOf(url)){
                 reject("Repo already added!");
             }
@@ -145,9 +165,9 @@ class Repos {
                 if(error){
                     return reject(error);
                 }else{
-                    fs.writeFile(appData+'/sources/'+md5(url)+".json",body,err=>{
-                        if(err)alert("Failed to cache source ( url ):" + err);
-                    });
+                    // fs.writeFile(appData+'/sources/'+md5(url)+".json",body,err=>{
+                    //     if(err)alert("Failed to cache source ( url ):" + err);
+                    // });
                     try{
                         let repo_body = JSON.parse(body);
                         if(!this.isValidRepo(repo_body)){
@@ -161,7 +181,7 @@ class Repos {
                 }
             })
         }).then(repo=>{
-            this.repos.push({name:repo.repo.name,icon:repo.repo.icon,url:url,body:repo,categories:repo.apps.reduce((a,b)=>{
+            this.repos.push({name:repo.repo.name,icon:repo.repo.icon,url:url,order:index,body:repo,categories:repo.apps.reduce((a,b)=>{
                 b.icon = url+"icons/"+b.icon;
                 return a.concat(b.categories);
             },[]).filter((v,i,self)=>self.indexOf(v) === i)});

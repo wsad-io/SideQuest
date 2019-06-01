@@ -4,6 +4,7 @@ html,body{
     padding: 0;
     margin: 0;
     background: transparent;
+    overflow-x: hidden;
 }
 *{
     box-sizing: border-box;
@@ -48,6 +49,14 @@ html,body{
     height:100%;
     padding-left: 135px;
 }
+.modal-fixed-width{
+    width: 890px;
+}
+.video-menu{
+    display: block;
+    color: white;
+    outline: none;
+}
 .body-content{
     height:calc(100% - 135px);
     width: 100%;
@@ -65,11 +74,12 @@ html,body{
     border-top-left-radius: 40px;
 }
 .menu-items{
-    height:calc(100% - 420px);
+    margin-top: 92px;
+    height:calc(100% - 361px);
     overflow: hidden;
     overflow-y: auto;
-    padding-bottom: 25px;
     border-bottom: 1px solid #afafaf;
+    border-top: 1px solid #afafaf;
 }
 .logo{
     background: #4f5858 url("logo.png") center center no-repeat;
@@ -108,15 +118,34 @@ html,body{
     font-size: 2rem;
     display: block;
 }
+.side-sub-menu{
+    vertical-align: middle;
+}
 .menu-icon{
     font-size: 2rem;
     max-width: 48px;
 }
+.fixed-menu-icon{
+    font-size: 1.8rem;
+    max-width: 25px;
+    vertical-align: middle;
+}
 .chip-padding{
     padding-top: 4px!important;
 }
-.menu-item,.menu-item-setup,.menu-item-repo,.menu-item-beat{
-    padding: 25px 20px 0 20px;
+.icon-text{
+    height: 26px;
+    line-height: 1.8;
+    text-align: left;
+}
+.no-margin{
+    margin: 0;
+}
+.no-padding{
+    padding: 0;
+}
+.menu-item,.menu-item-setup,.menu-item-repo,.menu-item-beat,.menu-item-video{
+
     font-family: 'Roboto', sans-serif;
     color: white;
     position:relative;
@@ -130,17 +159,21 @@ html,body{
     height: 100%;
     top:0;
 }
-.menu-item-setup,.menu-item-repo,.menu-item-beat{
+.menu-item-setup,.menu-item-repo,.menu-item-beat,.menu-item-video{
     position:absolute;
-    bottom: 20px;
+    bottom: 0px;
     left:0;
     width: 135px;
 }
 .menu-item-beat{
-    bottom: 180px;
+    top: 135px;
+    height: 92px;
 }
 .menu-item-repo{
-    bottom: 100px;
+    bottom: 92px;
+}
+.menu-item-video{
+    bottom: 46px;
 }
 .menu-item-inner:hover{
     cursor: pointer;
@@ -152,7 +185,7 @@ html,body{
     display: block;
     position: absolute;
     right: 0;
-    top: 50%;
+    top: calc(50% - 10px);
     border-color: transparent;
     border-right-color: #fff;
     border-width: 10px;
@@ -162,8 +195,12 @@ html,body{
 }
 .menu-item-inner{
     text-align: center;
-    padding-top:5px;
-    padding-bottom:5px;
+    padding-top:15px;
+    padding-bottom:15px;
+}
+.menu-item-inner.side-sub-menu{
+    padding-top:8px;
+    padding-bottom:8px;
 }
 .filter{
     width: 200px;
@@ -177,7 +214,7 @@ html,body{
 .search{
     position:absolute;
     top: 60px;
-    right: 36px;
+    right: -10px;
     -webkit-app-region: no-drag;
 }
 .search-box{
@@ -228,38 +265,42 @@ html,body{
     height: 20px;
     border-radius: 10px;
     position: absolute;
-    right: 17px;
-    top: 57px;
+    right: 200px;
+    top: 17px;
     -webkit-app-region: no-drag;
 }
 #connection-refresh,#connection-refresh-loading{
+    display:none;
+}
+#device-settings,#installed-apps,#close-app,#open-debugger,#musiclist{
     position: absolute;
     right: 50px;
     top: 15px;
     cursor: pointer;
     -webkit-app-region: no-drag;
+    z-index: 99;
+    color: #4f4f4f;
 }
 .is-installed{
     display: none;
 }
 #open-debugger{
-    position: absolute;
-    z-index: 9999;
+    right: 50px;
+}
+#device-settings{
     right: 85px;
-    top: 15px;
-    cursor: pointer;
-    -webkit-app-region: no-drag;
+}
+#musiclist{
+    right: 155px;
+}
+#installed-apps{
+    right: 120px;
+}
+#close-app{
+    right: 15px;
 }
 .package-height{
     height: 40px;
-}
-#installed-apps{
-    position: absolute;
-    z-index: 9999;
-    right: 130px;
-    top: 15px;
-    cursor: pointer;
-    -webkit-app-region: no-drag;
 }
 .connection-status-connected{
     background-color:#4caf50;
@@ -279,6 +320,11 @@ html,body{
 .link{
     color:lightseagreen;
     cursor: pointer;
+}
+.link-white{
+    color:lightcyan;
+    cursor: pointer;
+    text-decoration: underline;
 }
 .setup-image{
     width: 100%;
@@ -300,14 +346,6 @@ html,body{
     left: 15px;
     display: none;
 }
-#close-app{
-    position: absolute;
-    z-index: 9999;
-    right: 15px;
-    top: 15px;
-    cursor: pointer;
-    -webkit-app-region: no-drag;
-}
 .help-link{
     cursor: pointer;
     -webkit-app-region: no-drag;
@@ -315,11 +353,32 @@ html,body{
 .fixed-height{
     height: 300px;
 }
-.add-repo{
+.status-bar,.status-bar-warning{
+    display:none;
+    background-color: #4caf50;
+    position:fixed;
+    z-index: 10;
+    bottom: 0px;
+    color: white;
+    width: calc(100% - 135px);
+    padding: 5px;
+    padding-left: 10px;
+}
+.status-bar-warning{
+    background-color: #ff9800;
+}
+.add-repo,.sync-songs,.sync-songs-now{
     position: absolute;
-    top: 90px;
-    left: 30px;
+    display:none;
+    top: 85px;
+    right: 15px;
     -webkit-app-region: no-drag;
+}
+.sync-songs-now{
+    top: 45px;
+}
+.update-repo,.delete-repo,.restore-backup{
+    padding-top: 4px;
 }
 .edit-repo{
     font-size: 14px;
@@ -331,7 +390,10 @@ html,body{
     max-height: initial;
     height: 260px;
 }
-
+#dataBackupsContainer{
+    margin-bottom: 20px;
+    margin-top:20px;
+}
 .loader-initial {
     border: 16px solid #f3f3f3; /* Light grey */
     border-top: 16px solid #0094ca; /* Blue */

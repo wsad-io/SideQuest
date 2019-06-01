@@ -56,31 +56,38 @@ class Setup {
         }
         if(this.deviceStatus !== 'connected'){
             document.getElementById('connection-ip-address').innerHTML = '';
-            this.app.enable_wifi.style.display = 'none';
+           // this.app.enable_wifi.style.display = 'none';
         }
     }
-    installLocalApk(path){
-        return this.adb.install(this.deviceSerial, fs.createReadStream(path))
-            .catch(e=>{
-                alert(e);
+    installLocalApk(path,dontCatchError){
+        let p = this.adb.install(this.deviceSerial, fs.createReadStream(path));
+        if(!dontCatchError){
+            p = p.catch(e=>{
+                console.log('here');
                 this.app.toggleLoader(false);
+                this.app.showStatus(e.toString(),true,true);
             });
+        }
+        return p;
     }
     installApk(url){
         return this.adb.install(this.deviceSerial, new Readable().wrap(request(url)))
             .catch(e=>{
-                alert(e);
                 this.app.toggleLoader(false);
+                this.app.showStatus(e.toString(),true,true);
             });
     }
     uninstallApk(pkg){
         this.app.spinner_loading_message.innerText = 'Uninstalling '+pkg;
         this.app.toggleLoader(true);
         return this.adb.uninstall(this.deviceSerial, pkg)
-            .then(()=>this.app.toggleLoader(false))
-            .catch(e=>{
-                alert(e);
+            .then(()=>{
                 this.app.toggleLoader(false);
+                this.app.showStatus('APK uninstalled!!');
+            })
+            .catch(e=>{
+                this.app.toggleLoader(false);
+                this.app.showStatus(e.toString(),true,true);
             });
     }
     enableWifiMode(){
@@ -120,6 +127,16 @@ class Setup {
             return false;
         }
     }
+    async getFolders(root) {
+        return this.app.setup.adb.shell(this.app.setup.deviceSerial, 'ls ' + root)
+            .then(adb.util.readAll)
+            .then(res => {
+                return res.toString().split('\n').reduce((a,b)=>{
+                    a = a.concat(b.split(' ').filter(d=>d).map(d=>d.trim()));
+                    return a;
+                },[]);
+            });
+    }
     getPackageInfo(packageName){
         return this.adb.shell(this.deviceSerial,'dumpsys package '+packageName+"  | grep versionName")
             .then(adb.util.readAll)
@@ -139,17 +156,17 @@ class Setup {
             await this.downloadTools();
         }
         this.adb = adb.createClient({bin:path.join(this.adbPath,this.getAdbBinary())});
-        this.connection_refresh.addEventListener('click',async ()=>this.updateConnectedStatus(await this.connectedStatus()));
+        //this.connection_refresh.addEventListener('click',async ()=>this.updateConnectedStatus(await this.connectedStatus()));
     }
     async connectedStatus(){
-        this.connection_refresh_loading.style.display = 'block';
-        this.connection_refresh.style.display = 'none';
+        // this.connection_refresh_loading.style.display = 'block';
+        // this.connection_refresh.style.display = 'none';
         return this.adb.listDevices()
             .then((devices) =>{
-                setTimeout(()=>{
-                    this.connection_refresh_loading.style.display = 'none';
-                    this.connection_refresh.style.display = 'block';
-                },100);
+                // setTimeout(()=>{
+                //     this.connection_refresh_loading.style.display = 'none';
+                //     this.connection_refresh.style.display = 'block';
+                // },100);
                 if(devices.length === 1){
                     this.deviceSerial = devices[0].id;
                     if(devices[0].type === 'device') {
