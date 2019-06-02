@@ -111,6 +111,7 @@ class App{
         M.AutoInit();
         this.mkdir(appData)
             .then(()=>this.mkdir(path.join(appData,'bsaber-backups')))
+            .then(()=>this.mkdir(path.join(appData,'tmp')))
             .then(()=>this.mkdir(path.join(appData,'bsaber-data-backups')))
             .then(()=>this.mkdir(path.join(appData,'bsaber')))
             .then(()=>this.mkdir(path.join(appData,'saber-quest-patch')))
@@ -314,12 +315,35 @@ class App{
             e.preventDefault();
             this.spinner_drag.style.display = 'none';
             this.spinner_background.style.display = 'none';
-            for (let f of e.dataTransfer.files) {
-                this.spinner_loading_message.innerText = 'Installing APK, Please wait...';
-                this.toggleLoader(true);
-                this.setup.installLocalApk(f.path)
-                    .then(()=>this.toggleLoader(false));
+            const typeBasedActions = {
+                ".apk" : function(filepath, bind){
+                    bind.setup.installLocalApk(filepath)
+                        .then(() => bind.toggleLoader(false));    
+                },
+                ".obb" : function(filepath, bind){
+                    if(path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)){
+                        bind.setup.installLocalObb(filepath)
+                            .then(() => bind.toggleLoader(false));
+                    }else{
+                        console.log("Invalid OBB")
+                        bind.toggleLoader(false);
+                    }
+                     
+                },
+                ".zip" : function(filepath, bind){
+                    bind.setup.installLocalZip(filepath, false, () => bind.toggleLoader(false))
+                }
             }
+            let installableFiles = Object.keys(e.dataTransfer.files).filter((val, index) => {
+                return Object.keys(typeBasedActions).includes(path.extname(e.dataTransfer.files[index].name))
+            })
+            installableFiles.forEach((val, index) => {
+                let filepath = e.dataTransfer.files[val].path
+                console.log("Installing", filepath)
+                this.spinner_loading_message.innerText = `Installing ${filepath}, Please wait...`;
+                this.toggleLoader(true);
+                typeBasedActions[path.extname(filepath)](filepath, this)
+            })
             return false;
         };
     }
@@ -559,12 +583,8 @@ class App{
             this.browser_loading.style.display = 'none';
             this.beatView.insertCSS(customCss);
             if(this.bsaber){
-                //let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
-                //if(isBeatSaberInstalled){
-                   // this.bsaber.makeCustomDirectory()
                 this.beatView.executeJavaScript(customJS);
                 this.bsaber.getCurrentDeviceSongs();
-                //}
             }
         });
         send_button.addEventListener('click',()=>{
