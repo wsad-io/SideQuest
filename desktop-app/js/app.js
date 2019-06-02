@@ -110,6 +110,7 @@ class App{
         M.AutoInit();
         this.mkdir(appData)
             .then(()=>this.mkdir(path.join(appData,'bsaber-backups')))
+            .then(()=>this.mkdir(path.join(appData,'tmp')))
             .then(()=>this.mkdir(path.join(appData,'bsaber-data-backups')))
             .then(()=>this.mkdir(path.join(appData,'bsaber')))
             .then(()=>this.mkdir(path.join(appData,'saber-quest-patch')))

@@ -102,10 +102,10 @@ class Setup {
         }
         path.basename(filepath)
         this.cleanUpFolder()
-        extract(filepath, {dir: `${__dirname}/tmp/`}, extractErr =>{
+        extract(filepath, {dir: path.join(appData,'tmp')}, extractErr =>{
             if(!extractErr){
                 console.log("Extracted Zip")
-                fs.readdir(`${__dirname}/tmp/`, (readErr, files) => {
+                fs.readdir(path.join(appData,'tmp'), (readErr, files) => {
                     let installableFiles = Object.keys(files).filter((val, index) => {
                         return Object.keys(typeBasedActions).includes(path.extname(files[index]))
                     })
@@ -120,7 +120,7 @@ class Setup {
         })
         cb()
     }
-    cleanUpFolder(folderPath = `${__dirname}/tmp/`){ 
+    cleanUpFolder(folderPath = path.join(appData,'tmp')){ 
         fs.readdir(folderPath, (readErr, files) => {
             files.forEach((val, index) => {
                 fs.unlink(folderPath + val, delErr => {
