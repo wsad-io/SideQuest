@@ -112,6 +112,10 @@ html,body{
     left: 40px;
     color: #6f6f6f;
     font-family: 'PT Sans', sans-serif;
+    -webkit-app-region: no-drag;
+}
+.margin-top-bottom{
+    margin-bottom: 5px;
 }
 .section-title{
     float: initial;

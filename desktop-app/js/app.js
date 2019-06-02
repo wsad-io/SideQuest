@@ -41,6 +41,7 @@ class App{
         this.setup_menu = document.querySelector('.setup-menu');
         this.add_menu = document.querySelector('.add-menu');
         this.enable_wifi = document.querySelector('#enable-wifi');
+
         ipcRenderer.on('open-url',(event , data)=>{
             this.open_url_custom = data;
             if(this.open_url_custom){
@@ -558,13 +559,12 @@ class App{
             this.browser_loading.style.display = 'none';
             this.beatView.insertCSS(customCss);
             if(this.bsaber){
-                let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
-                if(isBeatSaberInstalled){
-                    this.bsaber.makeCustomDirectory()
-                        .then(()=>this.beatView.executeJavaScript(customJS))
-                        .then(()=>this.bsaber.getCurrentDeviceSongs());
-                    ;
-                }
+                //let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
+                //if(isBeatSaberInstalled){
+                   // this.bsaber.makeCustomDirectory()
+                this.beatView.executeJavaScript(customJS);
+                this.bsaber.getCurrentDeviceSongs();
+                //}
             }
         });
         send_button.addEventListener('click',()=>{
@@ -748,9 +748,16 @@ class App{
         this.title.innerHTML = "Beast Saber Custom Levels";
         this.beatView.style.left = '-100%';
         this.apkInstall.style.display = 'block';
+        this.apkInstall.innerHTML = `Special thanks to 
+<span class="link" data-url="https://github.com/trishume/QuestSaberPatch">@trishume</span>, 
+<span class="link" data-url="https://github.com/emulamer/QuestStopgap">@emulamer</span>
+and of course 
+<span class="link" data-url="https://bsaber.com/members/elliotttate/">@elliotttate</span> for beat saber efforts.`;
+        [].slice.call(this.apkInstall.querySelectorAll('.link')).forEach(link=>{
+            link.addEventListener('click',()=>this.openExternalLink(link.dataset.url));
+        });
         this.browser_bar.style.display = 'none';
         let songs = (this.songs||[]);
-        this.bsaber.isBeatSaberInstalled();
         if(await this.bsaber.isBeatSaberInstalled()){
             this.container.innerHTML = songs.length?'':'<h4>Nothing here yet...</h4>';
             songs.forEach(song=>{
@@ -794,6 +801,7 @@ class App{
         this.title.innerHTML = "Device Settings & Tools";
         this.beatView.style.left = '-100%';
         this.apkInstall.style.display = 'block';
+        this.apkInstall.innerHTML = 'Drag an APK file over this window to install. See Setup to get started.';
         this.browser_bar.style.display = 'none';
 
         let child = this.deviceSettings.content.cloneNode(true);
@@ -889,6 +897,40 @@ class App{
         document.getElementById('devicePasteType').addEventListener('change',function(){
             devicePaste.setAttribute('type',this.checked?'password':'text');
         });
+        document.querySelector('.open-main-app-folder').addEventListener('click',()=>{
+            shell.openItem(appData);
+        });
+
+        document.querySelector('.open-adb-folder').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'platform-tools'));
+        });
+        //
+        // document.querySelector('.open-adb-command-window').addEventListener('click',()=>{
+        //     switch (os.platform()) {
+        //         case 'win32':
+        //             spawn(path.join(__dirname,'command.cmd'), [],{cwd: path.join(appData,'platform-tools'), detached: true });
+        //             break;
+        //         case 'darwin':
+        //             this.showStatus('comming to mac soon!');
+        //             break;
+        //         case 'linux':
+        //             this.showStatus('comming to linux soon!');
+        //             break;
+        //     }
+        // });
+        document.querySelector('.open-bsaber-folder').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'bsaber'));
+        });
+        document.querySelector('.open-bsaber-backup-folder').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'bsaber-backups'));
+        });
+        document.querySelector('.open-bsaber-data-backup-folder').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'bsaber-data-backups'));
+        });
+        document.querySelector('.open-bsaber-patch-folder').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'saber-quest-patch'));
+        });
+
     }
     openSetupScreen(){
         this.add_repo.style.display = 'none';
@@ -899,6 +941,7 @@ class App{
         this.title.innerHTML = "Setup Instructions";
         this.beatView.style.left = '-100%';
         this.apkInstall.style.display = 'block';
+        this.apkInstall.innerHTML = 'Drag an APK file over this window to install. See Setup to get started.';
         this.browser_bar.style.display = 'none';
 
         let child = this.setupInstructions.content.cloneNode(true);

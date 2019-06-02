@@ -81,6 +81,7 @@ class Repos {
         this.app.title.innerHTML = "F-Droid Repos";
         this.app.beatView.style.left = '-100%';
         this.app.apkInstall.style.display = 'block';
+        this.app.apkInstall.innerHTML = 'Drag an APK file over this window to install. See Setup to get started.';
         this.app.browser_bar.style.display = 'none';
         this.repos.forEach((r,i)=>{
             let child = this.template.content.cloneNode(true);

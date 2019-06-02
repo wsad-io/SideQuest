@@ -6,9 +6,9 @@ class Bsaber{
         this.beatBackupPath = path.join(appData,'bsaber-backups',this.beatSaberPackage);
         this.supportedBeatSaberVersion = '1.0.0';
     }
-    setExecutable(){
+    setExecutable(path){
         return new Promise((resolve)=>{
-            const ls = spawn('chmod', ['+x',this.converterBinaryPath]);
+            const ls = spawn('chmod', ['+x',path]);
             ls.on('close', (code) => {
                 resolve();
             });
@@ -35,7 +35,7 @@ class Bsaber{
     }
     signAPK(dir){
         return new Promise(resolve=>{
-            const ls = spawn('java', ['-jar',this.questUberSignerPath,'-a',dir,'--overwrite']);
+            const ls = spawn('java', ['-jar',this.questUberSignerPath,'-a','"'+dir+'"','--overwrite']);
             ls.on('close', (code) => {
                 resolve();
             });
@@ -50,7 +50,7 @@ class Bsaber{
         return new Promise((resolve,reject)=>{
             fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(json));
             const exec = require('child_process').exec;
-            exec(this.questSaberBinaryPath+' < '+path.join(appData,'__json.json'), function(err, stdout, stderr) {
+            exec('"'+this.questSaberBinaryPath+'" < "'+path.join(appData,'__json.json')+'"', function(err, stdout, stderr) {
                 if (err) {
                     return reject(err);
                 }
@@ -112,10 +112,10 @@ class Bsaber{
                 name = 'jsonApp.exe';
                 break;
             case 'darwin':
-                name = 'jsonApp';
+                name = 'questsaberpatch/jsonApp';
                 break;
             case 'linux':
-                name = 'jsonApp';
+                name = 'questsaberpatch/jsonApp';
                 break;
         }
         let downloadPath = path.join(appData, 'saber-quest-patch',name);
@@ -131,19 +131,16 @@ class Bsaber{
                         if(error) return reject(error);
                         fs.unlink(_path, err => {
                             if(err) return reject(err);
-                            return resolve();
+                            if (os.platform() === 'darwin' || os.platform() === 'linux') {
+                                this.setExecutable(this.questSaberBinaryPath)
+                                    .then(() => resolve());
+                            }else{
+                                return resolve();
+                            }
                         });
                     };
-                    if (os.platform() === 'darwin' || os.platform() === 'linux') {
-                        targz.decompress({
-                            src: _path,
-                            dest: path.join(appData, 'saber-quest-patch')
-                        }, callback);
-                        return this.setExecutable()
-                            .then(() => resolve());
-                    }else{
-                        extract(_path, {dir: path.join(appData, 'saber-quest-patch')}, callback);
-                    }
+
+                    extract(_path, {dir: path.join(appData, 'saber-quest-patch')}, callback);
                 });
         });
     }
@@ -175,7 +172,7 @@ class Bsaber{
                 .then(path => {
                     this.converterBinaryPath = path;
                     if (os.platform() === 'darwin' || os.platform() === 'linux') {
-                        return this.setExecutable()
+                        return this.setExecutable(this.converterBinaryPath)
                             .then(() => resolve());
                     } else {
                         return resolve()

@@ -18,7 +18,7 @@ function createWindow () {
         icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png')
     });
     mainWindow.loadFile('desktop-app/index.html');
-    mainWindow.webContents.openDevTools();
+    //mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function () {
         mainWindow = null
     });
