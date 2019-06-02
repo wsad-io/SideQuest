@@ -101,18 +101,19 @@ class Setup {
             }
         }
         path.basename(filepath)
+        this.cleanUpFolder()
         extract(filepath, {dir: `${__dirname}/tmp/`}, extractErr =>{
             if(!extractErr){
                 console.log("Extracted Zip")
                 fs.readdir(`${__dirname}/tmp/`, (readErr, files) => {
-                    let installableFiles = Object.keys(e.dataTransfer.files).filter((val, index) => {
-                        return Object.keys(typeBasedActions).includes(path.extname(e.dataTransfer.files[index].name))
+                    let installableFiles = Object.keys(files).filter((val, index) => {
+                        return Object.keys(typeBasedActions).includes(path.extname(files[index]))
                     })
                     installableFiles.forEach(file => {
                         typeBasedActions[path.extname(filepath)](filepath, this)
                     })
                 })
-                this.cleanUpFolder()
+                
             }else{
                 console.warn(extractErr)
             }
