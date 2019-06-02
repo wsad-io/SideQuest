@@ -59,8 +59,8 @@ class Setup {
            // this.app.enable_wifi.style.display = 'none';
         }
     }
-    installLocalApk(path,dontCatchError){
-        let p = this.adb.install(this.deviceSerial, fs.createReadStream(path));
+    installLocalApk(filepath,dontCatchError){
+        let p = this.adb.install(this.deviceSerial, fs.createReadStream(filepath));
         if(!dontCatchError){
             p = p.catch(e=>{
                 console.log('here');
@@ -69,6 +69,68 @@ class Setup {
             });
         }
         return p;
+    }
+    installLocalObb(filepath,dontCatchError,cb = null){
+        let filename = path.basename(filepath);
+        let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
+        console.log(filename, packageId)
+        let p = this.adb.push(this.deviceSerial, fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`);
+        if(cb){
+            cb()
+        }
+        if(!dontCatchError){
+            p = p.catch(e=>{
+                console.log('here');
+                this.app.toggleLoader(false);
+                this.app.showStatus(e.toString(),true,true);
+            });
+        }
+        return p;
+    }
+    installLocalZip(filepath,dontCatchError,cb){
+        const typeBasedActions = {
+            ".apk" : function(filepath, bind){
+                this.installLocalApk(filepath)    
+            },
+            ".obb" : function(filepath, bind){
+                if(path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)){
+                    this.installLocalObb(filepath)
+                }else{
+                    console.log("Invalid OBB")
+                }    
+            }
+        }
+        path.basename(filepath)
+        this.cleanUpFolder()
+        extract(filepath, {dir: path.join(appData,'tmp')}, extractErr =>{
+            if(!extractErr){
+                console.log("Extracted Zip")
+                fs.readdir(path.join(appData,'tmp'), (readErr, files) => {
+                    let installableFiles = Object.keys(files).filter((val, index) => {
+                        return Object.keys(typeBasedActions).includes(path.extname(files[index]))
+                    })
+                    installableFiles.forEach(file => {
+                        typeBasedActions[path.extname(filepath)](filepath, this)
+                    })
+                })
+                
+            }else{
+                console.warn(extractErr)
+            }
+        })
+        cb()
+    }
+    cleanUpFolder(folderPath = path.join(appData,'tmp')){ 
+        fs.readdir(folderPath, (readErr, files) => {
+            files.forEach((val, index) => {
+                fs.unlink(folderPath + val, delErr => {
+                    if(delErr){
+                        console.warn(delErr)
+                    }
+                })
+            })
+        })
+        
     }
     installApk(url){
         return this.adb.install(this.deviceSerial, new Readable().wrap(request(url)))
