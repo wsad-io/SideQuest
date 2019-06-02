@@ -718,7 +718,8 @@ class App{
                     this.showStatus("Error reading backup directory: " + backupDirectory + ", Error:" + err);
                     resolve();
                 } else {
-                    resolve(data);
+                    resolve((data||[]).filter(d=>d.substr(d.length-4)===".apk"));
+
                 }
             });
         });
