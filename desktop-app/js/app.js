@@ -528,6 +528,7 @@ class App{
                 content: "Remove Custom Level";
             }`;
         let customJS = `
+            [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatsaver-viewer')).forEach(e=>e.style.display = 'none');
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatdrop')).forEach(e=>e.style.display = 'none');
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-download-zip')).forEach(e=>{
                 e.style.display = 'none';
