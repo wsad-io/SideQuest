@@ -1,4 +1,4 @@
-const { ipcRenderer: ipc, remote } = require('electron');
+const { ipcRenderer: ipc, remote} = require('electron');
 let receiveMessage = remote.getGlobal('receiveMessage');
 function init() {
     attachIPCListeners();
