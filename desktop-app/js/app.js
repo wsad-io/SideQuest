@@ -763,6 +763,7 @@ class App{
                         let songDirectory = path.join(songsDirectory,folder);
                         return new Promise(r=>{
                             fs.readdir(songDirectory,(err,songName)=>{
+                                songName = songName.filter(d=>fs.lstatSync(path.join(songDirectory,d)).isDirectory());
                                 if(err||!songName.length) {
                                     this.showStatus("Error reading songs directory: "+songDirectory+", Error:"+err);
                                     r();
