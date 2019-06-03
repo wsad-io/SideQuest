@@ -129,10 +129,8 @@ class App{
                 this.repos.setupRepos();
                 this.bsaber = new Bsaber(this);
                 this.bsaber.downloadConverterBinary();
-                //this.bsaber.hasRightJavaVersion = await this.bsaber.checkJava64();
                 this.spinner_loading_message.innerText = 'Downloading, This might take some time on first launch please wait...';
                 this.bsaber.downloadQuestSaberPatch();
-                //this.bsaber.downloadAppSigner();
                 this.bsaber.setBeatVersion()
                     .catch(e=>{});
             });
@@ -190,7 +188,10 @@ class App{
             if(this.patch_beatsaber.style.display !== 'none'&&songs.length){
                 questSaberPatchContainer.innerHTML = '<br><br><div style="text-align: center"><div class="loader-initial"></div><br>Patching now, <br>this should take 40 - 60 seconds...</div>';
                 this.patch_beatsaber.style.display = 'none';
-                this.bsaber.runQuestSaberPatch(songs)
+                let dataBackupFolder;
+                return this.bsaber.makeDataBackup()
+                    .then(folder=>dataBackupFolder = folder)
+                    .then(()=>this.bsaber.runQuestSaberPatch(songs))
                     .then(result=>{
                         if(result&&result.error){
                             return Promise.reject(result.error);
@@ -199,9 +200,10 @@ class App{
                             return "&nbsp;&nbsp;<b>"+d+"</b>:"+result.installSkipped[d];
                         });
                         questSaberPatchContainer.innerHTML = `<br><h6>Patch Results</h6>
+                            <a class="waves-effect waves-light btn install-beat-patch">Install APK to Headset</a><br><br>
                             <b>Current Levels</b>: `+(result&&result.presentLevels?result.presentLevels:[]).join(', ')+`<br><br>
                             <b>Just Installed</b>: `+(result&&result.installedLevels?result.installedLevels:[]).join(', ')+`<br><br>
-                            <b>Skipped</b>: <br>`+(skipped.length?skipped.join('<br>'):'none')+`<br><br><a class="waves-effect waves-light btn install-beat-patch">Install APK to Headset</a>`;
+                            <b>Skipped</b>: <br>`+(skipped.length?skipped.join('<br>'):'none')+`<br><br>`;
                         return questSaberPatchContainer.querySelector('.install-beat-patch');
                     })
                     .then(ele=>new Promise(r=>{
@@ -215,6 +217,7 @@ class App{
                     //.then(()=>this.bsaber.signAPK(path.join(appData,'bsaber-base_patched.apk')))
                     .then(()=>this.setup.uninstallApk('com.beatgames.beatsaber'))
                     .then(()=>this.setup.installLocalApk(path.join(appData,'bsaber-base_patched.apk'),true))
+                    .then(()=>this.bsaber.restoreDataBackup(dataBackupFolder))
                     .then(()=>{
                         questSaberPatchContainer.innerHTML = '<br><br><h4>Install complete!</h4><br><br>Click close to continue...';
                     })
@@ -252,6 +255,9 @@ class App{
         });
         document.querySelector('.open-data-backup-folder').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'bsaber-data-backups'));
+        });
+        document.querySelector('.open-songs-main-one').addEventListener('click',()=>{
+            shell.openItem(path.join(appData,'bsaber'));
         });
         document.querySelector('.make-data-backup').addEventListener('click',()=>{
             this.backupsModal.close();
@@ -758,14 +764,24 @@ class App{
                             fs.readdir(songDirectory,(err,songName)=>{
                                 if(err||!songName.length) {
                                     this.showStatus("Error reading songs directory: "+songDirectory+", Error:"+err);
+                                    r();
                                 }else{
                                     songName = songName[0];
-                                    song.name = songName;
-                                    song.path = path.join(songDirectory,songName);
-                                    song.cover = 'file:///'+path.join(songDirectory,songName,'cover.jpg').replace(/\\/g, '/');
-                                    songs.push(song)
+                                    fs.readdir(path.join(songDirectory, songName),(err2,fileNames)=> {
+                                        if(err||!songName.length) {
+                                            this.showStatus("Error reading songs directory: "+path.join(songDirectory, songName)+", Error:"+err2);
+                                            r();
+                                        }else {
+                                            let covername = ~fileNames.indexOf('cover.jpg') ? 'cover.jpg' :
+                                                ~fileNames.indexOf('cover.png') ? 'cover.png' :'cover.jpg';
+                                            song.name = songName;
+                                            song.path = path.join(songDirectory, songName);
+                                            song.cover = 'file:///' + path.join(songDirectory, songName, covername).replace(/\\/g, '/');
+                                            songs.push(song);
+                                            r();
+                                        }
+                                    });
                                 }
-                                r();
                             });
                         });
                     }))
@@ -797,7 +813,9 @@ and of course
         });
         this.browser_bar.style.display = 'none';
         let songs = (this.songs||[]);
-        if(await this.bsaber.isBeatSaberInstalled()){
+        let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
+        let isQuestSaberPatch = this.setup.doesFileExist(path.join(appData,'saber-quest-patch','questsaberpatch'));
+        if(isBeatSaberInstalled&&isQuestSaberPatch){
             this.container.innerHTML = songs.length?'':'<h4>Nothing here yet...</h4>';
             songs.forEach(song=>{
                 let child = this.template.content.cloneNode(true);
@@ -827,8 +845,10 @@ and of course
                 });
                 this.container.appendChild(child);
             });
-        }else{
+        }else if(!isBeatSaberInstalled){
             this.container.innerHTML = '<h4>Beat saber not installed...</h4>';
+        }else if(!isQuestSaberPatch){
+            this.container.innerHTML = '<h4>Still downloading files plaese wait and try again...</h4>';
         }
     }
     openDeviceSettings() {

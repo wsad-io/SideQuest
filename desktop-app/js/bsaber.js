@@ -263,6 +263,39 @@ class Bsaber{
                 this.app.showStatus(e.toString(),true,true);
             })
     }
+    async restoreDataBackup(folderName){
+        if(!this.app.setup.doesFileExist(path.join(appData,'bsaber-data-backups',folderName))){
+            return;
+        }
+        if(!await this.hasBeatSDFolder('data')){
+            await this.app.setup.makeDirectory('/sdcard/Android/data/com.beatgames.beatsaber/');
+            await this.app.setup.makeDirectory('/sdcard/Android/data/com.beatgames.beatsaber/files/');
+        }
+        if(!await this.hasBeatSDFolder('obb')){
+            await this.app.setup.makeDirectory('/sdcard/Android/obb/com.beatgames.beatsaber/');
+        }
+        let backupDirectory = path.join(appData,'bsaber-data-backups',folderName,'obb');
+        return this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'PlayerData.dat'),
+            '/sdcard/Android/data/com.beatgames.beatsaber/files/PlayerData.dat')
+            .then(()=>this.app.setup.doesFileExist(path.join(appData,'bsaber-data-backups',folderName,'settings.cfg'))?
+                this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'settings.cfg'),
+                '/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'):
+                Promise.resolve())
+            .then(()=> new Promise((resolve,reject)=>{
+                fs.readdir(backupDirectory,(err,data)=> {
+                    if (err) {
+                        reject("Error reading backup directory: " + backupDirectory + ", Error:" + err);
+                    } else {
+                        resolve((data||[]).filter(d=>d.substr(d.length-4)===".obb"));
+                    }
+                });
+            }))
+            .then(obbFiles=>Promise.all(obbFiles.map(obb=>{
+                return this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'obb',obb),
+                    '/sdcard/Android/obb/com.beatgames.beatsaber/'+obb)
+            })))
+
+    }
     async makeDataBackup(){
         let folderName = new Date().getTime().toString();
         if(await this.hasBeatSDFolder('data')){
@@ -274,9 +307,15 @@ class Bsaber{
                     transfer.pipe(fs.createWriteStream(path.join(appData,'bsaber-data-backups',folderName,'PlayerData.dat')));
                 })).then(()=>this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'))
                 .then(transfer=>new Promise((resolve, reject)=>{
+                    let settingsPath = path.join(appData,'bsaber-data-backups',folderName,'settings.cfg')
                     transfer.on('end', resolve);
-                    transfer.on('error', reject);
-                    transfer.pipe(fs.createWriteStream(path.join(appData,'bsaber-data-backups',folderName,'settings.cfg')));
+                    transfer.on('error', err=>{
+                        if(this.app.setup.doesFileExist(settingsPath)){
+                            fs.unlinkSync(settingsPath)
+                        }
+                        resolve();
+                    });
+                    transfer.pipe(fs.createWriteStream(settingsPath));
                 }));
         }
         if(await this.hasBeatSDFolder('obb')){
@@ -292,6 +331,7 @@ class Bsaber{
                     }))
             });
         }
+        return folderName;
     }
     async hasBeatSDFolder(name){
         let folders = await this.app.setup.getFolders('/sdcard/Android/'+name+'/');
