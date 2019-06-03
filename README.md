@@ -67,3 +67,10 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 [Games that can now be played with Oculus TV as of 1.1.17](https://www.reddit.com/comments/9uney8)
 
 [Oculus TV media app compatibility list](https://www.reddit.com/comments/9x07yj)
+
+## Credits
+
+This program uses code not created by the SideQuest Team these include:
+
+* [Songe Converter](https://github.com/lolPants/songe-converter) By [@lolPants](https://github.com/lolPants)
+* [QuestSaberPatch](https://github.com/trishume/QuestSaberPatch) By [@trishume](https://github.com/trishume)
