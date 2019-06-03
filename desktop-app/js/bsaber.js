@@ -48,6 +48,7 @@ class Bsaber{
     }
     questSaberPatch(json){
         return new Promise((resolve,reject)=>{
+            console.log("Starting QuestSaberPatch: ",json);
             fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(json));
             const exec = require('child_process').exec;
             exec('"'+this.questSaberBinaryPath+'" < "'+path.join(appData,'__json.json')+'"', function(err, stdout, stderr) {
@@ -56,7 +57,9 @@ class Bsaber{
                 }
                 try{
                     stdout = JSON.parse(stdout);
+                    console.log("QuestSaberPatch Response: ",stdout);
                 }catch(e){
+                    console.warn("QuestSaberPatch Failure: ",stdout);
                     return reject('JSON parse error from jsonApp.exe');
                 }
                 if(stderr)return reject(stderr);
@@ -74,6 +77,7 @@ class Bsaber{
             }
             let json = {
                 "apkPath":patched_file,
+                "sign":true,
                 "patchSignatureCheck":true,
                 "ensureInstalled":{
                 //    "BUBBLETEA":"testdata/bubble_tea_song"
@@ -105,11 +109,11 @@ class Bsaber{
         });
     }
     downloadQuestSaberPatch(){
-        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.3.1/questsaberpatch-';
+        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.4.0/questsaberpatch-';
         let name = 'app.exe';
         switch (os.platform()) {
             case 'win32':
-                name = 'jsonApp.exe';
+                name = 'questsaberpatch/jsonApp.exe';
                 break;
             case 'darwin':
                 name = 'questsaberpatch/jsonApp';

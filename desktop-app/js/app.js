@@ -132,7 +132,7 @@ class App{
                 //this.bsaber.hasRightJavaVersion = await this.bsaber.checkJava64();
                 this.spinner_loading_message.innerText = 'Downloading, This might take some time on first launch please wait...';
                 this.bsaber.downloadQuestSaberPatch();
-                this.bsaber.downloadAppSigner();
+                //this.bsaber.downloadAppSigner();
                 this.bsaber.setBeatVersion()
                     .catch(e=>{});
             });
@@ -212,7 +212,7 @@ class App{
                             });
                         }
                     }))
-                    .then(()=>this.bsaber.signAPK(path.join(appData,'bsaber-base_patched.apk')))
+                    //.then(()=>this.bsaber.signAPK(path.join(appData,'bsaber-base_patched.apk')))
                     .then(()=>this.setup.uninstallApk('com.beatgames.beatsaber'))
                     .then(()=>this.setup.installLocalApk(path.join(appData,'bsaber-base_patched.apk'),true))
                     .then(()=>{
@@ -222,14 +222,22 @@ class App{
                     .catch(e=>{
                         this.showStatus(e.toString(),true,true);
                         questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
-                            There was an error installing. Before you see it, would you like to reset your beat saber install from base?
+                            There was an error installing. Before you see it, would you like to reset your beat saber patched and installed APK from a backup base? ( Recommended )
                             <br><br><a class="waves-effect waves-light btn install-base-reset">Reset To Base</a>`;
                         questSaberPatchContainer.querySelector('.install-base-reset').addEventListener('click',()=>{
                             this.patchModal.close();
                             this.spinner_loading_message.innerText = 'Installing Base APK';
                             this.toggleLoader(true);
                             this.setup.installLocalApk(path.join(appData,'bsaber-base.apk'),true)
-                                .then(()=>this.toggleLoader(false));
+                                .then(()=>this.toggleLoader(false))
+                                .then(()=>{
+                                    if(!this.bsaber.resetPatched()){
+                                        return Promise.reject(new Error("Failed to reset the patched base, the base backup does not exist."));
+                                    }
+                                })
+                                .catch(e2=>{
+                                    this.showStatus(e.toString()+", "+e2.toString(),true,true);
+                                });
                         });
                     })
             }else{
@@ -317,33 +325,42 @@ class App{
             this.spinner_background.style.display = 'none';
             const typeBasedActions = {
                 ".apk" : function(filepath, bind){
-                    bind.setup.installLocalApk(filepath)
+                    return bind.setup.installLocalApk(filepath)
                         .then(() => bind.toggleLoader(false));    
                 },
                 ".obb" : function(filepath, bind){
                     if(path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)){
-                        bind.setup.installLocalObb(filepath)
+                        return bind.setup.installLocalObb(filepath)
                             .then(() => bind.toggleLoader(false));
                     }else{
-                        console.log("Invalid OBB")
                         bind.toggleLoader(false);
+                        return Promise.reject("Invalid OBB");
                     }
                      
                 },
                 ".zip" : function(filepath, bind){
-                    bind.setup.installLocalZip(filepath, false, () => bind.toggleLoader(false))
+                    return bind.setup.installLocalZip(filepath, false, () => bind.toggleLoader(false))
                 }
-            }
+            };
             let installableFiles = Object.keys(e.dataTransfer.files).filter((val, index) => {
                 return Object.keys(typeBasedActions).includes(path.extname(e.dataTransfer.files[index].name))
-            })
+            });
             installableFiles.forEach((val, index) => {
-                let filepath = e.dataTransfer.files[val].path
-                console.log("Installing", filepath)
+                let filepath = e.dataTransfer.files[val].path,
+                ext = path.extname(filepath);
+                console.log("Installing", filepath);
                 this.spinner_loading_message.innerText = `Installing ${filepath}, Please wait...`;
-                this.toggleLoader(true);
-                typeBasedActions[path.extname(filepath)](filepath, this)
-            })
+                if(typeBasedActions.hasOwnProperty(ext)){
+                    this.toggleLoader(true);
+                    typeBasedActions[ext](filepath, this)
+                        .then(()=>{
+                            this.showStatus('Installed APK File'+filepath,false,true);
+                        })
+                        .catch(e=>{
+                            this.showStatus(e.toString(),true,true);
+                        });
+                }
+            });
             return false;
         };
     }
@@ -771,7 +788,8 @@ class App{
         this.apkInstall.style.display = 'block';
         this.apkInstall.innerHTML = `Special thanks to 
 <span class="link" data-url="https://github.com/trishume/QuestSaberPatch">@trishume</span>, 
-<span class="link" data-url="https://github.com/emulamer/QuestStopgap">@emulamer</span>
+<span class="link" data-url="https://github.com/emulamer/QuestStopgap">@emulamer</span>,
+<span class="link" data-url="https://github.com/ATechAdventurer">@ATechAdventurer</span>
 and of course 
 <span class="link" data-url="https://bsaber.com/members/elliotttate/">@elliotttate</span> for beat saber efforts.`;
         [].slice.call(this.apkInstall.querySelectorAll('.link')).forEach(link=>{
@@ -848,6 +866,7 @@ and of course
                         value = 4;
                         break;
                 }
+                this.spinner_loading_message.innerText = 'Setting FFV...';
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, "setprop debug.oculus.foveation.level " + value)
                     .then(adb.util.readAll)
@@ -873,6 +892,7 @@ and of course
                         value = 4;
                         break;
                 }
+                this.spinner_loading_message.innerText = 'Setting CPU/GPU Setting...';
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.cpuLevel ' + value + ' && setprop debug.oculus.gpuLevel ' + value + '"')
                     .then(adb.util.readAll)
@@ -887,7 +907,7 @@ and of course
                     })
             });
         });
-        let pasteText = document.querySelector('.paste-text');
+        let pasteText = document.querySelector('.paste-text-button');
         pasteText.addEventListener('click',()=>{
             let characters = devicePaste.value.split('');
             let inputCharacters = ()=>{
@@ -896,15 +916,14 @@ and of course
                     .then(adb.util.readAll)
                     .then(res => {
                         if(characters.length){
-                            //return new Promise()
                             return inputCharacters();
                         }
                     });
             };
+            this.spinner_loading_message.innerText = 'Setting Text...';
             this.toggleLoader(true);
             inputCharacters()
                 .then(()=>{
-                    this.toggleLoader(false);
                     this.showStatus("Text sent to the device!!");
                     this.toggleLoader(false);
                 })
