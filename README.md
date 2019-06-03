@@ -1,6 +1,16 @@
 # SideQuest
-
 Credit to http://reddit.com/u/NoBullet for the name!
+
+
+[Latest Download](https://github.com/the-expanse/SideQuest/releases)
+
+
+
+## Discord
+[Join us on Discord](https://discord.gg/Q2a5BkZ)
+
+## Video Tutorial
+[![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
 
 ![Image](https://i.imgur.com/9TxcOQg.png)
 
@@ -13,7 +23,7 @@ It is important to follow the instructions in the setup screen before you start 
 ## SideQuest Features
 
 * Automatic download of ADB platform-tools for your platform - win/mac/linux.
-* Setup instructions for enablding developer mode on your device.
+* Setup instructions for enabling developer mode on your device.
 * On device launcher app to be able to open the apps once installed.
 * Drag and drop support for installing arbitrary apps.
 * Repository seeding via sources.txt file to preload your own repos for distribution.
@@ -36,7 +46,7 @@ I will be adding more apps to the repos and I will be notifying of repo updates 
 
 ## Important
 
-Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
+Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. Also some users reported issues with k9 web filter, if you use this then you might need to unblock `http://keepsummersafe.x10host.com/` and `http://showmewhatyougot.x10host.com/` - these are the default repo urls, then only have json index files on them and are totally safe. 
 
 ## More Info:
 
