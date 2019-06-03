@@ -72,5 +72,5 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 
 This program uses code not created by the SideQuest Team these include:
 
-* [Songe Converter](https://github.com/lolPants/songe-converter) By [@lolPants](https://github.com/lolPants)
-* [QuestSaberPatch](https://github.com/trishume/QuestSaberPatch) By [@trishume](https://github.com/trishume)
+* [Songe Converter](https://github.com/lolPants/songe-converter) By [@lolPants](https://github.com/lolPants) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/songe-converter-license)
+* [QuestSaberPatch](https://github.com/trishume/QuestSaberPatch) By [@trishume](https://github.com/trishume) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/QuestSaberPatch-license)
