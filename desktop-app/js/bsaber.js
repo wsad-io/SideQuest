@@ -4,7 +4,7 @@ class Bsaber{
         this.customLevels = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
         this.beatSaberPackage = 'com.beatgames.beatsaber';
         this.beatBackupPath = path.join(appData,'bsaber-backups',this.beatSaberPackage);
-        this.supportedBeatSaberVersion = '1.0.1';
+        this.supportedBeatSaberVersion = '1.0.0';
     }
     setExecutable(path){
         return new Promise((resolve)=>{
