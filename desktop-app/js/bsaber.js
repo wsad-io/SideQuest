@@ -149,7 +149,7 @@ class Bsaber{
         });
     }
     downloadConverterBinary(){
-        let url = 'https://api.github.com/repos/lolPants/songe-converter/releases';
+        let url = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.3/songe-converter';
         let name = '.exe';
         switch (os.platform()) {
             case 'win32':
