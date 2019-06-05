@@ -57,15 +57,16 @@ if (!gotTheLock) {
         if (mainWindow === null) createWindow()
     });
     app.setAsDefaultProtocolClient('sidequest');
-    // app.on('open-url', function (event, url) {
-    //     event.preventDefault();
-    //     fs.writeFileSync(path.join(app.getPath('appData'),'SideQuest','test_output.txt'),url);
-    //     if(is_loaded){
-    //         mainWindow.webContents.send('open-url', url );
-    //     }else{
-    //         open_url = url;
-    //     }
-    // });
+     app.on('open-url', function (event, url) {
+         console.log("open url")
+         event.preventDefault();
+         fs.writeFileSync(path.join(app.getPath('appData'),'SideQuest','test_output.txt'),url);
+         if(is_loaded){
+             mainWindow.webContents.send('open-url', url );
+         }else{
+             open_url = url;
+         }
+     });
 }
 
 

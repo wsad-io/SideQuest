@@ -61,7 +61,18 @@ class App{
                             });
                         break;
                     case "sidequest://bsaber/":
-                        // coming soon.
+                        this.toggleLoader(true);
+                        this.spinner_loading_message.innerText = 'Downloading Map'
+                        this.bsaber.downloadSong(url[1]).then(()=>{
+                            this.getMySongs()
+                                .then(()=>this.toggleLoader(false))
+                                .then(()=>this.showStatus('Level Downloaded Ok!!'))
+                                .then(()=>this.bsaber.getCurrentDeviceSongs(true));
+                        })
+                        .catch(e=>{
+                            this.showStatus(e.toString(),true,true);
+                            this.toggleLoader(false);
+                        })
                         break;
                     default:
                         this.showStatus('Custom protocol not recognised: '+(data||""),true,true);

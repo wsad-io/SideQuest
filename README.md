@@ -12,7 +12,7 @@ Credit to http://reddit.com/u/NoBullet for the name!
 ## Video Tutorial
 [![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
 
-![Image](https://i.imgur.com/9TxcOQg.png)
+![Image](https://i.imgur.com/qXeQPpi.png)
 
 SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup. 
 
@@ -67,3 +67,10 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 [Games that can now be played with Oculus TV as of 1.1.17](https://www.reddit.com/comments/9uney8)
 
 [Oculus TV media app compatibility list](https://www.reddit.com/comments/9x07yj)
+
+## Credits
+
+This program uses code not created by the SideQuest Team these include:
+
+* [Songe Converter](https://github.com/lolPants/songe-converter) By [@lolPants](https://github.com/lolPants) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/songe-converter-license)
+* [QuestSaberPatch](https://github.com/trishume/QuestSaberPatch) By [@trishume](https://github.com/trishume) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/QuestSaberPatch-license)
