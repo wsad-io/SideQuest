@@ -14,6 +14,6 @@ const path = require('path');
 const request = require('request');
 const md5 = require('md5');
 const Readable = require('stream').Readable;
-const appData = path.join(eApp.getPath('appData'),'SideQuest');
+const appData = path.join(eApp.getPath('appData'), 'SideQuest');
 const semver = require('semver');
 const { spawn } = require('child_process');
