@@ -4,7 +4,7 @@ class Bsaber{
         this.customLevels = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
         this.beatSaberPackage = 'com.beatgames.beatsaber';
         this.beatBackupPath = path.join(appData,'bsaber-backups',this.beatSaberPackage);
-        this.supportedBeatSaberVersions = ['1.0.1','1.0.0'];
+        this.supportedBeatSaberVersions = ['1.0.2','1.0.1','1.0.0'];
     }
     setExecutable(path){
         return new Promise((resolve)=>{
@@ -109,7 +109,7 @@ class Bsaber{
         });
     }
     downloadQuestSaberPatch(){
-        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.5.1/questsaberpatch-';
+        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.5.2/questsaberpatch-';
         let name = 'questsaberpatch/jsonApp.exe';
         switch (os.platform()) {
             case 'win32':
