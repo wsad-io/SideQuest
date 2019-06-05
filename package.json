@@ -20,6 +20,9 @@
   },
   "devDependencies": {
     "electron": "^4.1.4",
-    "electron-rebuild": "^1.8.4"
+    "electron-rebuild": "^1.8.4",
+    "husky": "^2.3.0",
+    "prettier": "1.17.1",
+    "pretty-quick": "^1.11.0"
   }
 }
