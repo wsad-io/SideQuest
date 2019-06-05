@@ -4,7 +4,14 @@ class Bsaber{
         this.customLevels = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
         this.beatSaberPackage = 'com.beatgames.beatsaber';
         this.beatBackupPath = path.join(appData,'bsaber-backups',this.beatSaberPackage);
-        this.supportedBeatSaberVersions = ['1.0.2','1.0.1','1.0.0'];
+        let bsVersions = localStorage.getItem("beat-saber-version");
+        try{
+            this.supportedBeatSaberVersions = bsVersions?JSON.parse(bsVersions):['1.0.2','1.0.1','1.0.0'];
+        }catch(e){
+            localStorage.setItem("beat-saber-version",JSON.stringify(['1.0.2','1.0.1','1.0.0']));
+            this.supportedBeatSaberVersions = ['1.0.2','1.0.1','1.0.0'];
+        }
+        this.questSaberPatchVersion = localStorage.getItem("quest-saber-patch-version")||'v0.5.2';
     }
     setExecutable(path){
         return new Promise((resolve)=>{
@@ -108,8 +115,37 @@ class Bsaber{
                 });
         });
     }
-    downloadQuestSaberPatch(){
-        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.5.2/questsaberpatch-';
+    async getBSandQSPVersions(){
+        const jsonUrl = 'https://raw.githubusercontent.com/the-expanse/SideQuest/master/vendor_versions.txt';
+        return new Promise((resolve,reject)=>{
+            request(jsonUrl, (error, response, body)=>{
+                if(error){
+                    return reject(error);
+                }else{
+                    try{
+                        let repo_body = JSON.parse(body);
+                        resolve(repo_body);
+                    }catch(e){
+                        return reject("JSON parse Error");
+                    }
+                }
+            })
+        }).then(resp=>{
+            if(resp["beat-saber"]&&resp["beat-saber"].length){
+                this.supportedBeatSaberVersions = resp["beat-saber"];
+                localStorage.setItem("beat-saber-version",JSON.stringify(resp["beat-saber"]));
+            }
+            if(resp["quest-saber-patch"]&&resp["quest-saber-patch"]){
+                this.questSaberPatchVersion = resp["quest-saber-patch"];
+                localStorage.setItem("quest-saber-patch-version",resp["quest-saber-patch"]);
+            }
+        }).catch(e=>{
+            console.warn(e);
+        });
+    }
+    async downloadQuestSaberPatch(){
+        await this.getBSandQSPVersions();
+        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/'+this.questSaberPatchVersion+'/questsaberpatch-';
         let name = 'questsaberpatch/jsonApp.exe';
         switch (os.platform()) {
             case 'win32':
