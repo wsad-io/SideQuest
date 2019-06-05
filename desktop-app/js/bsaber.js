@@ -4,7 +4,7 @@ class Bsaber{
         this.customLevels = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
         this.beatSaberPackage = 'com.beatgames.beatsaber';
         this.beatBackupPath = path.join(appData,'bsaber-backups',this.beatSaberPackage);
-        this.supportedBeatSaberVersion = '1.0.0';
+        this.supportedBeatSaberVersions = ['1.0.1','1.0.0'];
     }
     setExecutable(path){
         return new Promise((resolve)=>{
@@ -109,8 +109,8 @@ class Bsaber{
         });
     }
     downloadQuestSaberPatch(){
-        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.4.0/questsaberpatch-';
-        let name = 'app.exe';
+        let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/v0.5.1/questsaberpatch-';
+        let name = 'questsaberpatch/jsonApp.exe';
         switch (os.platform()) {
             case 'win32':
                 name = 'questsaberpatch/jsonApp.exe';
@@ -134,7 +134,7 @@ class Bsaber{
                     let callback = error => {
                         if(error) return reject(error);
                         fs.unlink(_path, err => {
-                            if(err) return reject(err);
+                           // if(err) return reject(err);
                             if (os.platform() === 'darwin' || os.platform() === 'linux') {
                                 this.setExecutable(this.questSaberBinaryPath)
                                     .then(() => resolve());
@@ -207,7 +207,7 @@ class Bsaber{
             .then(version=>{
                 this.beatSaberVersion = (version||"").trim();
                 let visualVersion = document.querySelector('.beat-saber-version');
-                if(this.beatSaberVersion !== this.supportedBeatSaberVersion){
+                if(!~this.supportedBeatSaberVersions.indexOf(this.beatSaberVersion)){
                     visualVersion.innerHTML = '<span style="background-color:red;color:white">WRONG BEAT SABER VERSION: '+this.beatSaberVersion+'</span>';
                     if(!skipCheck)throw new Error('Wrong beat saber version installed!');
                 }else{
@@ -220,6 +220,20 @@ class Bsaber{
             fs.copyFileSync(path.join(appData,'bsaber-base.apk'),path.join(appData,'bsaber-base_patched.apk'));
             return true;
         }
+    }
+    async resetBase(){
+        if(this.app.setup.deviceStatus !== "connected") {
+            this.app.showStatus('Cant reset base, no Device Connected!!',true,true);
+            return Promise.resolve();
+        }
+        if(!this.isBeatSaberInstalled()) {
+            this.app.showStatus('Beat Saber not installed!!',true,true);
+            return Promise.resolve();
+        }
+        if(fs.existsSync(path.join(appData,'bsaber-base.apk'))){
+            fs.unlinkSync(path.join(appData,'bsaber-base.apk'));
+        }
+        return this.backUpBeatSaberBinary();
     }
     async backUpBeatSaberBinary(){
         if(!~this.app.setup.devicePackages.indexOf(this.beatSaberPackage)) return Promise.reject("Not installed");
@@ -290,10 +304,13 @@ class Bsaber{
                     }
                 });
             }))
-            .then(obbFiles=>Promise.all(obbFiles.map(obb=>{
-                return this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'obb',obb),
-                    '/sdcard/Android/obb/com.beatgames.beatsaber/'+obb)
-            })))
+            .then(obbFiles=>{
+                console.log(obbFiles);
+                return Promise.all(obbFiles.map(obb=>{
+                    return this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'obb',obb),
+                        '/sdcard/Android/obb/com.beatgames.beatsaber/'+obb)
+                }))
+            })
 
     }
     async makeDataBackup(){
@@ -428,17 +445,22 @@ class Bsaber{
         let name = parts[parts.length-1].split('.')[0];
         const requestOptions = {timeout: 30000, 'User-Agent': this.app.setup.getUserAgent()};
         return new Promise((resolve,reject)=>{
-            request(downloadUrl, requestOptions)
+
+            progress(request(downloadUrl, requestOptions),{throttle: 300})
                 .on('error', (error)  => {
                     debug(`Request Error ${error}`);
                     reject(error);
                 })
-                .pipe(fs.createWriteStream(zipPath))
-                .on('finish', ()  => {
+                .on('progress', (state) =>{
+                    this.app.spinner_loading_message.innerText = 'Saving to My Custom Levels... '+Math.round(state.percent*100)+"%";
+                    //console.log('progress', state);
+                })
+                .on('end', ()  => {
                     let dir = path.join(appData,'bsaber',name);
                     fs.mkdir(dir,()=>{
                         extract(zipPath, {dir: dir},(error) => {
                             if(error) {
+                                this.app.deleteFolderRecursive(dir);
                                 reject(error);
                             }else{
                                 fs.unlink(zipPath, (err) => {
@@ -448,7 +470,8 @@ class Bsaber{
                             }
                         });
                     });
-                });
+                })
+                .pipe(fs.createWriteStream(zipPath));
         })
     }
 }

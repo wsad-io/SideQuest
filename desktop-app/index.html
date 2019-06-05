@@ -415,26 +415,51 @@
     <div class="modal-content">
         <h4>APK Backups</h4>
         <a class="waves-effect waves-light btn open-backup tooltipped" data-position="bottom" data-tooltip="This folder contains the backup APK files you have made.">Open Backup Folder</a>&nbsp;&nbsp;&nbsp;
-        <a class="waves-effect waves-light btn reset-patch-base tooltipped" data-position="bottom" data-tooltip="Reset the patched APK file, this will remove any existing songs in the APK.">Reset Patched To Base</a>
+        <a class="waves-effect waves-light btn reset-patch-base tooltipped" data-position="bottom" data-tooltip="Reset the patched APK file, this will remove any existing songs in the APK.">Reset Patched To Base</a>&nbsp;&nbsp;&nbsp;
+        <a class="waves-effect waves-light btn re-download-patcher tooltipped" data-position="bottom" data-tooltip="Download latest QuestSaberPatch">Redownload Patcher</a>
         <p id="backupsContainer">
 
         </p>
         If your app already contains mods you might want to provide an original untouched backup here. Without this it can cause problems with the patcher not working.<br><br>
-        <a class="waves-effect waves-light btn select-new-base tooltipped" data-position="bottom" data-tooltip="Select a new base APK file to use as a master copy. The existing master ( if any ) will be moved to the backup list.">Select New Base</a>
+        <a class="waves-effect waves-light btn select-new-base tooltipped" data-position="bottom" data-tooltip="Select a new base APK file to use as a master base copy. The existing master ( if any ) will be moved to the backup list.">Select New Master</a>&nbsp;&nbsp;&nbsp;
+        <a class="waves-effect waves-light btn reset-new-backup tooltipped" data-position="bottom" data-tooltip="Backup to master from the currently installed version of beat saber. The existing master ( if any ) will be moved to the backup list.">Backup New Master</a>
 
         <br>Any current base file will be moved into the backup list and called <span class="chip">bsaber-base-old.apk</span>. <br>The new one will also be copied there as <span class="chip">bsaber-base.apk</span>.<br>
         <div id="dataBackupsContainer">
             <h4>Data Backup</h4>
             <p>
-                You have data folders on the device. Would you like to create a data backup?<br><br>
+                If you have data folders on the device you should create a data backup. A data backup will be auto created everytime you patch and also auto restored back to the device. Warning: this can lead to data loss if used improperly.<br><br>
                 <a href="#!" class="btn waves-effect waves-light make-data-backup tooltipped" data-position="bottom" data-tooltip="Backup data files like PlayerData.dat (local scores), settings.cfg (settings) and any obb files (DLCs).">Make Data Backup</a>&nbsp;&nbsp;&nbsp;
                 <a href="#!" class="btn waves-effect waves-light open-data-backup-folder tooltipped" data-position="bottom" data-tooltip="This folder contains the backup data files you have made. These could be restored if need be but you should only need to do this if something goes wrong.">Open Data Backup Folder</a>
+            </p>
+            <p id="dataBackupsContainerInner">
+
             </p>
         </div>
     </div>
     <div class="modal-footer">
         <a href="#!" class="modal-close btn-flat waves-effect waves-green">Close</a>
         <a href="#!" class="modal-close btn waves-effect waves-light make-backup">Make Backup</a>
+    </div>
+</div>
+
+
+<div id="modal6" class="modal modal-fixed-footer modal-fixed-width">
+    <div class="modal-content">
+        <h4>QuestSaberPatch Updated!</h4>
+        <p>
+            You have just updated quest saber patch. In order to get things working you may need to reset your beat saber install. <br><br>To do this you will need to
+            first uninstall ( not reinstall ) beat saber from your headset ( a lot of people have problems uninstalling from the headset so if thats you then go
+            to the top right icon - <i class="material-icons">list</i> and look for <span class="chip">com.beatgame.beatsaber</span> and click uninstall ).<br><br>
+            Now you will need to put your headset on and redownload a fresh unmodified version of beat saber from the oculus store. FInally you will need to reset the
+            patcher with this new by selecting the Backup New Master button below, or the same button on the backups screen.
+            <br><br>
+            Thank you!
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close btn-flat waves-effect waves-green">Close</a>
+        <a href="#!" class="btn waves-effect waves-light orange backup-new-master-modal">Backup New Master</a>
     </div>
 </div>
 <div class="spinner-drag text-center">

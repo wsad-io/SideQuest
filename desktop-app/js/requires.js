@@ -12,6 +12,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
+const progress = require('request-progress');
 const md5 = require('md5');
 const Readable = require('stream').Readable;
 const appData = path.join(eApp.getPath('appData'),'SideQuest');

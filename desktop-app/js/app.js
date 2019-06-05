@@ -78,7 +78,7 @@ class App{
                         this.toggleLoader(true);
                         this.bsaber.downloadSong(data.beatsaber)
                             .then(()=>{
-                                this.getMySongs()
+                                return this.getMySongs()
                                     .then(()=>this.toggleLoader(false))
                                     .then(()=>this.showStatus('Level Downloaded Ok!!'))
                                     .then(()=>this.bsaber.getCurrentDeviceSongs(true));
@@ -140,7 +140,25 @@ class App{
             fs.mkdir(path,resolve);
         })
     }
+    resetBase(){
+        this.backupsModal.close()
+        this.toggleLoader(true);
+        this.spinner_loading_message.innerText = 'Getting Master Backup...';
+        this.bsaber.resetBase()
+            .then(()=>{
+                this.toggleLoader(false);
+                this.bsaber.resetPatched();
+            });
+    }
     setupMenu(){
+        document.querySelector('.reset-new-backup').addEventListener('click',()=>{
+            this.backupsModal.close();
+            this.resetBase()
+        });
+        document.querySelector('.backup-new-master-modal').addEventListener('click',()=>{
+            this.resetInstructions.close();
+            this.resetBase()
+        });
         document.querySelector('.select-new-base').addEventListener('click',()=>{
             dialog.showOpenDialog({
                 properties: ['openFile'],
@@ -259,6 +277,23 @@ class App{
         document.querySelector('.open-songs-main-one').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'bsaber'));
         });
+        document.querySelector('.re-download-patcher').addEventListener('click',()=>{
+            this.backupsModal.close();
+            this.bsaber.deleteFolderRecursive(path.join(appData,'saber-quest-patch'));
+            this.mkdir(path.join(appData,'saber-quest-patch'));
+            this.spinner_loading_message.innerText = 'Downloading and Extracting QuestSaberPatch';
+            this.toggleLoader(true)
+            this.bsaber.downloadQuestSaberPatch()
+                .then(()=>{
+                    this.toggleLoader(false);
+                    this.resetInstructions.open();
+                    this.openCustomLevels();
+                })
+                .catch(e=>{
+                    this.toggleLoader(false);
+                    this.showStatus(e.toString(),true,true);
+                });
+        });
         document.querySelector('.make-data-backup').addEventListener('click',()=>{
             this.backupsModal.close();
             this.toggleLoader(true);
@@ -300,6 +335,7 @@ class App{
                     this.showStatus(e.toString(),true,true);
                 });
         });
+        this.resetInstructions = M.Modal.getInstance(document.querySelector('#modal6'));
         this.backupsModal = M.Modal.getInstance(document.querySelector('#modal5'));
         this.patchModal = M.Modal.getInstance(document.querySelector('#modal4'));
 
@@ -413,11 +449,7 @@ class App{
                 let backupsContainer = document.getElementById('backupsContainer');
                 let dataBackupsContainer = document.getElementById('dataBackupsContainer');
                 backupsContainer.innerHTML = files.length?'':'<br><h5>&nbsp;&nbsp;&nbsp;No Backups made!! Make a backup now!</h5>';
-                if(await this.bsaber.hasBeatSDFolder('data') || await this.bsaber.hasBeatSDFolder('obb')){
-                    dataBackupsContainer.style.display = 'block';
-                }else{
-                    dataBackupsContainer.style.display = 'none';
-                }
+
                 files.forEach(f=>{
                     let child = this.backupTemplate.content.cloneNode(true);
                     child.querySelector('.backup-name').innerText = f;
@@ -434,6 +466,28 @@ class App{
                     backupsContainer.appendChild(child);
                 });
                 M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
+            });
+
+        this.getMyDataBackups()
+            .then(async dirs=>{
+                let dataBackupsContainer = document.getElementById('dataBackupsContainerInner');
+                dirs.forEach(f=>{
+                    let child = this.backupTemplate.content.cloneNode(true);
+                    child.querySelector('.backup-name').innerText = f;
+                    child.querySelector('.restore-backup').addEventListener('click',()=>{
+                        this.spinner_loading_message.innerText = 'Restoring Data Backup, Please wait...';
+                        this.backupsModal.close();
+                        this.toggleLoader(true);
+                        this.bsaber.restoreDataBackup(f)
+                            .then(()=>{
+                                this.showStatus('Data Backup restored!!');
+                                this.toggleLoader(false)
+                            });
+                    });
+                    dataBackupsContainer.appendChild(child);
+                });
+                M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
+
             });
     }
     getAppSummary(app){
@@ -732,7 +786,24 @@ class App{
         this.beatView.style.left = '0';
         this.apkInstall.style.display = 'none';
         this.browser_bar.style.display = 'block';
-        this.beatView.loadURL('https://bsaber.com')
+        if(!this.beatLoaded){
+            this.beatView.loadURL('https://bsaber.com');
+            this.beatLoaded = true;
+        }
+    }
+    getMyDataBackups(){
+        let backupDirectory = path.join(appData,'bsaber-data-backups');
+        return new Promise(resolve=>{
+            fs.readdir(backupDirectory,(err,data)=> {
+                if (err) {
+                    this.showStatus("Error reading backup directory: " + backupDirectory + ", Error:" + err);
+                    resolve();
+                } else {
+                    resolve((data||[]).filter(d=>fs.lstatSync(path.join(backupDirectory,d)).isDirectory()&&fs.existsSync(path.join(backupDirectory,d,'PlayerData.dat'))));
+
+                }
+            });
+        });
     }
     getMyBackups(){
         let backupDirectory = path.join(appData,'bsaber-backups');
@@ -748,11 +819,19 @@ class App{
             });
         });
     }
+    cleanSongName(songName,songDirectory){
+        let name = songName.replace(/\(.+?\)/g, '');
+        name = name.replace(/[^a-z0-9]+/gi, '');
+        if(name !== songName){
+            fs.renameSync(path.join(songDirectory,songName),path.join(songDirectory,name))
+        }
+        return name;
+    }
     getMySongs(){
         let songsDirectory = path.join(appData,'bsaber');
         let songs = [];
 
-        return new Promise(resolve=>{
+        return this.mkdir(songsDirectory).then(()=>new Promise(resolve=>{
             fs.readdir(songsDirectory,(err,data)=>{
                 if(err) {
                     this.showStatus("Error reading songs directory: "+songsDirectory+", Error:"+err);
@@ -763,17 +842,40 @@ class App{
                         let songDirectory = path.join(songsDirectory,folder);
                         return new Promise(r=>{
                             fs.readdir(songDirectory,(err,songName)=>{
-                                songName = songName.filter(d=>fs.lstatSync(path.join(songDirectory,d)).isDirectory());
-                                if(err||!songName.length) {
+                                if(err) {
                                     this.showStatus("Error reading songs directory: "+songDirectory+", Error:"+err);
                                     r();
                                 }else{
+                                    songName = songName.filter(d=>fs.lstatSync(path.join(songDirectory,d)).isDirectory());
+                                    if(!songName.length){
+                                        this.showStatus("Error, song is empty: "+path.join(songDirectory));
+                                        return r();
+                                    }
+                                    if(songName.length>1){
+                                        this.showStatus("Error, song has multiple folders: "+path.join(songDirectory));
+                                        return r();
+                                    }
                                     songName = songName[0];
-                                    fs.readdir(path.join(songDirectory, songName),(err2,fileNames)=> {
-                                        if(err||!songName.length) {
+                                    console.log(songName);
+                                    songName = this.cleanSongName(songName,songDirectory);
+                                    fs.readdir(path.join(songDirectory, songName),async (err2,fileNames)=> {
+                                        if(err||!fileNames.length) {
                                             this.showStatus("Error reading songs directory: "+path.join(songDirectory, songName)+", Error:"+err2);
                                             r();
                                         }else {
+                                            if(~fileNames.indexOf('info.json')){
+                                                let innerDir = path.join(songDirectory, songName);
+                                                if(fs.existsSync(path.join(innerDir,'info.json'))){
+                                                    await this.bsaber.convertSong(innerDir);
+                                                }
+                                            }
+                                            if(!~fileNames.indexOf('info.dat')){
+                                                this.showStatus("Error, song has no info.dat: "+path.join(songDirectory, songName)+", Error:"+err2);
+                                                return r();
+                                            }
+                                            if(!~fileNames.indexOf('cover.jpg')&&!~fileNames.indexOf('cover.png')){
+                                                fs.copyFileSync(path.join(__dirname,'default-cover.jpg'),path.join(songDirectory, songName,'cover.jpg'));
+                                            }
                                             let covername = ~fileNames.indexOf('cover.jpg') ? 'cover.jpg' :
                                                 ~fileNames.indexOf('cover.png') ? 'cover.png' :'cover.jpg';
                                             song.name = songName;
@@ -788,12 +890,16 @@ class App{
                         });
                     }))
                         .then(()=>{
-                            this.songs = songs;
+                            this.songs = songs.sort((a,b)=>{
+                                let textA = a.name.toUpperCase();
+                                let textB = b.name.toUpperCase();
+                                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                            });
                             resolve();
                         });
                 }
             });
-        });
+        }));
     }
     async openCustomLevels() {
         this.add_repo.style.display = 'none';
@@ -850,7 +956,7 @@ and of course
         }else if(!isBeatSaberInstalled){
             this.container.innerHTML = '<h4>Beat saber not installed...</h4>';
         }else if(!isQuestSaberPatch){
-            this.container.innerHTML = '<h4>Still downloading files plaese wait and try again...</h4>';
+            this.container.innerHTML = '<h4>Still downloading files please wait and try again...</h4>';
         }
     }
     openDeviceSettings() {
