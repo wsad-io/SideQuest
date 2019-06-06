@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, Menu} = require('electron');
 const path = require('path');
 const fs = require('fs');
 let mainWindow,open_url,is_loaded;
@@ -22,11 +22,33 @@ function createWindow () {
     mainWindow.on('closed', function () {
         mainWindow = null
     });
-    mainWindow.setMenu(null);
+    setupMenu();
     mainWindow.webContents.once('dom-ready', async e=>{
         parseOpenUrl(process.argv);
     });
 }
+
+function setupMenu () {
+    const template = [{
+        label: "SideQuest",
+        submenu: [
+            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]}, {
+        label: "Edit",
+        submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+        ]}
+    ];
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
 const gotTheLock = app.requestSingleInstanceLock?app.requestSingleInstanceLock():true;
 let parseOpenUrl = argv=>{
     if(argv[1]&&argv[1].length&&argv[1].substr(0,12) === 'sidequest://'){
@@ -57,16 +79,16 @@ if (!gotTheLock) {
         if (mainWindow === null) createWindow()
     });
     app.setAsDefaultProtocolClient('sidequest');
-     app.on('open-url', function (event, url) {
-         console.log("open url")
-         event.preventDefault();
-         fs.writeFileSync(path.join(app.getPath('appData'),'SideQuest','test_output.txt'),url);
-         if(is_loaded){
-             mainWindow.webContents.send('open-url', url );
-         }else{
-             open_url = url;
-         }
-     });
+    app.on('open-url', function (event, url) {
+        console.log("open url")
+        event.preventDefault();
+        fs.writeFileSync(path.join(app.getPath('appData'),'SideQuest','test_output.txt'),url);
+        if(is_loaded){
+            mainWindow.webContents.send('open-url', url );
+        }else{
+            open_url = url;
+        }
+    });
 }
 
 
