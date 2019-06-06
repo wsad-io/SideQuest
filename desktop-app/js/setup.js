@@ -73,8 +73,22 @@ class Setup {
     installLocalObb(filepath,dontCatchError,cb = null){
         let filename = path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
-        console.log(filename, packageId)
-        let p = this.adb.push(this.deviceSerial, fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`);
+        let p = this.adb.push(this.deviceSerial, fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`)
+            .then(transfer=>new Promise((resolve, reject)=>{
+                let text = 'Uploading Obb...';
+                let timer = setInterval(()=>{
+                    text = text+".";
+                    this.app.spinner_loading_message.innerHTML = text+'<br>This will take some time.'
+                },3000);
+                transfer.on('end', ()=>{
+                    clearInterval(timer);
+                    resolve();
+                });
+                transfer.on('error', ()=>{
+                    clearInterval(timer);
+                    reject();
+                });
+            }));
         if(cb){
             cb()
         }

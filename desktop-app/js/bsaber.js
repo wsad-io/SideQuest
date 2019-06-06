@@ -369,7 +369,8 @@ class Bsaber{
                         resolve();
                     });
                     transfer.pipe(fs.createWriteStream(settingsPath));
-                }));
+                }))
+                .catch(e=>{});
         }
         if(await this.hasBeatSDFolder('obb')){
             this.app.mkdir(path.join(appData,'bsaber-data-backups',folderName));
@@ -382,6 +383,7 @@ class Bsaber{
                         transfer.on('error', reject);
                         transfer.pipe(fs.createWriteStream(path.join(appData,'bsaber-data-backups',folderName,'obb',folder)));
                     }))
+                    .catch(e=>{});
             });
         }
         return folderName;

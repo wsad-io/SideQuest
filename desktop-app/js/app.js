@@ -867,7 +867,6 @@ class App{
                                         return r();
                                     }
                                     songName = songName[0];
-                                    console.log(songName);
                                     songName = this.cleanSongName(songName,songDirectory);
                                     fs.readdir(path.join(songDirectory, songName),async (err2,fileNames)=> {
                                         if(err||!fileNames.length) {
@@ -1078,6 +1077,16 @@ and of course
         });
         document.querySelector('.open-main-app-folder').addEventListener('click',()=>{
             shell.openItem(appData);
+        });
+        document.querySelector('.grant-pavlov-permission').addEventListener('click',()=>{
+            this.setup.adb.shell(this.setup.deviceSerial,'pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO')
+                .then(adb.util.readAll)
+                .then(res=>{
+                    this.showStatus('Set permission OK!');
+                })
+                .catch(e=>{
+                    this.showStatus(e.toString(),true,true);
+                });
         });
 
         document.querySelector('.open-adb-folder').addEventListener('click',()=>{
