@@ -44,6 +44,15 @@ If you have any problems you can hit the debugger icon to capture any errors - t
 
 I will be adding more apps to the repos and I will be notifying of repo updates on my [discord server](https://discord.gg/Q2a5BkZ) - you can then manually update the repos in the repos section to get the new app listings. 
 
+## Browser Extensions
+[@ATechAdventurer](https://github.com/ATechAdventurer) was kind enough to make some browser extensions:
+
+My SideQuest Chrome and Firefox extensions as of v0.1.0 support Bsaber.com and Beatsaver.com.
+
+Chrome-> https://chrome.google.com/webstore/detail/fmifajifkgfamekjpeanjmjjiimfhbjl/publish-delayed?hl=en
+
+Firefox-> https://addons.mozilla.org/en-US/firefox/addon/sidequest-bsaber-extension/
+
 ## Important
 
 Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. Also some users reported issues with k9 web filter, if you use this then you might need to unblock `http://keepsummersafe.x10host.com/` and `http://showmewhatyougot.x10host.com/` - these are the default repo urls, then only have json index files on them and are totally safe. 
