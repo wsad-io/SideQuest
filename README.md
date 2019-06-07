@@ -49,7 +49,7 @@ I will be adding more apps to the repos and I will be notifying of repo updates 
 
 My SideQuest Chrome and Firefox extensions as of v0.1.0 support Bsaber.com and Beatsaver.com.
 
-Chrome-> https://chrome.google.com/webstore/detail/fmifajifkgfamekjpeanjmjjiimfhbjl/publish-delayed?hl=en
+Chrome-> https://chrome.google.com/webstore/detail/fmifajifkgfamekjpeanjmjjiimfhbjl/
 
 Firefox-> https://addons.mozilla.org/en-US/firefox/addon/sidequest-bsaber-extension/
 
