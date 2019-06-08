@@ -11,7 +11,109 @@ class Bsaber{
             localStorage.setItem("beat-saber-version",JSON.stringify(['1.0.2','1.0.1','1.0.0']));
             this.supportedBeatSaberVersions = ['1.0.2','1.0.1','1.0.0'];
         }
-        this.questSaberPatchVersion = localStorage.getItem("quest-saber-patch-version")||'v0.5.2';
+        this.questSaberPatchVersion = localStorage.getItem("quest-saber-patch-version")||'v0.6.1';
+    }
+    saveJson(jSon){
+        let _jSon = {
+            apkPath:jSon.apkPath,
+            sign:true,
+            patchSignatureCheck:true,
+            levels:{},
+            packs:[],
+            exitAfterward:true,
+            colors:{
+                colorA:jSon.colors.colorA,
+                colorB:jSon.colors.colorB
+            },
+            replaceText:jSon.replaceText
+        };
+        jSon.packs.forEach((p,i)=>{
+            let pack = {
+                id:'pack_'+i,
+                name:p.name,
+                coverImagePath:p.coverImagePath,
+                levelIDs:p.levelIDs.map(l=>{
+                    _jSon.levels[l.id+"_"+l.name] = l.path;
+                    return l.id+"_"+l.name;
+                }),
+            };
+            _jSon.packs.push(pack)
+        });
+        fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(_jSon));
+    }
+    getAppJson(){
+        let patched_file = path.join(appData,'bsaber-base_patched.apk');
+        let songKeys = this.app.songs.map(s=>s.id+"_"+s.name);
+        let defaultJSON = {
+            "apkPath":patched_file,
+            "sign":true,
+            "patchSignatureCheck":true,
+            "levels":{},
+            "packs":[
+                {
+                    // Must be unique between packs but doesn't need to be consistent
+                    "id": "pack_0",
+                    // Display name of the pack
+                    "name": "Custom Songs",
+                    // Image file for the cover that will be displayed for the pack
+                    "coverImagePath": path.join(__dirname,'default-pack-cover.png'),
+                    // List of level IDs in the pack in the order you want them displayed.
+                    // Each levelID can be in multiple packs if you want.
+                    "levelIDs": songKeys,
+                }
+            ],
+            "exitAfterward":true,
+            "colors": {
+                // A is the red/left hand by default, but left-handed people might use the setting to switch hands
+                "colorA": null,
+                // null for either resets to the default color for that saber
+                "colorB": null,
+            },
+            "replaceText": {
+                // See https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt for
+                "BUTTON_PLAY": "GO!",
+            }
+        };
+        this.app.songs.forEach(song=>{
+            defaultJSON.levels[song.id+"_"+song.name] = song.path;
+        });
+        let jsonFile = path.join(appData,'__json.json');
+        let data = defaultJSON;
+        if(fs.existsSync(jsonFile)){
+            try{
+                data = fs.readFileSync(jsonFile,'utf8');
+                data = JSON.parse(data);
+                if(data.ensureInstalled){
+                    data.levels = data.ensureInstalled
+                    delete data.ensureInstalled;
+                }
+                if(!data.colors){
+                    data.colors = defaultJSON.colors;
+                }
+                if(!data.replaceText){
+                    data.replaceText = defaultJSON.replaceText;
+                }
+                if(!data.packs){
+                    data.packs = [defaultJSON.packs[0]];
+                }
+                data.packs.forEach(d=>{
+                    d.levelIDs = d.levelIDs.map(l=>{
+                        let index = songKeys.indexOf(l);
+                        if(index>-1){
+                            return this.app.songs[index];
+                        }else{
+                            return null;
+                        }
+                    }).filter(l=>l);
+                })
+            }catch(e){
+                console.log(e)
+                this.app.showStatus('Error Loading JSON file; __json.json',true,true);
+            }
+        }else{
+            fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(data));
+        }
+        return data;
     }
     setExecutable(path){
         return new Promise((resolve)=>{
@@ -55,8 +157,8 @@ class Bsaber{
     }
     questSaberPatch(json){
         return new Promise((resolve,reject)=>{
-            console.log("Starting QuestSaberPatch: ",json);
-            fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(json));
+            console.log("Starting QuestSaberPatch: ",fs.readFileSync(path.join(appData,'__json.json'),'utf8'));
+            //fs.writeFileSync(path.join(appData,'__json.json'),JSON.stringify(json));
             const exec = require('child_process').exec;
             exec('"'+this.questSaberBinaryPath+'" < "'+path.join(appData,'__json.json')+'"', function(err, stdout, stderr) {
                 if (err) {
@@ -67,11 +169,40 @@ class Bsaber{
                     console.log("QuestSaberPatch Response: ",stdout);
                 }catch(e){
                     console.warn("QuestSaberPatch Failure: ",stdout);
-                    return reject('JSON parse error from jsonApp.exe');
+                    return reject('JSON parse error from jsonApp2.exe');
                 }
                 if(stderr)return reject(stderr);
                 return resolve(stdout);
             });
+        });
+    }
+    async patchAPK2(songs) {
+        return new Promise((resolve,reject)=>{
+            let patched_file = path.join(appData,'bsaber-base_patched.apk');
+            if(!this.app.setup.doesFileExist(patched_file)){
+                if(!this.resetPatched()){
+                    return reject('Could not copy base file, Does not exist!');
+                }
+            }
+            // let json = {
+            //     "apkPath":this.app.jSon.apkPath,
+            //     "sign":true,
+            //     "patchSignatureCheck":true,
+            //     "levels":this.app.jSon.levels,
+            //     "packs":this.app.jSon.packs,
+            //     "exitAfterward":true,
+            //     "colors": {
+            //         // A is the red/left hand by default, but left-handed people might use the setting to switch hands
+            //         "colorA": this.app.jSon.colors.colorA,
+            //         // null for either resets to the default color for that saber
+            //         "colorB": this.app.jSon.colors.colorB,
+            //     },
+            //     "replaceText": this.app.jSon.replaceText
+            // };
+
+            this.questSaberPatch()//json
+                .then(resolve)
+                .catch(reject);
         });
     }
     async patchAPK(songs) {
@@ -146,16 +277,16 @@ class Bsaber{
     async downloadQuestSaberPatch(){
         await this.getBSandQSPVersions();
         let url = 'https://github.com/trishume/QuestSaberPatch/releases/download/'+this.questSaberPatchVersion+'/questsaberpatch-';
-        let name = 'questsaberpatch/jsonApp.exe';
+        let name = 'questsaberpatch/jsonApp2.exe';
         switch (os.platform()) {
             case 'win32':
-                name = 'questsaberpatch/jsonApp.exe';
+                name = 'questsaberpatch/jsonApp2.exe';
                 break;
             case 'darwin':
-                name = 'questsaberpatch/jsonApp';
+                name = 'questsaberpatch/jsonApp2';
                 break;
             case 'linux':
-                name = 'questsaberpatch/jsonApp';
+                name = 'questsaberpatch/jsonApp2';
                 break;
         }
         let downloadPath = path.join(appData, 'saber-quest-patch',name);
@@ -308,7 +439,7 @@ class Bsaber{
         if(!~this.app.setup.devicePackages.indexOf(this.beatSaberPackage)) return Promise.reject("Not installed");
         if(!songs.length) return Promise.reject("No songs selected");
         return this.setBeatVersion(true)
-            .then(()=>this.patchAPK(songs))
+            .then(()=>this.patchAPK2(songs))
             .catch(e=>{
                 this.app.showStatus(e.toString(),true,true);
             })
@@ -327,9 +458,17 @@ class Bsaber{
         let backupDirectory = path.join(appData,'bsaber-data-backups',folderName,'obb');
         return this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'PlayerData.dat'),
             '/sdcard/Android/data/com.beatgames.beatsaber/files/PlayerData.dat')
+            .then(()=>this.app.setup.doesFileExist(path.join(appData,'bsaber-data-backups',folderName,'LocalLeaderboards.dat'))?
+                this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'LocalLeaderboards.dat'),
+                '/sdcard/Android/data/com.beatgames.beatsaber/files/LocalLeaderboards.dat'):
+                Promise.resolve())
+            .then(()=>this.app.setup.doesFileExist(path.join(appData,'bsaber-data-backups',folderName,'LocalDailyLeaderboards.dat'))?
+                this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'LocalDailyLeaderboards.dat'),
+                    '/sdcard/Android/data/com.beatgames.beatsaber/files/LocalDailyLeaderboards.dat'):
+                Promise.resolve())
             .then(()=>this.app.setup.doesFileExist(path.join(appData,'bsaber-data-backups',folderName,'settings.cfg'))?
                 this.app.setup.adb.push(this.app.setup.deviceSerial,path.join(appData,'bsaber-data-backups',folderName,'settings.cfg'),
-                '/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'):
+                    '/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'):
                 Promise.resolve())
             .then(()=> new Promise((resolve,reject)=>{
                 fs.readdir(backupDirectory,(err,data)=> {
@@ -350,7 +489,7 @@ class Bsaber{
 
     }
     async makeDataBackup(){
-        let folderName = new Date().getTime().toString();
+        let folderName = (JSON.stringify(new Date()).split('"').join('').split(':').join('-').trim());
         if(await this.hasBeatSDFolder('data')){
             this.app.mkdir(path.join(appData,'bsaber-data-backups',folderName));
             await this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/PlayerData.dat')
@@ -358,9 +497,34 @@ class Bsaber{
                     transfer.on('end', resolve);
                     transfer.on('error', reject);
                     transfer.pipe(fs.createWriteStream(path.join(appData,'bsaber-data-backups',folderName,'PlayerData.dat')));
-                })).then(()=>this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'))
+                }))
+                .then(()=>this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/settings.cfg'))
                 .then(transfer=>new Promise((resolve, reject)=>{
                     let settingsPath = path.join(appData,'bsaber-data-backups',folderName,'settings.cfg')
+                    transfer.on('end', resolve);
+                    transfer.on('error', err=>{
+                        if(this.app.setup.doesFileExist(settingsPath)){
+                            fs.unlinkSync(settingsPath)
+                        }
+                        resolve();
+                    });
+                    transfer.pipe(fs.createWriteStream(settingsPath));
+                }))
+                .then(()=>this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/LocalLeaderboards.dat'))
+                .then(transfer=>new Promise((resolve, reject)=>{
+                    let settingsPath = path.join(appData,'bsaber-data-backups',folderName,'LocalLeaderboards.dat')
+                    transfer.on('end', resolve);
+                    transfer.on('error', err=>{
+                        if(this.app.setup.doesFileExist(settingsPath)){
+                            fs.unlinkSync(settingsPath)
+                        }
+                        resolve();
+                    });
+                    transfer.pipe(fs.createWriteStream(settingsPath));
+                }))
+                .then(()=>this.app.setup.adb.pull(this.app.setup.deviceSerial,'/sdcard/Android/data/com.beatgames.beatsaber/files/LocalDailyLeaderboards.dat'))
+                .then(transfer=>new Promise((resolve, reject)=>{
+                    let settingsPath = path.join(appData,'bsaber-data-backups',folderName,'LocalDailyLeaderboards.dat')
                     transfer.on('end', resolve);
                     transfer.on('error', err=>{
                         if(this.app.setup.doesFileExist(settingsPath)){

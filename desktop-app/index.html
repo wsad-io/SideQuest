@@ -4,35 +4,105 @@
     <meta charset="UTF-8">
     <title>SideQuest</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.css"/>
     <link href="https://fonts.googleapis.com/css?family=PT+Sans|Roboto" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="style.css" rel="stylesheet" />
 </head>
 <body>
+
+<template id="syncSelected">
+
+    We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
+    <br><br>
+    This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
+    <br><br>
+    <div class="row">
+        <div class="col s4">
+            <h4>Saber Colors</h4>
+            <p>
+                Color A ( usually left ):<br>
+            <div class="color-picker color-a-pick" id="colorA"></div>
+            </p>
+            <br><br>
+            <p>
+                Color B ( usually right ):<br>
+            <div class="color-picker color-b-pick" id="colorB"></div>
+            </p>
+        </div>
+        <div class="col s6">
+            <h4>Replace Text</h4>
+            <div class="row">
+                <div class="input-field col s5">
+                    <input id="add-replace-key" type="text">
+                    <label for="add-replace-key">Replace Key</label>
+                </div>
+                <div class="input-field col s5">
+                    <input id="add-replace-value" type="text">
+                    <label for="add-replace-value">Replace Value</label>
+                </div>
+                <div class="col s2">
+                    <a href="#!" class="btn waves-effect waves-green add-replace">Add</a>
+                </div>
+            </div>
+            <div id="replaceTextValues">
+            </div>
+        </div>
+    </div>
+</template>
+<template id="replaceItem">
+    <div class="row">
+        <div class="col s5 add-replace-key"></div>
+        <div class="col s5 add-replace-value"></div>
+        <div class="col s2">
+            <a href="#!" class="btn waves-effect waves-green remove-replace">Remove</a>
+        </div>
+    </div>
+</template>
+
 <template id="deviceSettings">
     <div class="col s12">
-    <div class="section-title">Set FFR ( Fixed Foveated Rendering ) level</div>
-    This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality.
-    <p style="text-align: center">
-        <a  href="#" class="waves-effect waves-light btn set-ffr">Off</a>
-        <a  href="#" class="waves-effect waves-light btn set-ffr">Low</a>
-        <a  href="#" class="waves-effect waves-light btn set-ffr">Medium</a>
-        <a  href="#" class="waves-effect waves-light btn set-ffr">High</a>
-        <a  href="#" class="waves-effect waves-light btn set-ffr">High Top</a>
-    </p>
 
-    <br><br>
-    <br><br>
-    <div class="section-title">Set CPU and GPU level</div>
-    This can improve performance for 2D apps & games.
-    <p style="text-align: center">
-        <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 2</a>
-        <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 4</a>
-    </p>
-    <br><br>
-    <br><br>
-    <div class="section-title">Paste Text to your device</div>
-    <p style="text-align: center">
+        <div class="section-title">SideQuest Stuff</div>
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn open-main-app-folder margin-top-bottom">Open Main App Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a  href="#" class="waves-effect waves-light btn open-adb-folder margin-top-bottom">Open ADB Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <!--<a  href="#" class="waves-effect waves-light btn open-adb-command-window margin-top-bottom">Open ADB Command Window</a>&nbsp;&nbsp;&nbsp;&nbsp;-->
+            <a  href="#" class="waves-effect waves-light btn open-bsaber-folder margin-top-bottom">Open Bsaber Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a  href="#" class="waves-effect waves-light btn open-bsaber-backup-folder margin-top-bottom">Open Bsaber Backup Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a  href="#" class="waves-effect waves-light btn open-bsaber-data-backup-folder margin-top-bottom">Open Bsaber Data Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a  href="#" class="waves-effect waves-light btn open-bsaber-patch-folder margin-top-bottom">Open Quest Saber Patch Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Pavlov Audio</div>
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn grant-pavlov-permission margin-top-bottom">Grant Pavlov Audio Permission</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Set FFR ( Fixed Foveated Rendering ) level</div>
+        This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Off</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Low</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Medium</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">High</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">High Top</a>
+        </p>
+
+        <br><br>
+        <br><br>
+        <div class="section-title">Set CPU and GPU level</div>
+        This can improve performance for 2D apps & games.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 2</a>
+            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 4</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Paste Text to your device</div>
+        <p style="text-align: center">
         <div class="input-field ">
             <input id="devicePaste" type="text">
             <label for="devicePaste">Text to Paste</label>
@@ -46,23 +116,7 @@
             </label>
         </div>
         <a  href="#" class="waves-effect waves-light btn paste-text-button right">Send</a>
-    </p>
-    <br><br>
-    <div class="section-title">Pavlov Audio</div>
-    <p style="text-align: center">
-        <a  href="#" class="waves-effect waves-light btn grant-pavlov-permission margin-top-bottom">Grant Pavlov Audio Permission</a>&nbsp;&nbsp;&nbsp;&nbsp;
-    </p>
-    <br><br>
-    <div class="section-title">SideQuest Stuff</div>
-    <p style="text-align: center">
-        <a  href="#" class="waves-effect waves-light btn open-main-app-folder margin-top-bottom">Open Main App Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a  href="#" class="waves-effect waves-light btn open-adb-folder margin-top-bottom">Open ADB Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <!--<a  href="#" class="waves-effect waves-light btn open-adb-command-window margin-top-bottom">Open ADB Command Window</a>&nbsp;&nbsp;&nbsp;&nbsp;-->
-        <a  href="#" class="waves-effect waves-light btn open-bsaber-folder margin-top-bottom">Open Bsaber Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a  href="#" class="waves-effect waves-light btn open-bsaber-backup-folder margin-top-bottom">Open Bsaber Backup Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a  href="#" class="waves-effect waves-light btn open-bsaber-data-backup-folder margin-top-bottom">Open Bsaber Data Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a  href="#" class="waves-effect waves-light btn open-bsaber-patch-folder margin-top-bottom">Open Quest Saber Patch Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-    </p>
+        </p>
 
     </div>
 </template>
@@ -130,7 +184,7 @@
                 <br><br>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="display: none;">
             <div class="col s12">
                 <div class="section-title">App Developers Link to your apps!</div>
                 <p style="text-align: center" >Use our custom protocol to be able to install APK files, add repos and even load custom beat saber songs direct from your website.</p>
@@ -216,6 +270,26 @@
             <span class="repo-description">IzzyOnDroid F-Droid Repo - https://apt.izzysoft.de/fdroid/repo/</span>
         </div>
     </div>
+</template>
+<template id="packContainer">
+    <div class="packOuter">
+        <i class="material-icons right blue-text show-pack cursor">expand_more</i>
+        <i class="material-icons right green-text edit-pack cursor">edit</i>
+        <h5 class="name truncate"></h5>
+        <div class="pack-song-container-outer">
+            <ul class="collection pack-song-container ">
+
+            </ul>
+        </div>
+    </div>
+</template>
+<template id="songItem">
+    <li class="collection-item avatar">
+        <img src="images/yuna.jpg" alt="" class="circle">
+        <span class="title">Title</span>
+        <p class="description"></p>
+        <a href="#!" class="secondary-content"><i class="material-icons orange-text delete-song">close</i></a>
+    </li>
 </template>
 <template id="listItem">
     <div class="col s6 l3">
@@ -346,8 +420,8 @@
     </div>
     <div class="body-content">
         <webview id="beatView" src="https://bsaber.com/" class="bsaber-webview" preload="./preload.js"></webview>
-        <div class="content-padding">
-            <div class="row" id="container">
+        <div class="content-padding" style="height: 100%">
+            <div class="row" id="container" style="height: 100%">
                 <h4 class="grey-text">Loading apps...</h4>
             </div>
         </div>
@@ -467,15 +541,39 @@
         <a href="#!" class="btn waves-effect waves-light orange backup-new-master-modal">Backup New Master</a>
     </div>
 </div>
+<div id="modal7" class="modal modal-fixed-footer modal-fixed-width">
+    <div class="modal-content">
+        <h4>Add Pack</h4>
+        <div class="input-field">
+            <input id="packName" type="text" placeholder="Name of the pack">
+            <label for="packName">Pack Name</label>
+        </div>
+        <div>
+            <a href="#!" class="btn waves-effect waves-light add-pack-cover-image">Pick Pack Cover Image</a>
+            <p class="cover-image-path"></p>
+        </div>
+        <div>
+            <a href="#!" class="btn waves-effect waves-light red delete-pack">Delete this pack</a>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close btn orange waves-effect waves-light add-pack-close">Cancel</a>
+        <a href="#!" class="modal-close btn waves-effect waves-light add-pack-button">Save Pack</a>
+    </div>
+</div>
 <div class="spinner-drag text-center">
     <div class="well well-lg">
         <h5>Drop APK/OBB to install!</h5>
     </div>
 </div>
 <div class="spinner-background"></div>
+<ul class="collection temp-move-container">
 
+</ul>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 <script src="js/requires.js"></script>
 <script src="js/setup.js"></script>
 <script src="js/bsaber.js"></script>

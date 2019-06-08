@@ -80,7 +80,6 @@ if (!gotTheLock) {
     });
     app.setAsDefaultProtocolClient('sidequest');
     app.on('open-url', function (event, url) {
-        console.log("open url")
         event.preventDefault();
         fs.writeFileSync(path.join(app.getPath('appData'),'SideQuest','test_output.txt'),url);
         if(is_loaded){
