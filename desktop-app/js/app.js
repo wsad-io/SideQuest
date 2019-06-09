@@ -89,7 +89,7 @@ class App{
                         this.toggleLoader(true);
                         this.bsaber.downloadSong(data.beatsaber)
                             .then(()=>{
-                                this.getMySongs()
+                                return this.getMySongs()
                                     .then(()=>this.toggleLoader(false))
                                     .then(()=>this.showStatus('Level Downloaded Ok!!'))
                                     .then(()=>this.bsaber.getCurrentDeviceSongs(true));
@@ -151,7 +151,63 @@ class App{
             fs.mkdir(path,resolve);
         })
     }
+    resetBase(){
+        this.backupsModal.close()
+        this.toggleLoader(true);
+        this.spinner_loading_message.innerText = 'Getting Master Backup...';
+        this.bsaber.resetBase()
+            .then(()=>{
+                this.toggleLoader(false);
+                this.bsaber.resetPatched();
+            });
+    }
     setupMenu(){
+        document.querySelector('.add-pack-cover-image').addEventListener('click',()=>{
+            dialog.showOpenDialog({
+                properties: ['openFile'],
+                filters:[
+                    { name: 'Cover Images ( JPG,PNG )', extensions: ['png','jpg'] }
+                ]
+            }, (files)=> {
+                if (files !== undefined && files.length===1) {
+                    this.packCoverPath = files[0];
+                    document.querySelector('.cover-image-path').innerHTML = files[0];
+                }
+            });
+        });
+        document.querySelector('.delete-pack').addEventListener('click',()=>{
+            if(this.jSon&&this.currentPack){
+                this.jSon.packs = this.jSon.packs.filter(p=>p!==this.currentPack);
+                this.bsaber.saveJson(this.jSon);
+                this.refreshMySongs();
+                this.packEditModal.close();
+            }
+        });
+        document.querySelector('.add-pack-button').addEventListener('click',()=>{
+            if(this.jSon){
+                if(this.currentPack){
+                    this.currentPack.name = document.getElementById('packName').value;
+                    this.currentPack.coverImagePath = this.packCoverPath||path.join(__dirname,'default-pack-cover.png');
+                    delete this.currentPack;
+                }else{
+                    this.jSon.packs.push({id:this.jSon.packs.length,name: document.getElementById('packName').value,coverImagePath:this.packCoverPath||path.join(__dirname,'default-pack-cover.png'),levelIDs:[]})
+                }
+                this.bsaber.saveJson(this.jSon);
+                document.querySelector('.cover-image-path').innerHTML = '';
+                document.getElementById('packName').value = '';
+                document.querySelector('.delete-pack').style.display = 'none';
+                this.packCoverPath = null;
+                this.openCustomLevels();
+            }
+        });
+        document.querySelector('.reset-new-backup').addEventListener('click',()=>{
+            this.backupsModal.close();
+            this.resetBase()
+        });
+        document.querySelector('.backup-new-master-modal').addEventListener('click',()=>{
+            this.resetInstructions.close();
+            this.resetBase()
+        });
         document.querySelector('.select-new-base').addEventListener('click',()=>{
             dialog.showOpenDialog({
                 properties: ['openFile'],
@@ -194,9 +250,9 @@ class App{
         });
         this.patch_beatsaber = document.querySelector('.patch-beatsaber');
         this.patch_beatsaber.addEventListener('click',()=>{
-            let songs = (this.songs||[]).filter(d=>d.enabled);
+            let songs = (this.songs||[]);//.filter(d=>d.enabled);
             let questSaberPatchContainer = document.getElementById('questSaberPatchContainer');
-            if(this.patch_beatsaber.style.display !== 'none'&&songs.length){
+            if(this.patch_beatsaber.style.display !== 'none' || !songs.length){
                 questSaberPatchContainer.innerHTML = '<br><br><div style="text-align: center"><div class="loader-initial"></div><br>Patching now, <br>this should take 40 - 60 seconds...</div>';
                 this.patch_beatsaber.style.display = 'none';
                 let dataBackupFolder;
@@ -225,7 +281,6 @@ class App{
                             });
                         }
                     }))
-                    //.then(()=>this.bsaber.signAPK(path.join(appData,'bsaber-base_patched.apk')))
                     .then(()=>this.setup.uninstallApk('com.beatgames.beatsaber'))
                     .then(()=>this.setup.installLocalApk(path.join(appData,'bsaber-base_patched.apk'),true))
                     .then(()=>this.bsaber.restoreDataBackup(dataBackupFolder))
@@ -256,7 +311,7 @@ class App{
                     })
             }else{
                 this.patchModal.close();
-                this.showStatus('Something went wrong, do you have any songs selected?',true,true);
+                this.showStatus('Something went wrong, do you have songs selected?',true,true);
             }
         });
         this.statuscopy.addEventListener('click',()=>this.copyStatus());
@@ -269,6 +324,23 @@ class App{
         });
         document.querySelector('.open-songs-main-one').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'bsaber'));
+        });
+        document.querySelector('.re-download-patcher').addEventListener('click',()=>{
+            this.backupsModal.close();
+            this.bsaber.deleteFolderRecursive(path.join(appData,'saber-quest-patch'));
+            this.mkdir(path.join(appData,'saber-quest-patch'));
+            this.spinner_loading_message.innerText = 'Downloading and Extracting QuestSaberPatch';
+            this.toggleLoader(true)
+            this.bsaber.downloadQuestSaberPatch()
+                .then(()=>{
+                    this.toggleLoader(false);
+                    this.resetInstructions.open();
+                    this.openCustomLevels();
+                })
+                .catch(e=>{
+                    this.toggleLoader(false);
+                    this.showStatus(e.toString(),true,true);
+                });
         });
         document.querySelector('.make-data-backup').addEventListener('click',()=>{
             this.backupsModal.close();
@@ -311,8 +383,10 @@ class App{
                     this.showStatus(e.toString(),true,true);
                 });
         });
+        this.resetInstructions = M.Modal.getInstance(document.querySelector('#modal6'));
         this.backupsModal = M.Modal.getInstance(document.querySelector('#modal5'));
         this.patchModal = M.Modal.getInstance(document.querySelector('#modal4'));
+        this.packEditModal = M.Modal.getInstance(document.querySelector('#modal7'));
 
         let dragTimeout;
         document.ondragover = () => {
@@ -405,16 +479,96 @@ class App{
     }
     openSyncSelected(){
         this.patch_beatsaber.style.display = 'none';
+        let jSon = this.jSon;
         this.getMyBackups()
             .then(async files=> {
                 this.patch_beatsaber.style.display = files.length?'inline-block':'none';
                 this.patch_make_data_backup.style.display = files.length?'none':'inline-block';
                 let questSaberPatchContainer = document.getElementById('questSaberPatchContainer');
-                questSaberPatchContainer.innerHTML = files.length?`
-                    We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong. 
-                    <br><br>
-                    This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-                `:'<br><h5>&nbsp;&nbsp;&nbsp;No Backups made!! Make a backup now!</h5>';
+                if(files.length){
+                    let page = document.getElementById('syncSelected').content.cloneNode(true);
+                    questSaberPatchContainer.innerHTML = '';
+                    questSaberPatchContainer.appendChild(page);
+                    let replaceTexts = Object.keys(jSon.replaceText);
+                    console.log(jSon.replaceText);
+                    replaceTexts.forEach(replace=>{
+                        let child = document.getElementById('replaceItem').content.cloneNode(true);
+                        child.querySelector('.add-replace-key').innerText = replace;
+                        child.querySelector('.add-replace-value').innerText = jSon.replaceText[replace];
+                        child.querySelector('.remove-replace').addEventListener('click',()=>{
+                            delete jSon.replaceText[replace];
+                            this.bsaber.saveJson(jSon);
+                            this.openSyncSelected();
+                        });
+                        questSaberPatchContainer.querySelector('#replaceTextValues').appendChild(child);
+                    });
+                    questSaberPatchContainer.querySelector('.add-replace').addEventListener('click',()=>{
+                        jSon.replaceText[questSaberPatchContainer.querySelector('#add-replace-key').value] =
+                            questSaberPatchContainer.querySelector('#add-replace-value').value;
+                        console.log(JSON.stringify(jSon.replaceText));
+                        console.log(questSaberPatchContainer.querySelector('#add-replace-key').value,
+                            questSaberPatchContainer.querySelector('#add-replace-value').value);
+                        this.bsaber.saveJson(jSon);
+                        this.openSyncSelected();
+                    });
+                    let colorA = jSon.colors.colorA||{r:240.0/255.0,g:48.0/255.0,b:48.0/255.0,a:1};
+                    let colorB = jSon.colors.colorB||{r:48.0/255.0,g:158.0/255.0,b:1,a:1};
+
+                    Pickr.create({
+                        el: '.color-a-pick',
+                        default:'rgba('+Math.round(colorA.r*255)+','+Math.round(colorA.g*255)+','+Math.round(colorA.b*255)+','+colorA.a+')',
+                        defaultRepresentation: 'RGBA',
+                        components: {
+                            // Main components
+                            preview: true,
+                            opacity: true,
+                            hue: true,
+                            // Input / output Options
+                            interaction: {
+                                hex: true,
+                                rgba: true,
+                                hsla: true,
+                                hsva: true,
+                                cmyk: true,
+                                input: true,
+                                clear: true,
+                                save: true
+                            }
+                        }
+                    }).on('save', (...args) => {
+                        let c = args[0].toRGBA();
+                        jSon.colors.colorA = {r:c[0]/255,g:c[1]/255,b:c[2]/255,a:c[3]};
+                        this.bsaber.saveJson(jSon);
+                    });
+                    Pickr.create({
+                        el: '.color-b-pick',
+                        default:'rgba('+Math.round(colorB.r*255)+','+Math.round(colorB.g*255)+','+Math.round(colorB.b*255)+','+colorB.a+')',
+                        defaultRepresentation: 'RGBA',
+                        components: {
+                            // Main components
+                            preview: true,
+                            opacity: true,
+                            hue: true,
+                            // Input / output Options
+                            interaction: {
+                                hex: true,
+                                rgba: true,
+                                hsla: true,
+                                hsva: true,
+                                cmyk: true,
+                                input: true,
+                                clear: true,
+                                save: true
+                            }
+                        }
+                    }).on('save', (...args) => {
+                        let c = args[0].toRGBA();
+                        jSon.colors.colorB = {r:c[0]/255,g:c[1]/255,b:c[2]/255,a:c[3]};
+                        this.bsaber.saveJson(jSon);
+                    });
+                }else{
+                    questSaberPatchContainer.innerHTML = '<br><h5>&nbsp;&nbsp;&nbsp;No Backups made!! Make a backup now!</h5>';
+                }
             });
     }
     openBackups(){
@@ -422,13 +576,8 @@ class App{
             .then(async files=>{
                 this.bsaber.setBeatVersion(true);
                 let backupsContainer = document.getElementById('backupsContainer');
-                let dataBackupsContainer = document.getElementById('dataBackupsContainer');
                 backupsContainer.innerHTML = files.length?'':'<br><h5>&nbsp;&nbsp;&nbsp;No Backups made!! Make a backup now!</h5>';
-                if(await this.bsaber.hasBeatSDFolder('data') || await this.bsaber.hasBeatSDFolder('obb')){
-                    dataBackupsContainer.style.display = 'block';
-                }else{
-                    dataBackupsContainer.style.display = 'none';
-                }
+
                 files.forEach(f=>{
                     let child = this.backupTemplate.content.cloneNode(true);
                     child.querySelector('.backup-name').innerText = f;
@@ -445,6 +594,28 @@ class App{
                     backupsContainer.appendChild(child);
                 });
                 M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
+            });
+
+        this.getMyDataBackups()
+            .then(async dirs=>{
+                let dataBackupsContainer = document.getElementById('dataBackupsContainerInner');
+                dirs.forEach(f=>{
+                    let child = this.backupTemplate.content.cloneNode(true);
+                    child.querySelector('.backup-name').innerText = f;
+                    child.querySelector('.restore-backup').addEventListener('click',()=>{
+                        this.spinner_loading_message.innerText = 'Restoring Data Backup, Please wait...';
+                        this.backupsModal.close();
+                        this.toggleLoader(true);
+                        this.bsaber.restoreDataBackup(f)
+                            .then(()=>{
+                                this.showStatus('Data Backup restored!!');
+                                this.toggleLoader(false)
+                            });
+                    });
+                    dataBackupsContainer.appendChild(child);
+                });
+                M.Tooltip.init(document.querySelectorAll('.tooltipped'), {});
+
             });
     }
     getAppSummary(app){
@@ -743,7 +914,24 @@ class App{
         this.beatView.style.left = '0';
         this.apkInstall.style.display = 'none';
         this.browser_bar.style.display = 'block';
-        this.beatView.loadURL('https://bsaber.com')
+        if(!this.beatLoaded){
+            this.beatView.loadURL('https://bsaber.com');
+            this.beatLoaded = true;
+        }
+    }
+    getMyDataBackups(){
+        let backupDirectory = path.join(appData,'bsaber-data-backups');
+        return new Promise(resolve=>{
+            fs.readdir(backupDirectory,(err,data)=> {
+                if (err) {
+                    this.showStatus("Error reading backup directory: " + backupDirectory + ", Error:" + err);
+                    resolve();
+                } else {
+                    resolve((data||[]).filter(d=>fs.lstatSync(path.join(backupDirectory,d)).isDirectory()&&fs.existsSync(path.join(backupDirectory,d,'PlayerData.dat'))));
+
+                }
+            });
+        });
     }
     getMyBackups(){
         let backupDirectory = path.join(appData,'bsaber-backups');
@@ -759,11 +947,18 @@ class App{
             });
         });
     }
+    cleanSongName(songName,songDirectory){
+        let name = songName.replace(/\(.+?\)/g, '');
+        name = name.replace(/[^a-z0-9]+/gi, '');
+        if(name !== songName){
+            fs.renameSync(path.join(songDirectory,songName),path.join(songDirectory,name))
+        }
+        return name;
+    }
     getMySongs(){
         let songsDirectory = path.join(appData,'bsaber');
         let songs = [];
-
-        return new Promise(resolve=>{
+        return this.mkdir(songsDirectory).then(()=>new Promise(resolve=>{
             fs.readdir(songsDirectory,(err,data)=>{
                 if(err) {
                     this.showStatus("Error reading songs directory: "+songsDirectory+", Error:"+err);
@@ -774,17 +969,39 @@ class App{
                         let songDirectory = path.join(songsDirectory,folder);
                         return new Promise(r=>{
                             fs.readdir(songDirectory,(err,songName)=>{
-                                songName = songName.filter(d=>fs.lstatSync(path.join(songDirectory,d)).isDirectory());
-                                if(err||!songName.length) {
+                                if(err) {
                                     this.showStatus("Error reading songs directory: "+songDirectory+", Error:"+err);
                                     r();
                                 }else{
+                                    songName = songName.filter(d=>fs.lstatSync(path.join(songDirectory,d)).isDirectory());
+                                    if(!songName.length){
+                                        this.showStatus("Error, song is empty: "+path.join(songDirectory));
+                                        return r();
+                                    }
+                                    if(songName.length>1){
+                                        this.showStatus("Error, song has multiple folders: "+path.join(songDirectory));
+                                        return r();
+                                    }
                                     songName = songName[0];
-                                    fs.readdir(path.join(songDirectory, songName),(err2,fileNames)=> {
-                                        if(err||!songName.length) {
+                                    songName = this.cleanSongName(songName,songDirectory);
+                                    fs.readdir(path.join(songDirectory, songName),async (err2,fileNames)=> {
+                                        if(err||!fileNames.length) {
                                             this.showStatus("Error reading songs directory: "+path.join(songDirectory, songName)+", Error:"+err2);
                                             r();
                                         }else {
+                                            if(~fileNames.indexOf('info.json')){
+                                                let innerDir = path.join(songDirectory, songName);
+                                                if(fs.existsSync(path.join(innerDir,'info.json'))){
+                                                    await this.bsaber.convertSong(innerDir);
+                                                }
+                                            }
+                                            if(!~fileNames.indexOf('info.dat')){
+                                                this.showStatus("Error, song has no info.dat: "+path.join(songDirectory, songName)+", Error:"+err2);
+                                                return r();
+                                            }
+                                            if(!~fileNames.indexOf('cover.jpg')&&!~fileNames.indexOf('cover.png')){
+                                                fs.copyFileSync(path.join(__dirname,'default-cover.jpg'),path.join(songDirectory, songName,'cover.jpg'));
+                                            }
                                             let covername = ~fileNames.indexOf('cover.jpg') ? 'cover.jpg' :
                                                 ~fileNames.indexOf('cover.png') ? 'cover.png' :'cover.jpg';
                                             song.name = songName;
@@ -799,12 +1016,16 @@ class App{
                         });
                     }))
                         .then(()=>{
-                            this.songs = songs;
+                            this.songs = songs.sort((a,b)=>{
+                                let textA = a.name.toUpperCase();
+                                let textB = b.name.toUpperCase();
+                                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                            });
                             resolve();
                         });
                 }
             });
-        });
+        }));
     }
     async openCustomLevels() {
         this.add_repo.style.display = 'none';
@@ -824,45 +1045,153 @@ and of course
         [].slice.call(this.apkInstall.querySelectorAll('.link')).forEach(link=>{
             link.addEventListener('click',()=>this.openExternalLink(link.dataset.url));
         });
+        this.jSon = this.bsaber.getAppJson();
+
+
         this.browser_bar.style.display = 'none';
         let songs = (this.songs||[]);
-        let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled();
+        let isBeatSaberInstalled = await this.bsaber.isBeatSaberInstalled().catch(e=>true);
         let isQuestSaberPatch = this.setup.doesFileExist(path.join(appData,'saber-quest-patch','questsaberpatch'));
         if(isBeatSaberInstalled&&isQuestSaberPatch){
-            this.container.innerHTML = songs.length?'':'<h4>Nothing here yet...</h4>';
-            songs.forEach(song=>{
-                let child = this.template.content.cloneNode(true);
-                child.querySelector('.image').style.backgroundImage = 'url("'+song.cover+'")';
-                child.querySelector('.image').style.backgroundColor = randomColor({seed:song.id});
-                child.querySelector('.card-title-one').innerHTML = '<i class="material-icons right">more_vert</i>'+song.name;
-                child.querySelector('.card-title-two').innerHTML = '<i class="material-icons right">close</i>'+song.name;
-                let songIdParts = song.id.split('-');
-                child.querySelector('.description').innerHTML = 'Download URL: https://beatsaver.com/storage/songs/'+songIdParts[0]+'/'+songIdParts[0]+'-'+songIdParts[1]+'.zip<br><br><a  href="#" id="delete-song'+song.id+'" class="waves-effect waves-light btn red">Delete</a>';
-                child.querySelector('.install-apk').style.display = 'none';
-                let syncSwitch = document.createElement('div');
-                syncSwitch.className = "switch";
-                let syncLabel = document.createElement('label');
-                syncSwitch.appendChild(syncLabel);
-                song.enabled=true;
-                syncLabel.innerHTML = 'Off<input type="checkbox" id="syncSong'+song.id+'" checked="checked"><span class="lever"></span>On';
-                child.querySelector('.install-apk').parentElement.appendChild(syncSwitch);
-                let switchEle = child.getElementById('syncSong'+song.id);
-                switchEle.addEventListener('change',()=>{
-                    song.enabled = switchEle.checked;
+            if(!songs.length){
+                this.container.innerHTML = '<h4>Nothing here yet...</h4>';
+            }else{
+                this.container.innerHTML = `
+                    <div class="col s4 side-packs ">
+                        <div class="side-packs-fixed">
+                            <a href="#modal7" class="modal-trigger btn waves-effect waves-green right ">Add Pack</a>
+                            <h4>Level Packs</h4>
+                            <div class="row pack-container">
+                            </div>
+                        
+                        </div>
+                    </div>
+                    <div class="col s8">
+                        <h4>My Levels</h4>
+                        <ul class="collection song-container">
+                        
+                        </ul>
+                    </div>`;
+
+
+                let songContainer = this.container.querySelector('.song-container');
+                let packContainer = this.container.querySelector('.pack-container');
+
+
+                let songsDrake = dragula([songContainer,packContainer],{
+                    copy: function (el, source) {
+                        return source === songContainer
+                    },
+                    accepts: function (el, target) {
+                        return target !== songContainer && (target !== packContainer || el.parentElement === packContainer)
+                    },
+                    moves: function (el, source, handle, sibling) {
+                        return !~el.className.indexOf('add-to-drag'); // elements are always draggable by default
+                    },
+                    mirrorContainer: document.querySelector('.temp-move-container')
                 });
-                child.querySelector('#delete-song'+song.id).addEventListener('click',()=>{
+                let resetDrop = (pack_song_container)=>{
+                    let current = pack_song_container.querySelector('.add-to-drag');
+                    if(current)current.parentElement.removeChild(current);
+                    let add_song_here = document.createElement('li');
+                    add_song_here.className = 'add-to-drag';
+                    add_song_here.innerText = 'Drop Song Here!';
+                    pack_song_container.appendChild(add_song_here);
+                };
+                let setPacksFromEles = ()=>{
+                    this.jSon.packs = [].slice.call(this.container.querySelector('.pack-container').querySelectorAll('.packOuter'))
+                        .map(ele=>{
+                            let pack_song_container_el = ele.querySelector('.pack-song-container');
+                            resetDrop(pack_song_container_el);
+                            return {
+                                name:ele.querySelector('.name').dataset.name,
+                                coverImagePath:ele.querySelector('.name').dataset.coverImagePath,
+                                levelIDs:[].slice.call(pack_song_container_el.querySelectorAll('.circle'))
+                                    .map(ele=>{
+                                        return {
+                                            id:ele.dataset.id,
+                                            name:ele.dataset.name,
+                                            cover:ele.dataset.cover,
+                                            path:ele.dataset.path,
+                                        }
+                                    })
+                            }
+                        });
+                }
+                songsDrake.on('cloned',(clone, original, type)=>{
+                    if(type === 'copy'){
+                        clone.querySelector('.delete-song').addEventListener('click',()=>{
+                            clone.parentElement.removeChild(clone);
+                            setPacksFromEles();
+                            this.bsaber.saveJson(this.jSon);
+                        });
+                    }
+                });
+                songsDrake.on('drop',()=>{
+                    setPacksFromEles();
+                    this.bsaber.saveJson(this.jSon);
+                });
+                let addSong = (song,container,deleteCallback)=>{
+                    let child = document.getElementById('songItem').content.cloneNode(true);
+                    child.querySelector('.circle').src = song.cover;
+                    child.querySelector('.title').innerHTML = song.name;
+                    child.querySelector('.circle').dataset.id = song.id;
+                    child.querySelector('.circle').dataset.name = song.name;
+                    child.querySelector('.circle').dataset.cover = song.cover;
+                    child.querySelector('.circle').dataset.path = song.path;
+                    container.appendChild(child);
+                    child = container.lastElementChild;
+                    child.querySelector('.delete-song').addEventListener('click',()=>deleteCallback(child));
+                };
+                this.jSon.packs.forEach(pack=>{
+                    let child = document.getElementById('packContainer').content.cloneNode(true);
+                    child.querySelector('.name').innerHTML = '&nbsp;&nbsp;'+pack.name;
+                    child.querySelector('.name').dataset.name = pack.name;
+                    child.querySelector('.name').dataset.coverImagePath = pack.coverImagePath;
+                    let pack_song_container = child.querySelector('.pack-song-container');
+                    let show_pack = child.querySelector('.show-pack');
+                    show_pack.addEventListener('click',()=>{
+                        let isOpen = show_pack.innerText !== 'expand_more';
+                        if(isOpen){
+                            show_pack.innerText = 'expand_more';
+                            pack_song_container.style.display = 'none';
+                        }else{
+                            show_pack.innerText = 'expand_less';
+                            pack_song_container.style.display = 'block';
+                        }
+                    });
+                    let edit_pack = child.querySelector('.edit-pack');
+                    edit_pack.addEventListener('click',()=>{
+                        this.currentPack = pack;
+                        document.querySelector('.delete-pack').style.display = 'inline-block';
+                        this.packEditModal.open();
+                        document.getElementById('packName').value = pack.name;
+                        document.querySelector('.cover-image-path').innerHTML = this.packCoverPath = pack.coverImagePath;
+                    });
+                    songsDrake.containers.push(pack_song_container);
+                    packContainer.appendChild(child);
+                    pack.levelIDs.forEach((song,i)=>addSong(song,pack_song_container,ele=>{
+                        pack.levelIDs.splice(i,1);
+                        ele.parentElement.removeChild(ele);
+                        this.bsaber.saveJson(this.jSon);
+                    }));
+                    resetDrop(pack_song_container);
+                });
+                songs.forEach(song=>addSong(song,songContainer,()=>{
                     this.bsaber.deleteFolderRecursive(path.join(appData,'bsaber',song.id));
-                    this.getMySongs()
-                        .then(()=>this.bsaber.getCurrentDeviceSongs())
-                        .then(()=>this.openCustomLevels());
-                });
-                this.container.appendChild(child);
-            });
+                    this.refreshMySongs();
+                }));
+            }
         }else if(!isBeatSaberInstalled){
             this.container.innerHTML = '<h4>Beat saber not installed...</h4>';
         }else if(!isQuestSaberPatch){
-            this.container.innerHTML = '<h4>Still downloading files plaese wait and try again...</h4>';
+            this.container.innerHTML = '<h4>Still downloading files please wait and try again...</h4>';
         }
+    }
+    refreshMySongs(){
+        return this.getMySongs()
+            .then(()=>this.bsaber.getCurrentDeviceSongs())
+            .then(()=>this.openCustomLevels());
     }
     openDeviceSettings() {
         this.add_repo.style.display = 'none';
@@ -972,6 +1301,16 @@ and of course
         });
         document.querySelector('.open-main-app-folder').addEventListener('click',()=>{
             shell.openItem(appData);
+        });
+        document.querySelector('.grant-pavlov-permission').addEventListener('click',()=>{
+            this.setup.adb.shell(this.setup.deviceSerial,'pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO')
+                .then(adb.util.readAll)
+                .then(res=>{
+                    this.showStatus('Set permission OK!');
+                })
+                .catch(e=>{
+                    this.showStatus(e.toString(),true,true);
+                });
         });
 
         document.querySelector('.open-adb-folder').addEventListener('click',()=>{

@@ -4,7 +4,7 @@ html,body{
     padding: 0;
     margin: 0;
     background: transparent;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 *{
     box-sizing: border-box;
@@ -64,6 +64,9 @@ html,body{
     position:relative;
     overflow: auto;
 }
+.pack-song-container{
+    display: none;
+}
 .side-nav{
     width: 135px;
     position:absolute;
@@ -89,6 +92,54 @@ html,body{
     -webkit-user-select: none;
     -webkit-app-region: drag;
     border-top-left-radius: 40px;
+}
+.color-picker{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+.side-packs{
+    height: 100%;
+}
+.side-packs-fixed{
+    position: fixed;
+    width: 26.5%;
+    height: 100%;
+}
+.delete-pack{
+    display:none;
+}
+.pack-container{
+    height: calc(100% - 250px);
+    overflow: auto;
+    background-image: url(papyrus.png);
+    border-right: 1px solid #cfcfcf;
+}
+.pack-song-container-outer{
+    border-bottom: 1px solid #e0e0e0;
+    border-top: 1px solid #e0e0e0;
+}
+.collection {
+    border: 0px solid #e0e0e0;
+}
+.add-to-pack{
+    padding:1em;
+    width: 100%;
+    border: 3px dashed darkgrey;
+    text-align: center;
+}
+.show-pack{
+    margin-right: 0.5em;
+    font-size: 2rem;
+}
+.pack-song-container{
+    padding: 10px;
+}
+.add-to-drag{
+    width: 100%;
+    padding: 1em;
+    border: 2px dashed #3f3f3f;
+    text-align: center;
 }
 .header{
     height: 135px;
@@ -398,6 +449,9 @@ html,body{
     margin-bottom: 20px;
     margin-top:20px;
 }
+.collection {
+    border-left: 0px solid black;
+}
 .loader-initial {
     border: 16px solid #f3f3f3; /* Light grey */
     border-top: 16px solid #0094ca; /* Blue */
@@ -465,4 +519,31 @@ html,body{
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.gu-mirror {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+}
+.gu-hide {
+    display: none !important;
+}
+.gu-unselectable {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+.gu-transit {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+}
+
+.collection .collection-item.avatar {
+    min-height: 64px;
 }

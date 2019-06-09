@@ -73,8 +73,22 @@ class Setup {
     installLocalObb(filepath,dontCatchError,cb = null){
         let filename = path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
-        console.log(filename, packageId)
-        let p = this.adb.push(this.deviceSerial, fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`);
+        let p = this.adb.push(this.deviceSerial, fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`)
+            .then(transfer=>new Promise((resolve, reject)=>{
+                let text = 'Uploading Obb...';
+                let timer = setInterval(()=>{
+                    text = text+".";
+                    this.app.spinner_loading_message.innerHTML = text+'<br>This will take some time.'
+                },3000);
+                transfer.on('end', ()=>{
+                    clearInterval(timer);
+                    resolve();
+                });
+                transfer.on('error', ()=>{
+                    clearInterval(timer);
+                    reject();
+                });
+            }));
         if(cb){
             cb()
         }
@@ -267,7 +281,7 @@ class Setup {
                 return 'adb';
         }
     }
-    async downloadFile(winUrl, linUrl, macUrl, getPath){
+    async downloadFile(winUrl, linUrl, macUrl, getPath,message){
         const requestOptions = {timeout: 30000, 'User-Agent': this.getUserAgent()};
         let downloadUrl = linUrl;
         switch (os.platform()) {
@@ -282,18 +296,22 @@ class Setup {
                 break;
         }
         if(!downloadUrl)return;
-        console.log(downloadUrl);
         let downloadPath = getPath(downloadUrl);
         return new Promise((resolve,reject)=>{
-            request(downloadUrl, requestOptions)
+            progress(request(downloadUrl, requestOptions),{throttle: 300})
                 .on('error', (error)  => {
-                    debug(`Request Error ${error}`);
+                    console.log(`Request Error ${error}`);
                     reject(error);
                 })
-                .pipe(fs.createWriteStream(downloadPath))
-                .on('finish', ()=>{
+                .on('progress', (state)=> {
+                    this.app.spinner_loading_message.innerText = "Downloading... "+Math.round(state.percent*100)+"%";
+                    //console.log('progress', state);
+                })
+                .on('end', ()=>{
+                    this.app.spinner_loading_message.innerHTML = "Processing... <br>This might take 10 - 30 seconds.";
                     return resolve(downloadPath);
-                });
+                })
+                .pipe(fs.createWriteStream(downloadPath));
         })
     }
     async downloadTools(){
