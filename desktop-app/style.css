@@ -109,6 +109,12 @@ html,body{
 .delete-pack{
     display:none;
 }
+.sort-songs{
+    float: right;
+}
+.no-margin-top{
+    margin-top: 0;
+}
 .pack-container{
     height: calc(100% - 250px);
     overflow: auto;
@@ -372,7 +378,7 @@ html,body{
 .uninstall-apk{
     display: none;
 }
-.link{
+.link,.sort-link{
     color:lightseagreen;
     cursor: pointer;
 }
@@ -384,9 +390,7 @@ html,body{
 .setup-image{
     width: 100%;
 }
-.setup-content{
-    height: 550px;
-}
+
 #connection-ip-address{
     position:absolute;
     bottom: 30px;

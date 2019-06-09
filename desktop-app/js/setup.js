@@ -63,7 +63,6 @@ class Setup {
         let p = this.adb.install(this.deviceSerial, fs.createReadStream(filepath));
         if(!dontCatchError){
             p = p.catch(e=>{
-                console.log('here');
                 this.app.toggleLoader(false);
                 this.app.showStatus(e.toString(),true,true);
             });
