@@ -29,7 +29,7 @@ class Bsaber{
         };
         jSon.packs.forEach((p,i)=>{
             let pack = {
-                id:'pack_'+i,
+                id:p.id==='__default_pack'?p.id:'pack_'+i,
                 name:p.name,
                 coverImagePath:p.coverImagePath,
                 levelIDs:p.levelIDs.map(l=>{
@@ -52,7 +52,7 @@ class Bsaber{
             "packs":[
                 {
                     // Must be unique between packs but doesn't need to be consistent
-                    "id": "pack_0",
+                    "id": "__default_pack",
                     // Display name of the pack
                     "name": "Custom Songs",
                     // Image file for the cover that will be displayed for the pack
@@ -71,7 +71,7 @@ class Bsaber{
             },
             "replaceText": {
                 // See https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt for
-                "BUTTON_PLAY": "GO!",
+                //"BUTTON_PLAY": "GO!",
             }
         };
         this.app.songs.forEach(song=>{
@@ -667,7 +667,7 @@ class Bsaber{
                             }else{
                                 fs.unlink(zipPath, (err) => {
                                     this.convertSongCheck({dir,name})
-                                        .then(resolve);
+                                        .then(()=>resolve(parts[parts.length-1].split('.')[0]));
                                 });
                             }
                         });

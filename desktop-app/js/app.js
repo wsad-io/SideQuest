@@ -63,16 +63,28 @@ class App{
                     case "sidequest://bsaber/":
                         this.toggleLoader(true);
                         this.spinner_loading_message.innerText = 'Downloading Map'
-                        this.bsaber.downloadSong(url[1]).then(()=>{
+                        this.bsaber.downloadSong(url[1]).then(id=>{
                             this.getMySongs()
                                 .then(()=>this.toggleLoader(false))
                                 .then(()=>this.showStatus('Level Downloaded Ok!!'))
-                                .then(()=>this.bsaber.getCurrentDeviceSongs(true));
+                                .then(()=>this.bsaber.getCurrentDeviceSongs(true))
+                                .then(()=>{
+                                    this.jSon.packs.forEach(p=>{
+                                        if(p.id==="__default_pack"){
+                                            (this.songs||[]).forEach(song=>{
+                                                if(song.id === id){
+                                                    p.levelIDs.push(song)
+                                                }
+                                            })
+                                        }
+                                    });
+                                    this.bsaber.saveJson(this.jSon);
+                                });
                         })
-                        .catch(e=>{
-                            this.showStatus(e.toString(),true,true);
-                            this.toggleLoader(false);
-                        })
+                            .catch(e=>{
+                                this.showStatus(e.toString(),true,true);
+                                this.toggleLoader(false);
+                            })
                         break;
                     default:
                         this.showStatus('Custom protocol not recognised: '+(data||""),true,true);
@@ -88,11 +100,23 @@ class App{
                         this.spinner_loading_message.innerText = 'Saving to My Custom Levels...';
                         this.toggleLoader(true);
                         this.bsaber.downloadSong(data.beatsaber)
-                            .then(()=>{
+                            .then(id=>{
                                 return this.getMySongs()
                                     .then(()=>this.toggleLoader(false))
                                     .then(()=>this.showStatus('Level Downloaded Ok!!'))
-                                    .then(()=>this.bsaber.getCurrentDeviceSongs(true));
+                                    .then(()=>this.bsaber.getCurrentDeviceSongs(true))
+                                    .then(()=>{
+                                        this.jSon.packs.forEach(p=>{
+                                            if(p.id==="__default_pack"){
+                                                (this.songs||[]).forEach(song=>{
+                                                    if(song.id === id){
+                                                        p.levelIDs.push(song)
+                                                    }
+                                                })
+                                            }
+                                        });
+                                        this.bsaber.saveJson(this.jSon);
+                                    });
                             })
                             .catch(e=>{
                                 this.showStatus(e.toString(),true,true);
@@ -136,7 +160,10 @@ class App{
                 this.spinner_loading_message.innerText = 'Downloading, This might take some time on first launch please wait...';
                 await this.setup.setup();
                 this.setupMenu();
-                this.getMySongs().then(()=>this.setupWebview());
+                this.getMySongs().then(()=>{
+                    this.setupWebview();
+                    this.jSon = this.bsaber.getAppJson()
+                });
                 this.repos.setupRepos();
                 this.bsaber = new Bsaber(this);
                 this.bsaber.downloadConverterBinary();
@@ -165,6 +192,7 @@ class App{
         document.querySelector('.add-pack-cover-image').addEventListener('click',()=>{
             dialog.showOpenDialog({
                 properties: ['openFile'],
+                defaultPath: appData,
                 filters:[
                     { name: 'Cover Images ( JPG,PNG )', extensions: ['png','jpg'] }
                 ]
@@ -175,6 +203,9 @@ class App{
                 }
             });
         });
+        document.querySelector('.refresh-songs-one').addEventListener('click',()=>{
+            this.refreshMySongs()
+        });
         document.querySelector('.delete-pack').addEventListener('click',()=>{
             if(this.jSon&&this.currentPack){
                 this.jSon.packs = this.jSon.packs.filter(p=>p!==this.currentPack);
@@ -183,20 +214,23 @@ class App{
                 this.packEditModal.close();
             }
         });
+        let defaultImage = path.join(__dirname,'default-pack-cover.png');
+        document.querySelector('.cover-image-path').innerHTML = defaultImage;
+        this.packCoverPath = defaultImage;
         document.querySelector('.add-pack-button').addEventListener('click',()=>{
             if(this.jSon){
                 if(this.currentPack){
                     this.currentPack.name = document.getElementById('packName').value;
-                    this.currentPack.coverImagePath = this.packCoverPath||path.join(__dirname,'default-pack-cover.png');
+                    this.currentPack.coverImagePath = this.packCoverPath||defaultImage;
                     delete this.currentPack;
                 }else{
-                    this.jSon.packs.push({id:this.jSon.packs.length,name: document.getElementById('packName').value,coverImagePath:this.packCoverPath||path.join(__dirname,'default-pack-cover.png'),levelIDs:[]})
+                    this.jSon.packs.push({id:this.jSon.packs.length,name: document.getElementById('packName').value,coverImagePath:this.packCoverPath||defaultImage,levelIDs:[]})
                 }
                 this.bsaber.saveJson(this.jSon);
-                document.querySelector('.cover-image-path').innerHTML = '';
+                document.querySelector('.cover-image-path').innerHTML = defaultImage;
+                this.packCoverPath = defaultImage;
                 document.getElementById('packName').value = '';
                 document.querySelector('.delete-pack').style.display = 'none';
-                this.packCoverPath = null;
                 this.openCustomLevels();
             }
         });
@@ -211,6 +245,7 @@ class App{
         document.querySelector('.select-new-base').addEventListener('click',()=>{
             dialog.showOpenDialog({
                 properties: ['openFile'],
+                defaultPath: appData,
                 filters:[
                     { name: 'Android APK File', extensions: ['apk'] }
                 ]
@@ -417,7 +452,7 @@ class App{
             const typeBasedActions = {
                 ".apk" : function(filepath, bind){
                     return bind.setup.installLocalApk(filepath)
-                        .then(() => bind.toggleLoader(false));    
+                        .then(() => bind.toggleLoader(false));
                 },
                 ".obb" : function(filepath, bind){
                     if(path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)){
@@ -427,7 +462,7 @@ class App{
                         bind.toggleLoader(false);
                         return Promise.reject("Invalid OBB");
                     }
-                     
+
                 },
                 ".zip" : function(filepath, bind){
                     return bind.setup.installLocalZip(filepath, false, () => bind.toggleLoader(false))
@@ -438,7 +473,7 @@ class App{
             });
             installableFiles.forEach((val, index) => {
                 let filepath = e.dataTransfer.files[val].path,
-                ext = path.extname(filepath);
+                    ext = path.extname(filepath);
                 console.log("Installing", filepath);
                 this.spinner_loading_message.innerText = `Installing ${filepath}, Please wait...`;
                 if(typeBasedActions.hasOwnProperty(ext)){
@@ -709,8 +744,8 @@ class App{
             .bsaber-tooltip.-sidequest-remove::after {
                 content: "Remove Custom Level";
             }`;
+        //[].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatsaver-viewer')).forEach(e=>e.style.display = 'none');
         let customJS = `
-            [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatsaver-viewer')).forEach(e=>e.style.display = 'none');
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatdrop')).forEach(e=>e.style.display = 'none');
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-download-zip')).forEach(e=>{
                 e.style.display = 'none';
@@ -967,6 +1002,7 @@ class App{
                     Promise.all(data.map((folder,i)=>{
                         let song = {id:folder};
                         let songDirectory = path.join(songsDirectory,folder);
+                        if(!fs.lstatSync(songDirectory).isDirectory()) return Promise.resolve();
                         return new Promise(r=>{
                             fs.readdir(songDirectory,(err,songName)=>{
                                 if(err) {
@@ -1007,6 +1043,7 @@ class App{
                                             song.name = songName;
                                             song.path = path.join(songDirectory, songName);
                                             song.cover = 'file:///' + path.join(songDirectory, songName, covername).replace(/\\/g, '/');
+                                            song.created = fs.statSync(path.join(songDirectory, songName, covername)).mtime.getTime()
                                             songs.push(song);
                                             r();
                                         }
@@ -1016,16 +1053,27 @@ class App{
                         });
                     }))
                         .then(()=>{
-                            this.songs = songs.sort((a,b)=>{
-                                let textA = a.name.toUpperCase();
-                                let textB = b.name.toUpperCase();
-                                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-                            });
+                            this.songs = songs;
+                            this.orderSongs('date');
+                            console.log(this.songs);
                             resolve();
                         });
                 }
             });
         }));
+    }
+    orderSongs(type){
+        if(type === "date"){
+            this.songs = this.songs.sort((a,b)=>{
+                return (a.created < b.created) ? -1 : (a.created > b.created) ? 1 : 0;
+            }).reverse();
+        }else{
+            this.songs = this.songs.sort((a,b)=>{
+                let textA = a.name.toUpperCase();
+                let textB = b.name.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            });
+        }
     }
     async openCustomLevels() {
         this.add_repo.style.display = 'none';
@@ -1045,7 +1093,6 @@ and of course
         [].slice.call(this.apkInstall.querySelectorAll('.link')).forEach(link=>{
             link.addEventListener('click',()=>this.openExternalLink(link.dataset.url));
         });
-        this.jSon = this.bsaber.getAppJson();
 
 
         this.browser_bar.style.display = 'none';
@@ -1060,20 +1107,27 @@ and of course
                     <div class="col s4 side-packs ">
                         <div class="side-packs-fixed">
                             <a href="#modal7" class="modal-trigger btn waves-effect waves-green right ">Add Pack</a>
-                            <h4>Level Packs</h4>
+                            <h4 class="no-margin-top">Level Packs</h4>
                             <div class="row pack-container">
                             </div>
                         
                         </div>
                     </div>
                     <div class="col s8">
-                        <h4>My Levels</h4>
+                        <div class="sort-songs">Sort: <span class="sort-link sort-link-name">Name</span> | <span class="sort-link sort-link-recent">Recent</span></div>
+                        <h4 class="no-margin-top">My Levels</h4>
                         <ul class="collection song-container">
                         
                         </ul>
                     </div>`;
-
-
+                document.querySelector('.sort-link-name').addEventListener('click',()=>{
+                    this.orderSongs('name');
+                    this.openCustomLevels();
+                });
+                document.querySelector('.sort-link-recent').addEventListener('click',()=>{
+                    this.orderSongs('date');
+                    this.openCustomLevels();
+                });
                 let songContainer = this.container.querySelector('.song-container');
                 let packContainer = this.container.querySelector('.pack-container');
 
@@ -1143,7 +1197,7 @@ and of course
                     child = container.lastElementChild;
                     child.querySelector('.delete-song').addEventListener('click',()=>deleteCallback(child));
                 };
-                this.jSon.packs.forEach(pack=>{
+                this.jSon.packs.forEach((pack,i)=>{
                     let child = document.getElementById('packContainer').content.cloneNode(true);
                     child.querySelector('.name').innerHTML = '&nbsp;&nbsp;'+pack.name;
                     child.querySelector('.name').dataset.name = pack.name;
@@ -1160,6 +1214,9 @@ and of course
                             pack_song_container.style.display = 'block';
                         }
                     });
+                    if(i===0){
+                        show_pack.click();
+                    }
                     let edit_pack = child.querySelector('.edit-pack');
                     edit_pack.addEventListener('click',()=>{
                         this.currentPack = pack;
@@ -1233,7 +1290,6 @@ and of course
                 this.setup.adb.shell(this.setup.deviceSerial, "setprop debug.oculus.foveation.level " + value)
                     .then(adb.util.readAll)
                     .then(res => {
-                        console.log(res.toString());
                         this.showStatus("FFR level set to " + value + "!!");
                         this.toggleLoader(false);
                     })
@@ -1259,8 +1315,125 @@ and of course
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.cpuLevel ' + value + ' && setprop debug.oculus.gpuLevel ' + value + '"')
                     .then(adb.util.readAll)
                     .then(res => {
-                        console.log(res.toString());
                         this.showStatus("CPU & GPR lock level set to " + value + "!!");
+                        this.toggleLoader(false);
+                    })
+                    .catch(e => {
+                        this.showStatus(e.toString(), true, true);
+                        this.toggleLoader(false);
+                    })
+            });
+        });
+        [].slice.call(document.querySelectorAll('.set-ca')).forEach(ele=> {
+            ele.addEventListener('click', () => {
+                let value = 1;
+                switch (ele.innerText.toLowerCase()) {
+                    case "on":
+                        value = 1;
+                        break;
+                    case "off":
+                        value = 0;
+                        break;
+                }
+                this.spinner_loading_message.innerText = 'Setting Chromatic Aberration Setting...';
+                this.toggleLoader(true);
+                this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.forceChroma ' + value + '"')
+                    .then(adb.util.readAll)
+                    .then(res => {
+                        this.showStatus("Chromatic Aberration set to " + value + "!!");
+                        this.toggleLoader(false);
+                    })
+                    .catch(e => {
+                        this.showStatus(e.toString(), true, true);
+                        this.toggleLoader(false);
+                    })
+            });
+        });
+        [].slice.call(document.querySelectorAll('.set-sso')).forEach(ele=> {
+            ele.addEventListener('click', () => {
+                let value = 512;
+                switch (ele.innerText.toLowerCase()) {
+                    case "512":
+                        value = 512;
+                        break;
+                    case "768":
+                        value = 768;
+                        break;
+                    case "1280":
+                        value = 1280;
+                        break;
+                    case "1536":
+                        value = 1536;
+                        break;
+                    case "2048":
+                        value = 2048;
+                        break;
+                    case "2560":
+                        value = 2560;
+                        break;
+                    case "3072":
+                        value = 3072;
+                        break;
+                }
+                this.spinner_loading_message.innerText = 'Setting Texture Size Setting...';
+                this.toggleLoader(true);
+                this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.textureWidth ' + value + ' && setprop debug.oculus.textureHeight ' + value + '"')
+                    .then(adb.util.readAll)
+                    .then(res => {
+                        this.showStatus("Texture Size set to " + value + "!!");
+                        this.toggleLoader(false);
+                    })
+                    .catch(e => {
+                        this.showStatus(e.toString(), true, true);
+                        this.toggleLoader(false);
+                    })
+            });
+        });
+        [].slice.call(document.querySelectorAll('.set-svb')).forEach(ele=> {
+            ele.addEventListener('click', () => {
+                let value = 5000000;
+                switch (ele.innerText.toLowerCase()) {
+                    case "5mbps":
+                        value = 5000000;
+                        break;
+                    case "15mbps":
+                        value = 15000000;
+                        break;
+                    case "25mbps":
+                        value = 25000000;
+                        break;
+                }
+                this.spinner_loading_message.innerText = 'Setting Video Bitrate Setting...';
+                this.toggleLoader(true);
+                this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.videoBitrate ' + value + '"')
+                    .then(adb.util.readAll)
+                    .then(res => {
+                        this.showStatus("Video Bitrate set to " + value + "!!");
+                        this.toggleLoader(false);
+                    })
+                    .catch(e => {
+                        this.showStatus(e.toString(), true, true);
+                        this.toggleLoader(false);
+                    })
+            });
+        });
+        [].slice.call(document.querySelectorAll('.set-svr')).forEach(ele=> {
+            ele.addEventListener('click', () => {
+                let value = 1024;
+                switch (ele.innerText.toLowerCase()) {
+                    case "1024":
+                        value = 1024;
+                        break;
+                    case "1536":
+                        value = 1536;
+                        break;
+                }
+                this.spinner_loading_message.innerText = 'Setting Video Resolution Setting...';
+                this.toggleLoader(true);
+                this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.videoResolution ' + value + '"')
+                    .then(adb.util.readAll)
+                    .then(res => {
+                        this.showStatus("Video Resolution set to " + value + "!!");
                         this.toggleLoader(false);
                     })
                     .catch(e => {
@@ -1316,20 +1489,20 @@ and of course
         document.querySelector('.open-adb-folder').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'platform-tools'));
         });
-        //
-        // document.querySelector('.open-adb-command-window').addEventListener('click',()=>{
-        //     switch (os.platform()) {
-        //         case 'win32':
-        //             spawn(path.join(__dirname,'command.cmd'), [],{cwd: path.join(appData,'platform-tools'), detached: true });
-        //             break;
-        //         case 'darwin':
-        //             this.showStatus('comming to mac soon!');
-        //             break;
-        //         case 'linux':
-        //             this.showStatus('comming to linux soon!');
-        //             break;
-        //     }
-        // });
+//
+// document.querySelector('.open-adb-command-window').addEventListener('click',()=>{
+//     switch (os.platform()) {
+//         case 'win32':
+//             spawn(path.join(__dirname,'command.cmd'), [],{cwd: path.join(appData,'platform-tools'), detached: true });
+//             break;
+//         case 'darwin':
+//             this.showStatus('comming to mac soon!');
+//             break;
+//         case 'linux':
+//             this.showStatus('comming to linux soon!');
+//             break;
+//     }
+// });
         document.querySelector('.open-bsaber-folder').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'bsaber'));
         });
@@ -1369,13 +1542,14 @@ and of course
             this.setup.uninstallApk('com.openappstore.wrapper')
                 .then(()=>this.setup.uninstallApk('com.openappstore.launcher'));
         }
-        if(~this.setup.devicePackages.indexOf('com.sidequest.wrapper') && ~this.setup.devicePackages.indexOf('com.sidequest.launcher')) {
+        if(~this.setup.devicePackages.indexOf('com.sidequest.wrapper2') && ~this.setup.devicePackages.indexOf('com.sidequest.wrapper') && ~this.setup.devicePackages.indexOf('com.sidequest.launcher')) {
             this.install_launcher_container.innerHTML = '<span class="chip">SideQuest Launcher Already Installed!</span>';
         }else {
             this.install_launcher.addEventListener('click', () => {
                 this.install_launcher.style.display = 'none';
                 this.install_launcher_loader.style.display = 'inline-block';
                 this.setup.installApk('https://cdn.theexpanse.app/SideQuestWrapper.apk')
+                    .then(() => this.setup.installApk('https://cdn.theexpanse.app/SideQuestWrapper2.apk'))
                     .then(() => this.setup.installApk('https://cdn.theexpanse.app/SideQuestLauncher.apk'))
                     .then(() => {
                         this.install_launcher_container.innerHTML = '<span class="chip">Done!</span>';

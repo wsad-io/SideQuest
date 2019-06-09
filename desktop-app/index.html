@@ -62,7 +62,7 @@
 
 <template id="deviceSettings">
     <div class="col s12">
-
+        <div class="right">SideQuest Version: 0.3.0</div>
         <div class="section-title">SideQuest Stuff</div>
         <p style="text-align: center">
             <a  href="#" class="waves-effect waves-light btn open-main-app-folder margin-top-bottom">Open Main App Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -78,26 +78,6 @@
         <div class="section-title">Pavlov Audio</div>
         <p style="text-align: center">
             <a  href="#" class="waves-effect waves-light btn grant-pavlov-permission margin-top-bottom">Grant Pavlov Audio Permission</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Set FFR ( Fixed Foveated Rendering ) level</div>
-        This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Off</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Low</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Medium</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">High</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">High Top</a>
-        </p>
-
-        <br><br>
-        <br><br>
-        <div class="section-title">Set CPU and GPU level</div>
-        This can improve performance for 2D apps & games.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 2</a>
-            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 4</a>
         </p>
         <br><br>
         <br><br>
@@ -117,7 +97,63 @@
         </div>
         <a  href="#" class="waves-effect waves-light btn paste-text-button right">Send</a>
         </p>
-
+        <br><br>
+        <br><br>
+        <div class="section-title">Set FFR ( Fixed Foveated Rendering ) level</div>
+        This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Off</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Low</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">Medium</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">High</a>
+            <a  href="#" class="waves-effect waves-light btn set-ffr">High Top</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Set CPU and GPU level</div>
+        This can improve performance for 2D apps & games.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 2</a>
+            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 4</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Chromatic Aberration</div>
+        THis will enable/disable chromatic aberration.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-ca">On</a>
+            <a  href="#" class="waves-effect waves-light btn set-ca">Off</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Default Texture Size</div>
+        This will change how high quality some of the in game textures are rendered at.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-sso">512</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">768</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">1280</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">1536</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">2048</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">2560</a>
+            <a  href="#" class="waves-effect waves-light btn set-sso">3072</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Capture Video Bitrate</div>
+        This will increase the quality of captured videos.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-svb">5Mbps</a>
+            <a  href="#" class="waves-effect waves-light btn set-svb">15Mbps</a>
+            <a  href="#" class="waves-effect waves-light btn set-svb">25Mbps</a>
+        </p>
+        <br><br>
+        <br><br>
+        <div class="section-title">Video Recording Resolution</div>
+        This will increase the resolution of captured videos.
+        <p style="text-align: center">
+            <a  href="#" class="waves-effect waves-light btn set-svr">1024</a>
+            <a  href="#" class="waves-effect waves-light btn set-svr">1536</a>
+        </p>
     </div>
 </template>
 <template id="setupInstructions">
@@ -144,6 +180,9 @@
                 <br><br>
                 <br><br>
             </div>
+        </div>
+        <div class="clear-fix"></div>
+        <div class="row">
             <div class="col s12 m6">
                 <div class="setup-content">
                     <div class="section-title">Step 3: Enable Developer Mode and Reboot</div>
@@ -165,7 +204,7 @@
                 <br><br>
             </div>
         </div>
-
+        <div class="clear-fix"></div>
         <div class="row">
             <div class="col s12">
                 <div class="section-title">Step 5: Install App Launcher</div>
@@ -184,6 +223,7 @@
                 <br><br>
             </div>
         </div>
+        <div class="clear-fix"></div>
         <div class="row" style="display: none;">
             <div class="col s12">
                 <div class="section-title">App Developers Link to your apps!</div>
@@ -386,9 +426,10 @@
         <a class="waves-effect waves-light btn sync-songs-now" href="#modal1">My Downloads</a>
         <div class="sync-songs">
             <span class="beat-saber-version"></span>&nbsp;&nbsp;
+            <a class="waves-effect waves-light btn refresh-songs-one tooltipped" data-position="bottom" data-tooltip="Refresh the songs in this list.">Refresh Songs</a>&nbsp;&nbsp;
             <a class="waves-effect waves-light btn open-songs-main-one tooltipped" data-position="bottom" data-tooltip="Open your custom levels folder.">Open Custom Levels Folder</a>&nbsp;&nbsp;
             <a class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped" data-position="bottom" data-tooltip="Manage your APK and Data backups." href="#modal5">Backups</a>&nbsp;&nbsp;
-            <a class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped" data-position="bottom" data-tooltip="Build a new beat saber APK and install these songs." href="#modal4">Sync Selected</a>
+            <a class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped" data-position="bottom" data-tooltip="Build a new beat saber APK and install these songs." href="#modal4">Sync Custom Levels</a>
         </div>
         <div id="browser-bar">
             <a class="btn-floating waves-effect waves-light browser-button browser-back-button"><i class="material-icons">keyboard_arrow_left</i></a>
@@ -505,11 +546,11 @@
 
         <br>Any current base file will be moved into the backup list and called <span class="chip">bsaber-base-old.apk</span>. <br>The new one will also be copied there as <span class="chip">bsaber-base.apk</span>.<br>
         <div id="dataBackupsContainer">
-            <h4>Data Backup</h4>
+            <h4>Game Scores Backup</h4>
             <p>
                 If you have data folders on the device you should create a data backup. A data backup will be auto created everytime you patch and also auto restored back to the device. Warning: this can lead to data loss if used improperly.<br><br>
-                <a href="#!" class="btn waves-effect waves-light make-data-backup tooltipped" data-position="bottom" data-tooltip="Backup data files like PlayerData.dat (local scores), settings.cfg (settings) and any obb files (DLCs).">Make Data Backup</a>&nbsp;&nbsp;&nbsp;
-                <a href="#!" class="btn waves-effect waves-light open-data-backup-folder tooltipped" data-position="bottom" data-tooltip="This folder contains the backup data files you have made. These could be restored if need be but you should only need to do this if something goes wrong.">Open Data Backup Folder</a>
+                <a href="#!" class="btn waves-effect waves-light make-data-backup tooltipped" data-position="bottom" data-tooltip="Backup data files like PlayerData.dat (local scores), settings.cfg (settings) and any obb files (DLCs).">Make Score Backup</a>&nbsp;&nbsp;&nbsp;
+                <a href="#!" class="btn waves-effect waves-light open-data-backup-folder tooltipped" data-position="bottom" data-tooltip="This folder contains the backup data files you have made. These could be restored if need be but you should only need to do this if something goes wrong.">Open Score Backup Folder</a>
             </p>
             <p id="dataBackupsContainerInner">
 
