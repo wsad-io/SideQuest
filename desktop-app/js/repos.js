@@ -1,10 +1,11 @@
 class Repos {
-    constructor(app) {
+    constructor(app, spinner) {
         this.app = app;
         this.template = document.querySelector('#repoItem');
         this.menuTemplate = document.querySelector('#menuItem');
         this.repos = [];
         this.repoCount = 0;
+        this.spinner = spinner;
     }
     setupRepos(){
         this.app.add_repo_button.addEventListener('click',()=>{
@@ -127,7 +128,7 @@ class Repos {
             });
     }
     addRepo(url){
-        this.app.spinner_loading_message.innerText = 'Loading '+url;
+        this.spinner.setMessage(`Loading ${url}`);
         let index  = ++this.repoCount;
         url = url.trim();
         if(url[url.length -1] !== '/'){
