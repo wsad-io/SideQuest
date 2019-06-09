@@ -28,9 +28,6 @@ class App{
         this.template = document.querySelector('#listItem');
         this.appVersion = document.querySelector('#appVersion');
         this.packageItem = document.querySelector('#packageItem');
-        this.statusbar = document.querySelector('.status-bar');
-        this.statusmessage = document.querySelector('.status-message');
-        this.statuscopy = document.querySelector('.copy-status');
         this.restore_backup = document.querySelector('.restore-backup-button');
         this.restore_backup.addEventListener('click',()=>this.openBackups());
         this.sync_selected_button = document.querySelector('.sync-selected-button');
@@ -41,6 +38,7 @@ class App{
         this.setup_menu = document.querySelector('.setup-menu');
         this.add_menu = document.querySelector('.add-menu');
         this.enable_wifi = document.querySelector('#enable-wifi');
+        this.statusBar = new StatusBar()
 
         ipcRenderer.on('open-url',(event , data)=>{
             this.open_url_custom = data;
@@ -349,7 +347,6 @@ class App{
                 this.showStatus('Something went wrong, do you have songs selected?',true,true);
             }
         });
-        this.statuscopy.addEventListener('click',()=>this.copyStatus());
         document.querySelector('.close-status').addEventListener('click',()=>this.hideStatus());
         document.querySelector('.open-backup').addEventListener('click',()=>{
             shell.openItem(path.join(appData,'bsaber-backups'));
@@ -490,20 +487,14 @@ class App{
             return false;
         };
     }
-    showStatus(message,isWarning,showCopy){
-        this.statuscopy.style.display = showCopy?'inline-block':'none';
-        this.statusbar.className = isWarning?'status-bar-warning':'status-bar';
-        this.statusmessage.innerHTML = message;
-        this.statusbar.style.display = 'block';
+    showStatus(message, isWarning, showCopy) {
+      this.statusBar.showStatus(message, isWarning, showCopy);
     }
     hideStatus(){
-        this.statusbar.style.display = 'none';
+      this.statusBar.hideStatus();
     }
     copyStatus(){
-        clipboard.writeText(this.statusmessage.innerText);
-        this.showStatus('Copied to your clipboard! Please post this in our discord server in the #side-quest-general channel - <span class="link link-white" data-url="https://discord.gg/r38T5rR">https://discord.gg/r38T5rR</span> - Thanks!');
-        let link = this.statusmessage.querySelector('.link');
-        link.addEventListener('click',()=>this.openExternalLink(link.dataset.url));
+      this.statusBar.copyStatus();
     }
     toggleLoader(show){
         document.querySelector('.spinner').style.display =
