@@ -1,626 +1,1440 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SideQuest</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.css"/>
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans|Roboto" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="style.css" rel="stylesheet" />
-</head>
-<body>
-
-<template id="syncSelected">
-
-    We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
-    <br><br>
-    This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-    <br><br>
-    <div class="row">
-        <div class="col s4">
-            <h4>Saber Colors</h4>
-            <p>
-                Color A ( usually left ):<br>
-            <div class="color-picker color-a-pick" id="colorA"></div>
-            </p>
-            <br><br>
-            <p>
-                Color B ( usually right ):<br>
-            <div class="color-picker color-b-pick" id="colorB"></div>
-            </p>
-        </div>
-        <div class="col s6">
-            <h4>Replace Text</h4>
+    <head>
+        <meta charset="UTF-8" />
+        <title>SideQuest</title>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css?family=PT+Sans|Roboto"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+            rel="stylesheet"
+        />
+        <link href="style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <template id="syncSelected">
+            We will now attempt to patch your beat saber APK file with the
+            custom levels selected. This process is experimental and can break
+            so we do not accept any liability for any losses incurred. Please
+            make a backup of your APK file and data files before you begin -
+            this way you can restore things if something goes wrong.
+            <br /><br />
+            This patch uses the kind efforts of trishume and also some work done
+            by emulamer. For more information please visit
+            https://github.com/trishume/QuestSaberPatch. Note that they don't
+            provide support so please don't ask them for help with any issues.
+            <br /><br />
             <div class="row">
-                <div class="input-field col s5">
-                    <input id="add-replace-key" type="text">
-                    <label for="add-replace-key">Replace Key</label>
+                <div class="col s4">
+                    <h4>Saber Colors</h4>
+                    Color A ( usually left ):<br />
+                    <div class="color-picker color-a-pick" id="colorA"></div>
+                    <br /><br />
+                    Color B ( usually right ):<br />
+                    <div class="color-picker color-b-pick" id="colorB"></div>
                 </div>
-                <div class="input-field col s5">
-                    <input id="add-replace-value" type="text">
-                    <label for="add-replace-value">Replace Value</label>
-                </div>
-                <div class="col s2">
-                    <a href="#!" class="btn waves-effect waves-green add-replace">Add</a>
-                </div>
-            </div>
-            <div id="replaceTextValues">
-            </div>
-        </div>
-    </div>
-</template>
-<template id="replaceItem">
-    <div class="row">
-        <div class="col s5 add-replace-key"></div>
-        <div class="col s5 add-replace-value"></div>
-        <div class="col s2">
-            <a href="#!" class="btn waves-effect waves-green remove-replace">Remove</a>
-        </div>
-    </div>
-</template>
-
-<template id="deviceSettings">
-    <div class="col s12">
-        <div class="right">SideQuest Version: 0.3.0</div>
-        <div class="section-title">SideQuest Stuff</div>
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn open-main-app-folder margin-top-bottom">Open Main App Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a  href="#" class="waves-effect waves-light btn open-adb-folder margin-top-bottom">Open ADB Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <!--<a  href="#" class="waves-effect waves-light btn open-adb-command-window margin-top-bottom">Open ADB Command Window</a>&nbsp;&nbsp;&nbsp;&nbsp;-->
-            <a  href="#" class="waves-effect waves-light btn open-bsaber-folder margin-top-bottom">Open Bsaber Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a  href="#" class="waves-effect waves-light btn open-bsaber-backup-folder margin-top-bottom">Open Bsaber Backup Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a  href="#" class="waves-effect waves-light btn open-bsaber-data-backup-folder margin-top-bottom">Open Bsaber Data Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-            <a  href="#" class="waves-effect waves-light btn open-bsaber-patch-folder margin-top-bottom">Open Quest Saber Patch Folder</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Pavlov Audio</div>
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn grant-pavlov-permission margin-top-bottom">Grant Pavlov Audio Permission</a>&nbsp;&nbsp;&nbsp;&nbsp;
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Paste Text to your device</div>
-        <p style="text-align: center">
-        <div class="input-field ">
-            <input id="devicePaste" type="text">
-            <label for="devicePaste">Text to Paste</label>
-        </div>
-        <div class="switch">
-            <label>
-                Text
-                <input type="checkbox" id="devicePasteType">
-                <span class="lever"></span>
-                Password
-            </label>
-        </div>
-        <a  href="#" class="waves-effect waves-light btn paste-text-button right">Send</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Set FFR ( Fixed Foveated Rendering ) level</div>
-        This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Off</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Low</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">Medium</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">High</a>
-            <a  href="#" class="waves-effect waves-light btn set-ffr">High Top</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Set CPU and GPU level</div>
-        This can improve performance for 2D apps & games.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 2</a>
-            <a  href="#" class="waves-effect waves-light btn set-gpu-level">Level 4</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Chromatic Aberration</div>
-        THis will enable/disable chromatic aberration.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-ca">On</a>
-            <a  href="#" class="waves-effect waves-light btn set-ca">Off</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Default Texture Size</div>
-        This will change how high quality some of the in game textures are rendered at.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-sso">512</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">768</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">1280</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">1536</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">2048</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">2560</a>
-            <a  href="#" class="waves-effect waves-light btn set-sso">3072</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Capture Video Bitrate</div>
-        This will increase the quality of captured videos.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-svb">5Mbps</a>
-            <a  href="#" class="waves-effect waves-light btn set-svb">15Mbps</a>
-            <a  href="#" class="waves-effect waves-light btn set-svb">25Mbps</a>
-        </p>
-        <br><br>
-        <br><br>
-        <div class="section-title">Video Recording Resolution</div>
-        This will increase the resolution of captured videos.
-        <p style="text-align: center">
-            <a  href="#" class="waves-effect waves-light btn set-svr">1024</a>
-            <a  href="#" class="waves-effect waves-light btn set-svr">1536</a>
-        </p>
-    </div>
-</template>
-<template id="setupInstructions">
-    <div class="col s12">
-        <div class="row">
-            <div class="col s12 m6">
-                <div class="setup-content">
-                    <div class="section-title">Step 1: Create Organisation</div>
-                    <p>Put the Oculus Headset in developer mode to be able to sideload to the Headset. To do this, you have to be a registered "developer". This process is free. Go to <span class="link" data-url="https://dashboard.oculus.com">dashboard.oculus.com</span> on your PC and create an 'organization'. You'll be asked to accept the developer agreement.</p>
-
-                    <img class="setup-image" src="setup-images/CreateOrganisation.png"/>
-                    <img class="setup-image" src="setup-images/OculusDashboardDeveloperCreate.png"/>
-                </div>
-                <br><br>
-                <br><br>
-            </div>
-            <div class="col s12 m6">
-                <div class="setup-content">
-                    <div class="section-title">Step 2: Install Drivers ( Windows Only - skip this on Mac / Linux ) </div>
-                    <p>Install the driver software for your device. Go to <span class="link" data-url="https://developer.oculus.com/downloads/package/oculus-go-adb-drivers/">developer.oculus.com</span> on your PC and download the drivers for your headset. The Oculus Go drivers work for the quest also. To install the drivers extract the zip folder, right click the <div class="chip">android_winusb.inf</div> file and click install.</p>
-
-                    <img class="setup-image" src="setup-images/ADB Drivers.png"/>
-                </div>
-                <br><br>
-                <br><br>
-            </div>
-        </div>
-        <div class="clear-fix"></div>
-        <div class="row">
-            <div class="col s12 m6">
-                <div class="setup-content">
-                    <div class="section-title">Step 3: Enable Developer Mode and Reboot</div>
-                    <p>Now that you’re a "developer", open the Oculus app on your smartphone or tablet. In the Settings tab, tap on the Go headset and tap 'More settings'. In the list, you should now see Developer Mode. Once you have enabled developer mode it is a good idea to reboot your headset to be able to see it on the device. </p>
-
-                    <img class="setup-image" src="setup-images/OculusAppDevModeSteps.png"/>
-                </div>
-                <br><br>
-                <br><br>
-            </div>
-            <div class="col s12 m6">
-                <div class="setup-content">
-                    <div class="section-title">Step 4: Connect USB Cable and Allow USB Debugging</div>
-                    <p>Now its time to connect the USB cable. Once you are connected you will have to allow USB debugging access on your headset. If you put your headset on at this point you will see something like the below. You should also select 'Always allow from this computer' to prevent this message from coming up every time you connect.</p>
-
-                    <img class="setup-image" src="setup-images/allow-auth.png"/>
-                </div>
-                <br><br>
-                <br><br>
-            </div>
-        </div>
-        <div class="clear-fix"></div>
-        <div class="row">
-            <div class="col s12">
-                <div class="section-title">Step 5: Install App Launcher</div>
-                <p style="text-align: center" >Install a launcher to make finding apps easier on your headset. This launcher will be found in the library under 'Unknown Sources' on the menu on the left. Open it to find all the apps that have been installed on your device.</p>
-                <p style="text-align: center" class="install-launcher-container">
-                    <svg style="display:none" class="install-launcher-loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
-                    <a  href="#" class="waves-effect waves-light btn install-launcher">Install App Launcher</a>
-                </p>
-                <p style="text-align: center" >You will then be able to install apps to your headset and open them from the launcher. You can find it in the side menu of the library under the Unknown Sources section called <span class="chip">SideQuest</span>. This will show you all the apps on the device even hidden ones you would otherwise not see. </p>
-                <p style="text-align: center" class="install-expanse-container">
-                    <svg style="display:none" class="install-expanse-loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
-                    <a  href="#" class="waves-effect waves-light btn install-expanse">Install Your First App - The Expanse</a>
-                </p>
-                <p style="text-align: center" >If you want to install your own APK files just drag and drop them over this window.</p>
-                <p style="text-align: center" >Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. <br>If you have any problems or want to say hi drop us a line on discord - <span class="link" data-url="https://discord.gg/HNnDPSu">discord</span>.</p>
-                <br><br>
-            </div>
-        </div>
-        <div class="clear-fix"></div>
-        <div class="row" style="display: none;">
-            <div class="col s12">
-                <div class="section-title">App Developers Link to your apps!</div>
-                <p style="text-align: center" >Use our custom protocol to be able to install APK files, add repos and even load custom beat saber songs direct from your website.</p>
-                <span class="chip tooltipped" data-position="right" data-tooltip="Example: sidequest://repo#https://example.com/fdroid/repo">sidequest://repo#URL_OF_REPO</span><br>
-                <span class="chip tooltipped" data-position="right" data-tooltip="Example: sidequest://sideload#https://example.com/file.apk">sidequest://sideload#URL_OF_APK</span><br>
-                <span class="chip tooltipped" data-position="right" data-tooltip="Example: sidequest://bsaber#12345-12345 or sidequest://bsaber#https://example.com/12345-12345.zip">sidequest://bsaber#URL_OR_ID_OF_SONG</span><br>
-                <br><br>
-                <div class="row">
-                    <div class="col s8">
-                        <div class="input-field inline browser-input">
-                            <input id="protocol_url" type="text" placeholder="Address">
-                            <label class="active"  for="protocol_url">Address</label>
+                <div class="col s6">
+                    <h4>Replace Text</h4>
+                    <div class="row">
+                        <div class="input-field col s5">
+                            <input id="add-replace-key" type="text" />
+                            <label for="add-replace-key">Replace Key</label>
+                        </div>
+                        <div class="input-field col s5">
+                            <input id="add-replace-value" type="text" />
+                            <label for="add-replace-value">Replace Value</label>
+                        </div>
+                        <div class="col s2">
+                            <a
+                                href="#!"
+                                class="btn waves-effect waves-green add-replace"
+                                >Add</a
+                            >
                         </div>
                     </div>
-                    <div class="input-field col 4">
-                        <select id="protocol_type">
-                            <option selected>repo</option>
-                            <option>sideload</option>
-                            <option>bsaber</option>
-                        </select>
-                        <label>Link Type</label>
-                    </div>
+                    <div id="replaceTextValues"></div>
                 </div>
+            </div>
+        </template>
+        <template id="replaceItem">
+            <div class="row">
+                <div class="col s5 add-replace-key"></div>
+                <div class="col s5 add-replace-value"></div>
+                <div class="col s2">
+                    <a
+                        href="#!"
+                        class="btn waves-effect waves-green remove-replace"
+                        >Remove</a
+                    >
+                </div>
+            </div>
+        </template>
+
+        <template id="deviceSettings">
+            <div class="col s12">
+                <div class="right">SideQuest Version: 0.3.1</div>
+                <div class="section-title">SideQuest Stuff</div>
                 <p style="text-align: center">
-                    <a  href="#" class="waves-effect waves-light btn">Copy Embed Code</a>
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-main-app-folder margin-top-bottom"
+                        >Open Main App Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-apk-backup-folder margin-top-bottom"
+                        >Open APK Backup Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-adb-folder margin-top-bottom"
+                        >Open ADB Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--<a  href="#" class="waves-effect waves-light btn open-adb-command-window margin-top-bottom">Open ADB Command Window</a>&nbsp;&nbsp;&nbsp;&nbsp;-->
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-bsaber-folder margin-top-bottom"
+                        >Open Bsaber Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-bsaber-backup-folder margin-top-bottom"
+                        >Open Bsaber Backup Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-bsaber-data-backup-folder margin-top-bottom"
+                        >Open Bsaber Data Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn open-bsaber-patch-folder margin-top-bottom"
+                        >Open Quest Saber Patch Folder</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Pavlov Audio</div>
+                <p style="text-align: center">
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn grant-pavlov-permission margin-top-bottom"
+                        >Grant Pavlov Audio Permission</a
+                    >&nbsp;&nbsp;&nbsp;&nbsp;
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Paste Text to your device</div>
+                <div style="text-align: center">
+                    <div class="input-field ">
+                        <input id="devicePaste" type="text" />
+                        <label for="devicePaste">Text to Paste</label>
+                    </div>
+                    <div class="switch">
+                        <label>
+                            Text
+                            <input type="checkbox" id="devicePasteType" />
+                            <span class="lever"></span>
+                            Password
+                        </label>
+                    </div>
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn paste-text-button right"
+                        >Send</a
+                    >
+                </div>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">
+                    Set FFR ( Fixed Foveated Rendering ) level
+                </div>
+                This will change how the view is rendered in the outer edges of
+                the viewscreen for each eye. Higher is better performance, lower
+                is better quality.
+                <p style="text-align: center">
+                    <a href="#" class="waves-effect waves-light btn set-ffr"
+                        >Off</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-ffr"
+                        >Low</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-ffr"
+                        >Medium</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-ffr"
+                        >High</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-ffr"
+                        >High Top</a
+                    >
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Set CPU and GPU level</div>
+                This can improve performance for 2D apps & games.
+                <p style="text-align: center">
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn set-gpu-level"
+                        >Level 2</a
+                    >
+                    <a
+                        href="#"
+                        class="waves-effect waves-light btn set-gpu-level"
+                        >Level 4</a
+                    >
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Chromatic Aberration</div>
+                THis will enable/disable chromatic aberration.
+                <p style="text-align: center">
+                    <a href="#" class="waves-effect waves-light btn set-ca"
+                        >On</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-ca"
+                        >Off</a
+                    >
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Default Texture Size</div>
+                This will change how high quality some of the in game textures
+                are rendered at.
+                <p style="text-align: center">
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >512</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >768</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >1280</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >1536</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >2048</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >2560</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-sso"
+                        >3072</a
+                    >
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Capture Video Bitrate</div>
+                This will increase the quality of captured videos.
+                <p style="text-align: center">
+                    <a href="#" class="waves-effect waves-light btn set-svb"
+                        >5Mbps</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-svb"
+                        >15Mbps</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-svb"
+                        >25Mbps</a
+                    >
+                </p>
+                <br /><br />
+                <br /><br />
+                <div class="section-title">Video Recording Resolution</div>
+                This will increase the resolution of captured videos.
+                <p style="text-align: center">
+                    <a href="#" class="waves-effect waves-light btn set-svr"
+                        >1024</a
+                    >
+                    <a href="#" class="waves-effect waves-light btn set-svr"
+                        >1536</a
+                    >
                 </p>
             </div>
-        </div>
-    </div>
-</template>
-<template id="appVersion">
-    <li>
-        <div class="collapsible-header"><span class="version-name"></span> <a class="waves-effect waves-light btn right install-apk">Install</a></div>
-        <div class="collapsible-body"><span class="permissions"></span></div>
-    </li>
-</template>
-<template id="appItem">
-    <div class="col s6 l4 text-center">
-        <div class="app-image-container">
-            <img class="app-image"/>
-        </div>
-        <div class="app-meta"></div>
-        <a  href="#" class="waves-effect waves-light btn uninstall-apk">Uninstall</a>
-    </div>
-    <div class="col s6 l8 summary">
+        </template>
+        <template id="setupInstructions">
+            <div class="col s12">
+                <div class="row">
+                    <div class="col s12 m6">
+                        <div class="setup-content">
+                            <div class="section-title">
+                                Step 1: Create Organisation
+                            </div>
+                            <div>
+                                Put the Oculus Headset in developer mode to be
+                                able to sideload to the Headset. To do this, you
+                                have to be a registered "developer". This
+                                process is free. Go to
+                                <span
+                                    class="link"
+                                    data-url="https://dashboard.oculus.com"
+                                    >dashboard.oculus.com</span
+                                >
+                                on your PC and create an 'organization'. You'll
+                                be asked to accept the developer agreement.
+                            </div>
 
-    </div>
-    <div class="col s12">
-        <ul class="collapsible app-versions">
+                            <img
+                                class="setup-image"
+                                src="setup-images/CreateOrganisation.png"
+                            />
+                            <img
+                                class="setup-image"
+                                src="setup-images/OculusDashboardDeveloperCreate.png"
+                            />
+                        </div>
+                        <br /><br />
+                        <br /><br />
+                    </div>
+                    <div class="col s12 m6">
+                        <div class="setup-content">
+                            <div class="section-title">
+                                Step 2: Install Drivers ( Windows Only - skip
+                                this on Mac / Linux )
+                            </div>
+                            <div>
+                                Install the driver software for your device. Go
+                                to
+                                <span
+                                    class="link"
+                                    data-url="https://developer.oculus.com/downloads/package/oculus-go-adb-drivers/"
+                                    >developer.oculus.com</span
+                                >
+                                on your PC and download the drivers for your
+                                headset. The Oculus Go drivers work for the
+                                quest also. To install the drivers extract the
+                                zip folder, right click the
+                                <div class="chip">android_winusb.inf</div>
+                                file and click install.
+                            </div>
 
-        </ul>
-    </div>
-</template>
-<template id="backupItem">
-    <div class="row">
-        <div class="col s1">
-            <div class="chip cursor restore-backup tooltipped" data-position="right" data-tooltip="Restore this backup">
-                <i class="material-icons">sync</i>
-            </div>
-        </div>
-        <div class="col s11">
-            <div class="chip">
-                <span class="backup-name">IzzyOnDroid F-Droid Repo - https://apt.izzysoft.de/fdroid/repo/</span>
-            </div>
-        </div>
-    </div>
-</template>
-<template id="repoItem">
-    <div class="col s1">
-        <div class="chip cursor delete-repo">
-            <i class="material-icons">close</i>
-        </div>
-    </div>
-    <!--<div class="col s1">-->
-    <!--<div class="chip cursor update-repo">-->
-    <!--<i class="material-icons">cloud_download</i>-->
-    <!--</div>-->
-    <!--</div>-->
-    <div class="col s11">
-        <div class="chip">
-            <img src="https://guardianproject.info/fdroid/repo/icons/org.witness.informacam.app.206.png" class="repo-image">
-            <!--<i class="material-icons">games</i>-->
-            <span class="repo-description">IzzyOnDroid F-Droid Repo - https://apt.izzysoft.de/fdroid/repo/</span>
-        </div>
-    </div>
-</template>
-<template id="packContainer">
-    <div class="packOuter">
-        <i class="material-icons right blue-text show-pack cursor">expand_more</i>
-        <i class="material-icons right green-text edit-pack cursor">edit</i>
-        <h5 class="name truncate"></h5>
-        <div class="pack-song-container-outer">
-            <ul class="collection pack-song-container ">
-
-            </ul>
-        </div>
-    </div>
-</template>
-<template id="songItem">
-    <li class="collection-item avatar">
-        <img src="images/yuna.jpg" alt="" class="circle">
-        <span class="title">Title</span>
-        <p class="description"></p>
-        <a href="#!" class="secondary-content"><i class="material-icons orange-text delete-song">close</i></a>
-    </li>
-</template>
-<template id="listItem">
-    <div class="col s6 l3">
-        <div class="card sticky-action fixed-height">
-            <div class="card-image waves-effect waves-block waves-light">
-                <div class="activator image image-background"></div>
-            </div>
-            <div class="card-content">
-                <span class="card-title card-title-one activator grey-text text-darken-4 truncate">Card Title</span>
-                <p></p>
-            </div>
-            <div class="card-reveal">
-                <span class="card-title card-title-two grey-text text-darken-4 truncate">Card Title</span>
-                <p class="description">Here is some more information about this product that is only revealed once clicked on.</p>
-            </div>
-            <div class="card-action right-align">
-                <i class="material-icons left is-installed green-text">done</i>
-                <svg style="display:none" class="loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
-                <a  href="#" class="waves-effect waves-light btn install-apk">Install</a>
-            </div>
-        </div>
-    </div>
-</template>
-<template id="menuItem">
-    <div class="menu-item">
-        <div class="menu-item-inner menu tooltipped" data-position="right" data-tooltip="here" data-type="games">
-            <img class="menu-icon" src=""/><br>
-            <span class="menu-name">Games</span>
-        </div>
-    </div>
-</template>
-<template id="packageItem">
-    <div class="col s8 package-height chip-padding">
-        <span class="chip"></span>
-    </div>
-    <div class="col s4 package-height">
-        <a  href="#modal2" class="waves-effect waves-light btn uninstall-package modal-trigger">Uninstall</a>
-    </div>
-</template>
-<div class="side-nav">
-    <div class="logo"></div>
-    <div class="menu-items">
-    </div>
-
-    <div class="menu-item-beat">
-        <div class="menu-item-inner beat-menu side-sub-menu tooltipped" data-position="right" data-tooltip="Browse and install custom songs from www.bsaber.com.">
-            <img src="bsaber.png" class="menu-icon" /><br>
-            <span class="menu-name">Beast Saber</span>
-        </div>
-    </div>
-
-    <div class="menu-item-repo">
-        <div class="menu-item-inner add-menu side-sub-menu tooltipped" data-position="right" data-tooltip="Manage the app repos shown in the side menu." data-type="repos">
-            <div class="row no-margin">
-                <div class="col s6 no-padding"><i class="material-icons fixed-menu-icon">apps</i></div>
-                <div class="col s6 no-padding icon-text">Repos</div>
-            </div>
-        </div>
-    </div>
-    <div class="menu-item-video">
-        <a class="menu-item-inner video-menu side-sub-menu modal-trigger tooltipped" data-position="right" data-tooltip="Watch a great how-to video on how to use SideQuest." href="#modal3">
-            <div class="row no-margin">
-                <div class="col s6 no-padding"><i class="material-icons fixed-menu-icon">ondemand_video</i></div>
-                <div class="col s6 no-padding icon-text">How-To</div>
-            </div>
-        </a>
-    </div>
-    <div class="menu-item-setup">
-        <div class="menu-item-inner setup-menu side-sub-menu tooltipped" data-position="right" data-tooltip="Setup developer mode. You should only have to do this once.">
-            <div class="row no-margin">
-                <div class="col s6 no-padding"><i class="material-icons fixed-menu-icon">done_all</i></div>
-                <div class="col s6 no-padding icon-text">Setup</div>
-            </div>
-        </div>
-    </div>
-    <div id="connection-ip-address"></div>
-    <a id="enable-wifi" href="#" class="waves-effect waves-light btn">Wifi Mode</a>
-</div>
-<div class="content">
-    <div class="header">
-        <div class="header-title">SideQuest</div>
-        <div class="apk-install"></div>
-        <i id="close-app" class="material-icons tooltipped" data-position="bottom" data-tooltip="Close the app.">close</i>
-        <i id="connection-refresh" class="material-icons tooltipped" data-position="bottom" data-tooltip="Refresh">refresh</i>
-        <i id="open-debugger" class="material-icons tooltipped" data-position="bottom" data-tooltip="Open Debugger">bug_report</i>
-        <i id="installed-apps" class="material-icons tooltipped" data-position="bottom" data-tooltip="Currently Installed Apps">list</i>
-        <i id="device-settings" class="material-icons tooltipped" data-position="bottom" data-tooltip="Device Settings & Tools">build</i>
-        <i id="musiclist" class="material-icons tooltipped" data-position="bottom" data-tooltip="Beast Saber Custom Levels">queue_music</i>
-        <svg id="connection-refresh-loading" style="display:none" class="uil-ring-alt" width='20px' height='20px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
-        <div id="connection-status" class="connection-status-unauthorized tooltipped" data-position="bottom" data-tooltip="Device Connection Status">
-            <div id="connection-status-message">Connecting...</div>
-        </div>
-        <a class="waves-effect waves-light btn add-repo modal-trigger" href="#modal1">Add Repo</a>
-        <a class="waves-effect waves-light btn sync-songs-now" href="#modal1">My Downloads</a>
-        <div class="sync-songs">
-            <span class="beat-saber-version"></span>&nbsp;&nbsp;
-            <a class="waves-effect waves-light btn refresh-songs-one tooltipped" data-position="bottom" data-tooltip="Refresh the songs in this list.">Refresh Songs</a>&nbsp;&nbsp;
-            <a class="waves-effect waves-light btn open-songs-main-one tooltipped" data-position="bottom" data-tooltip="Open your custom levels folder.">Open Custom Levels Folder</a>&nbsp;&nbsp;
-            <a class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped" data-position="bottom" data-tooltip="Manage your APK and Data backups." href="#modal5">Backups</a>&nbsp;&nbsp;
-            <a class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped" data-position="bottom" data-tooltip="Build a new beat saber APK and install these songs." href="#modal4">Sync Custom Levels</a>
-        </div>
-        <div id="browser-bar">
-            <a class="btn-floating waves-effect waves-light browser-button browser-back-button"><i class="material-icons">keyboard_arrow_left</i></a>
-            <a class="btn-floating waves-effect waves-light browser-button browser-forward-button"><i class="material-icons">keyboard_arrow_right</i></a>
-            <div class="input-field inline browser-input">
-                <input id="web_address" type="text" placeholder="Address">
-                <label class="active"  for="web_address">Address</label>
-            </div>
-            <a class="btn-floating waves-effect waves-light browser-button browser-send-button"><i class="material-icons">send</i></a>
-            <svg class="browser-loading uil-ring-alt" width='40px' height='40px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="1s" repeatCount="indefinite" values="150.6 100.4;1 250;150.6 100.4"></animate></circle></svg>
-
-        </div>
-        <div id="searchFilterContainer">
-            <div class="search">
-                <div class="input-field inline search-box">
-                    <input id="searchBox" type="text">
-                    <label for="searchBox" class="active">Search</label>
+                            <img
+                                class="setup-image"
+                                src="setup-images/ADB Drivers.png"
+                            />
+                        </div>
+                        <br /><br />
+                        <br /><br />
+                    </div>
                 </div>
-                <a class="waves-effect waves-light btn search-button-margin">search</a>
+                <div class="clear-fix"></div>
+                <div class="row">
+                    <div class="col s12 m6">
+                        <div class="setup-content">
+                            <div class="section-title">
+                                Step 3: Enable Developer Mode and Reboot
+                            </div>
+                            <p>
+                                Now that you’re a "developer", open the Oculus
+                                app on your smartphone or tablet. In the
+                                Settings tab, tap on the Go headset and tap
+                                'More settings'. In the list, you should now see
+                                Developer Mode. Once you have enabled developer
+                                mode it is a good idea to reboot your headset to
+                                be able to see it on the device.
+                            </p>
+
+                            <img
+                                class="setup-image"
+                                src="setup-images/OculusAppDevModeSteps.png"
+                            />
+                        </div>
+                        <br /><br />
+                        <br /><br />
+                    </div>
+                    <div class="col s12 m6">
+                        <div class="setup-content">
+                            <div class="section-title">
+                                Step 4: Connect USB Cable and Allow USB
+                                Debugging
+                            </div>
+                            <div>
+                                Now its time to connect the USB cable. Once you
+                                are connected you will have to allow USB
+                                debugging access on your headset. If you put
+                                your headset on at this point you will see
+                                something like the below. You should also select
+                                'Always allow from this computer' to prevent
+                                this message from coming up every time you
+                                connect.
+                            </div>
+
+                            <img
+                                class="setup-image"
+                                src="setup-images/allow-auth.png"
+                            />
+                        </div>
+                        <br /><br />
+                        <br /><br />
+                    </div>
+                </div>
+                <div class="clear-fix"></div>
+                <div class="row">
+                    <div class="col s12">
+                        <div class="section-title">
+                            Step 5: Install App Launcher
+                        </div>
+                        <div style="text-align: center">
+                            Install a launcher to make finding apps easier on
+                            your headset. This launcher will be found in the
+                            library under 'Unknown Sources' on the menu on the
+                            left. Open it to find all the apps that have been
+                            installed on your device.
+                        </div>
+                        <div
+                            style="text-align: center"
+                            class="install-launcher-container"
+                        >
+                            <svg
+                                style="display:none"
+                                class="install-launcher-loading uil-ring-alt"
+                                width="40px"
+                                height="40px"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="xMidYMid"
+                            >
+                                <rect
+                                    x="0"
+                                    y="0"
+                                    width="100"
+                                    height="100"
+                                    fill="none"
+                                    class="bk"
+                                ></rect>
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="40"
+                                    stroke="rgba(175,175,183,0)"
+                                    fill="none"
+                                    stroke-width="10"
+                                    stroke-linecap="round"
+                                ></circle>
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="40"
+                                    stroke="#91cce6"
+                                    fill="none"
+                                    stroke-width="6"
+                                    stroke-linecap="round"
+                                >
+                                    <animate
+                                        attributeName="stroke-dashoffset"
+                                        dur="1s"
+                                        repeatCount="indefinite"
+                                        from="0"
+                                        to="502"
+                                    ></animate>
+                                    <animate
+                                        attributeName="stroke-dasharray"
+                                        dur="1s"
+                                        repeatCount="indefinite"
+                                        values="150.6 100.4;1 250;150.6 100.4"
+                                    ></animate>
+                                </circle>
+                            </svg>
+                            <a
+                                href="#"
+                                class="waves-effect waves-light btn install-launcher"
+                                >Install App Launcher</a
+                            >
+                        </div>
+                        <div style="text-align: center">
+                            You will then be able to install apps to your
+                            headset and open them from the launcher. You can
+                            find it in the side menu of the library under the
+                            Unknown Sources section called
+                            <span class="chip">SideQuest</span>. This will show
+                            you all the apps on the device even hidden ones you
+                            would otherwise not see.
+                        </div>
+                        <div
+                            style="text-align: center"
+                            class="install-expanse-container"
+                        >
+                            <svg
+                                style="display:none"
+                                class="install-expanse-loading uil-ring-alt"
+                                width="40px"
+                                height="40px"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="xMidYMid"
+                            >
+                                <rect
+                                    x="0"
+                                    y="0"
+                                    width="100"
+                                    height="100"
+                                    fill="none"
+                                    class="bk"
+                                ></rect>
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="40"
+                                    stroke="rgba(175,175,183,0)"
+                                    fill="none"
+                                    stroke-width="10"
+                                    stroke-linecap="round"
+                                ></circle>
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="40"
+                                    stroke="#91cce6"
+                                    fill="none"
+                                    stroke-width="6"
+                                    stroke-linecap="round"
+                                >
+                                    <animate
+                                        attributeName="stroke-dashoffset"
+                                        dur="1s"
+                                        repeatCount="indefinite"
+                                        from="0"
+                                        to="502"
+                                    ></animate>
+                                    <animate
+                                        attributeName="stroke-dasharray"
+                                        dur="1s"
+                                        repeatCount="indefinite"
+                                        values="150.6 100.4;1 250;150.6 100.4"
+                                    ></animate>
+                                </circle>
+                            </svg>
+                            <a
+                                href="#"
+                                class="waves-effect waves-light btn install-expanse"
+                                >Install Your First App - The Expanse</a
+                            >
+                        </div>
+                        <div style="text-align: center">
+                            If you want to install your own APK files just drag
+                            and drop them over this window.
+                        </div>
+                        <div style="text-align: center">
+                            Check your antivirus hasn't blocked some parts of
+                            the ADB download - this has happened for some with
+                            Avast antivirus in particular. <br />If you have any
+                            problems or want to say hi drop us a line on discord
+                            -
+                            <span
+                                class="link"
+                                data-url="https://discord.gg/HNnDPSu"
+                                >discord</span
+                            >.
+                        </div>
+                        <br /><br />
+                    </div>
+                </div>
+                <div class="clear-fix"></div>
+                <div class="row" style="display: none;">
+                    <div class="col s12">
+                        <div class="section-title">
+                            App Developers Link to your apps!
+                        </div>
+                        <div style="text-align: center">
+                            Use our custom protocol to be able to install APK
+                            files, add repos and even load custom beat saber
+                            songs direct from your website.
+                        </div>
+                        <span
+                            class="chip tooltipped"
+                            data-position="right"
+                            data-tooltip="Example: sidequest://repo#https://example.com/fdroid/repo"
+                            >sidequest://repo#URL_OF_REPO</span
+                        ><br />
+                        <span
+                            class="chip tooltipped"
+                            data-position="right"
+                            data-tooltip="Example: sidequest://sideload#https://example.com/file.apk"
+                            >sidequest://sideload#URL_OF_APK</span
+                        ><br />
+                        <span
+                            class="chip tooltipped"
+                            data-position="right"
+                            data-tooltip="Example: sidequest://bsaber#12345-12345 or sidequest://bsaber#https://example.com/12345-12345.zip"
+                            >sidequest://bsaber#URL_OR_ID_OF_SONG</span
+                        ><br />
+                        <br /><br />
+                        <div class="row">
+                            <div class="col s8">
+                                <div class="input-field inline browser-input">
+                                    <input
+                                        id="protocol_url"
+                                        type="text"
+                                        placeholder="Address"
+                                    />
+                                    <label class="active" for="protocol_url"
+                                        >Address</label
+                                    >
+                                </div>
+                            </div>
+                            <div class="input-field col 4">
+                                <select id="protocol_type">
+                                    <option selected>repo</option>
+                                    <option>sideload</option>
+                                    <option>bsaber</option>
+                                </select>
+                                <label>Link Type</label>
+                            </div>
+                        </div>
+                        <div style="text-align: center">
+                            <a href="#" class="waves-effect waves-light btn"
+                                >Copy Embed Code</a
+                            >
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="filters" style="display: none">
-                <div class="input-field inline filter">
-                    <select id="filterDropdown">
-                        <option>All</option>
-                    </select>
+        </template>
+        <template id="appVersion">
+            <li>
+                <div class="collapsible-header">
+                    <span class="version-name"></span>
+                    <a class="waves-effect waves-light btn right install-apk"
+                        >Install</a
+                    >
+                </div>
+                <div class="collapsible-body">
+                    <span class="permissions"></span>
+                </div>
+            </li>
+        </template>
+        <template id="appItem">
+            <div class="col s6 l4 text-center">
+                <div class="app-image-container">
+                    <img class="app-image" />
+                </div>
+                <div class="app-meta"></div>
+                <a href="#" class="waves-effect waves-light btn uninstall-apk"
+                    >Uninstall</a
+                >
+            </div>
+            <div class="col s6 l8 summary"></div>
+            <div class="col s12">
+                <ul class="collapsible app-versions"></ul>
+            </div>
+        </template>
+        <template id="backupItem">
+            <div class="row">
+                <div class="col s1">
+                    <div
+                        class="chip cursor restore-backup tooltipped"
+                        data-position="right"
+                        data-tooltip="Restore this backup"
+                    >
+                        <i class="material-icons">sync</i>
+                    </div>
+                </div>
+                <div class="col s11">
+                    <div class="chip">
+                        <span class="backup-name"
+                            >IzzyOnDroid F-Droid Repo -
+                            https://apt.izzysoft.de/fdroid/repo/</span
+                        >
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="repoItem">
+            <div class="col s1">
+                <div class="chip cursor delete-repo">
+                    <i class="material-icons">close</i>
+                </div>
+            </div>
+            <!--<div class="col s1">-->
+            <!--<div class="chip cursor update-repo">-->
+            <!--<i class="material-icons">cloud_download</i>-->
+            <!--</div>-->
+            <!--</div>-->
+            <div class="col s11">
+                <div class="chip">
+                    <img
+                        src="https://guardianproject.info/fdroid/repo/icons/org.witness.informacam.app.206.png"
+                        class="repo-image"
+                    />
+                    <!--<i class="material-icons">games</i>-->
+                    <span class="repo-description"
+                        >IzzyOnDroid F-Droid Repo -
+                        https://apt.izzysoft.de/fdroid/repo/</span
+                    >
+                </div>
+            </div>
+        </template>
+        <template id="packContainer">
+            <div class="packOuter">
+                <i class="material-icons right blue-text show-pack cursor"
+                    >expand_more</i
+                >
+                <i class="material-icons right green-text edit-pack cursor"
+                    >edit</i
+                >
+                <h5 class="name truncate"></h5>
+                <div class="pack-song-container-outer">
+                    <ul class="collection pack-song-container "></ul>
+                </div>
+            </div>
+        </template>
+        <template id="songItem">
+            <li class="collection-item avatar">
+                <img src="images/yuna.jpg" alt="" class="circle" />
+                <span class="title">Title</span>
+                <p class="description"></p>
+                <a href="#!" class="secondary-content"
+                    ><i class="material-icons orange-text delete-song"
+                        >close</i
+                    ></a
+                >
+            </li>
+        </template>
+        <template id="listItem">
+            <div class="col s6 l3">
+                <div class="card sticky-action fixed-height">
+                    <div
+                        class="card-image waves-effect waves-block waves-light"
+                    >
+                        <div class="activator image image-background"></div>
+                    </div>
+                    <div class="card-content">
+                        <span
+                            class="card-title card-title-one activator grey-text text-darken-4 truncate"
+                            >Card Title</span
+                        >
+                        <p></p>
+                    </div>
+                    <div class="card-reveal">
+                        <span
+                            class="card-title card-title-two grey-text text-darken-4 truncate"
+                            >Card Title</span
+                        >
+                        <p class="description">
+                            Here is some more information about this product
+                            that is only revealed once clicked on.
+                        </p>
+                    </div>
+                    <div class="card-action right-align">
+                        <i class="material-icons left is-installed green-text"
+                            >done</i
+                        >
+                        <svg
+                            style="display:none"
+                            class="loading uil-ring-alt"
+                            width="40px"
+                            height="40px"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="xMidYMid"
+                        >
+                            <rect
+                                x="0"
+                                y="0"
+                                width="100"
+                                height="100"
+                                fill="none"
+                                class="bk"
+                            ></rect>
+                            <circle
+                                cx="50"
+                                cy="50"
+                                r="40"
+                                stroke="rgba(175,175,183,0)"
+                                fill="none"
+                                stroke-width="10"
+                                stroke-linecap="round"
+                            ></circle>
+                            <circle
+                                cx="50"
+                                cy="50"
+                                r="40"
+                                stroke="#91cce6"
+                                fill="none"
+                                stroke-width="6"
+                                stroke-linecap="round"
+                            >
+                                <animate
+                                    attributeName="stroke-dashoffset"
+                                    dur="1s"
+                                    repeatCount="indefinite"
+                                    from="0"
+                                    to="502"
+                                ></animate>
+                                <animate
+                                    attributeName="stroke-dasharray"
+                                    dur="1s"
+                                    repeatCount="indefinite"
+                                    values="150.6 100.4;1 250;150.6 100.4"
+                                ></animate>
+                            </circle>
+                        </svg>
+                        <a
+                            href="#"
+                            class="waves-effect waves-light btn install-apk"
+                            >Install</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="menuItem">
+            <div class="menu-item">
+                <div
+                    class="menu-item-inner menu tooltipped"
+                    data-position="right"
+                    data-tooltip="here"
+                    data-type="games"
+                >
+                    <img class="menu-icon" src="" /><br />
+                    <span class="menu-name">Games</span>
+                </div>
+            </div>
+        </template>
+        <template id="packageItem">
+            <div class="col s8 package-height chip-padding">
+                <span class="chip"></span>
+            </div>
+            <div class="col s2 package-height">
+                <a class="waves-effect waves-light btn backup-this-package"
+                    >Backup</a
+                >
+            </div>
+            <div class="col s2 package-height">
+                <a
+                    href="#modal2"
+                    class="waves-effect waves-light btn red uninstall-package modal-trigger"
+                    >Uninstall</a
+                >
+            </div>
+        </template>
+        <div class="side-nav">
+            <div class="logo"></div>
+            <div class="menu-items"></div>
+
+            <div class="menu-item-beat">
+                <div
+                    class="menu-item-inner beat-menu side-sub-menu tooltipped"
+                    data-position="right"
+                    data-tooltip="Browse and install custom songs from www.bsaber.com."
+                >
+                    <img src="bsaber.png" class="menu-icon" /><br />
+                    <span class="menu-name">Beast Saber</span>
+                </div>
+            </div>
+
+            <div class="menu-item-repo">
+                <div
+                    class="menu-item-inner add-menu side-sub-menu tooltipped"
+                    data-position="right"
+                    data-tooltip="Manage the app repos shown in the side menu."
+                    data-type="repos"
+                >
+                    <div class="row no-margin">
+                        <div class="col s6 no-padding">
+                            <i class="material-icons fixed-menu-icon">apps</i>
+                        </div>
+                        <div class="col s6 no-padding icon-text">Repos</div>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-item-video">
+                <a
+                    class="menu-item-inner video-menu side-sub-menu modal-trigger tooltipped"
+                    data-position="right"
+                    data-tooltip="Watch a great how-to video on how to use SideQuest."
+                    href="#modal3"
+                >
+                    <div class="row no-margin">
+                        <div class="col s6 no-padding">
+                            <i class="material-icons fixed-menu-icon"
+                                >ondemand_video</i
+                            >
+                        </div>
+                        <div class="col s6 no-padding icon-text">How-To</div>
+                    </div>
+                </a>
+            </div>
+            <div class="menu-item-setup">
+                <div
+                    class="menu-item-inner setup-menu side-sub-menu tooltipped"
+                    data-position="right"
+                    data-tooltip="Setup developer mode. You should only have to do this once."
+                >
+                    <div class="row no-margin">
+                        <div class="col s6 no-padding">
+                            <i class="material-icons fixed-menu-icon"
+                                >done_all</i
+                            >
+                        </div>
+                        <div class="col s6 no-padding icon-text">Setup</div>
+                    </div>
+                </div>
+            </div>
+            <div id="connection-ip-address"></div>
+            <a id="enable-wifi" href="#" class="waves-effect waves-light btn"
+                >Wifi Mode</a
+            >
+        </div>
+        <div class="content">
+            <div class="header">
+                <div class="header-title">SideQuest</div>
+                <div class="apk-install"></div>
+                <i
+                    id="close-app"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Close the app."
+                    >close</i
+                >
+                <i
+                    id="connection-refresh"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Refresh"
+                    >refresh</i
+                >
+                <i
+                    id="open-debugger"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Open Debugger"
+                    >bug_report</i
+                >
+                <i
+                    id="installed-apps"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Currently Installed Apps"
+                    >list</i
+                >
+                <i
+                    id="device-settings"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Device Settings & Tools"
+                    >build</i
+                >
+                <i
+                    id="musiclist"
+                    class="material-icons tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Beast Saber Custom Levels"
+                    >queue_music</i
+                >
+                <svg
+                    id="connection-refresh-loading"
+                    style="display:none"
+                    class="uil-ring-alt"
+                    width="20px"
+                    height="20px"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="xMidYMid"
+                >
+                    <rect
+                        x="0"
+                        y="0"
+                        width="100"
+                        height="100"
+                        fill="none"
+                        class="bk"
+                    ></rect>
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="rgba(175,175,183,0)"
+                        fill="none"
+                        stroke-width="10"
+                        stroke-linecap="round"
+                    ></circle>
+                    <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="#91cce6"
+                        fill="none"
+                        stroke-width="6"
+                        stroke-linecap="round"
+                    >
+                        <animate
+                            attributeName="stroke-dashoffset"
+                            dur="1s"
+                            repeatCount="indefinite"
+                            from="0"
+                            to="502"
+                        ></animate>
+                        <animate
+                            attributeName="stroke-dasharray"
+                            dur="1s"
+                            repeatCount="indefinite"
+                            values="150.6 100.4;1 250;150.6 100.4"
+                        ></animate>
+                    </circle>
+                </svg>
+                <div
+                    id="connection-status"
+                    class="connection-status-unauthorized tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Device Connection Status"
+                >
+                    <div id="connection-status-message">Connecting...</div>
+                </div>
+                <a
+                    class="waves-effect waves-light btn add-repo modal-trigger"
+                    href="#modal1"
+                    >Add Repo</a
+                >
+                <a
+                    class="waves-effect waves-light btn sync-songs-now"
+                    href="#modal1"
+                    >My Downloads</a
+                >
+                <div class="sync-songs">
+                    <span class="beat-saber-version"></span>&nbsp;&nbsp;
+                    <a
+                        class="waves-effect waves-light btn refresh-songs-one tooltipped"
+                        data-position="bottom"
+                        data-tooltip="Refresh the songs in this list."
+                        >Refresh Songs</a
+                    >&nbsp;&nbsp;
+                    <a
+                        class="waves-effect waves-light btn open-songs-main-one tooltipped"
+                        data-position="bottom"
+                        data-tooltip="Open your custom levels folder."
+                        >Open Custom Levels Folder</a
+                    >&nbsp;&nbsp;
+                    <a
+                        class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped"
+                        data-position="bottom"
+                        data-tooltip="Manage your APK and Data backups."
+                        href="#modal5"
+                        >Backups</a
+                    >&nbsp;&nbsp;
+                    <a
+                        class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped"
+                        data-position="bottom"
+                        data-tooltip="Build a new beat saber APK and install these songs."
+                        href="#modal4"
+                        >Sync Custom Levels</a
+                    >
+                </div>
+                <div id="browser-bar">
+                    <a
+                        class="btn-floating waves-effect waves-light browser-button browser-back-button"
+                        ><i class="material-icons">keyboard_arrow_left</i></a
+                    >
+                    <a
+                        class="btn-floating waves-effect waves-light browser-button browser-forward-button"
+                        ><i class="material-icons">keyboard_arrow_right</i></a
+                    >
+                    <div class="input-field inline browser-input">
+                        <input
+                            id="web_address"
+                            type="text"
+                            placeholder="Address"
+                        />
+                        <label class="active" for="web_address">Address</label>
+                    </div>
+                    <a
+                        class="btn-floating waves-effect waves-light browser-button browser-send-button"
+                        ><i class="material-icons">send</i></a
+                    >
+                    <svg
+                        class="browser-loading uil-ring-alt"
+                        width="40px"
+                        height="40px"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="xMidYMid"
+                    >
+                        <rect
+                            x="0"
+                            y="0"
+                            width="100"
+                            height="100"
+                            fill="none"
+                            class="bk"
+                        ></rect>
+                        <circle
+                            cx="50"
+                            cy="50"
+                            r="40"
+                            stroke="rgba(175,175,183,0)"
+                            fill="none"
+                            stroke-width="10"
+                            stroke-linecap="round"
+                        ></circle>
+                        <circle
+                            cx="50"
+                            cy="50"
+                            r="40"
+                            stroke="#91cce6"
+                            fill="none"
+                            stroke-width="6"
+                            stroke-linecap="round"
+                        >
+                            <animate
+                                attributeName="stroke-dashoffset"
+                                dur="1s"
+                                repeatCount="indefinite"
+                                from="0"
+                                to="502"
+                            ></animate>
+                            <animate
+                                attributeName="stroke-dasharray"
+                                dur="1s"
+                                repeatCount="indefinite"
+                                values="150.6 100.4;1 250;150.6 100.4"
+                            ></animate>
+                        </circle>
+                    </svg>
+                </div>
+                <div id="searchFilterContainer">
+                    <div class="search">
+                        <div class="input-field inline search-box">
+                            <input id="searchBox" type="text" />
+                            <label for="searchBox" class="active">Search</label>
+                        </div>
+                        <a
+                            class="waves-effect waves-light btn search-button-margin"
+                            >search</a
+                        >
+                    </div>
+                    <div class="filters" style="display: none">
+                        <div class="input-field inline filter">
+                            <select id="filterDropdown">
+                                <option>All</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="body-content">
+                <webview
+                    id="beatView"
+                    src="https://bsaber.com/"
+                    class="bsaber-webview"
+                    preload="./preload.js"
+                ></webview>
+                <div class="content-padding" style="height: 100%">
+                    <div class="row" id="container" style="height: 100%">
+                        <h4 class="grey-text">Loading apps...</h4>
+                    </div>
+                </div>
+                <div class="status-bar">
+                    <i
+                        class="material-icons right white-text cursor close-status tooltipped"
+                        data-position="top"
+                        data-tooltip="Close this status."
+                        >close</i
+                    ><i
+                        class="material-icons right white-text cursor copy-status tooltipped"
+                        data-position="top"
+                        data-tooltip="Copy status to clipboard."
+                        >file_copy</i
+                    ><span class="status-message truncate"
+                        >Apk Installed Ok!!</span
+                    >
+                </div>
+                <div class="spinner text-center">
+                    <div class="well well-lg">
+                        <div class="loader-initial"></div>
+                        <br />
+                        <span class="spinner-loading-message">Loading...</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="body-content">
-        <webview id="beatView" src="https://bsaber.com/" class="bsaber-webview" preload="./preload.js"></webview>
-        <div class="content-padding" style="height: 100%">
-            <div class="row" id="container" style="height: 100%">
-                <h4 class="grey-text">Loading apps...</h4>
+        <!-- Modal Structure -->
+        <div id="modal1" class="modal bottom-sheet modal-fixed-footer">
+            <div class="modal-content">
+                <h4>Add F-Droid Repo</h4>
+                A repo url usually looks something like this -
+                <div class="chip">https://example.com/fdroid/repo/</div>
+                <br />
+                <div class="input-field repo-url">
+                    <input id="repoUrl" type="text" />
+                    <label for="repoUrl">Repo Url</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn orange waves-effect waves-light add-repo-close"
+                    >Cancel</a
+                >
+                <a
+                    href="#!"
+                    class="modal-close btn waves-effect waves-light add-repo-button"
+                    >Add Repo</a
+                >
             </div>
         </div>
-        <div class="status-bar"><i class="material-icons right white-text cursor close-status tooltipped" data-position="top" data-tooltip="Close this status.">close</i><i class="material-icons right white-text cursor copy-status tooltipped" data-position="top" data-tooltip="Copy status to clipboard.">file_copy</i><span class="status-message truncate">Apk Installed Ok!!</span></div>
-        <div class="spinner text-center">
+        <!-- Modal Structure -->
+        <div id="modal2" class="modal bottom-sheet modal-fixed-footer">
+            <div class="modal-content">
+                <h4 id="app-remove-name">Are you sure?</h4>
+                Some of these apps could be related to the core function of your
+                device. Please be very careful when uninstalling things from
+                your device. We accept no liability if you break your device.
+
+                <h5>Continue at your own risk!</h5>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn orange waves-effect waves-light"
+                    >Cancel</a
+                >
+                <a
+                    href="#!"
+                    class="modal-close btn waves-effect waves-light confirm-uninstall-app"
+                    >Uninstall App</a
+                >
+            </div>
+        </div>
+        <div id="modal3" class="modal modal-fixed-footer modal-fixed-width">
+            <div class="modal-content">
+                <h4>How To Video</h4>
+
+                <p>
+                    <iframe
+                        width="840"
+                        height="410"
+                        src="https://www.youtube.com/embed/HspVa4i9rPg"
+                        frameborder="0"
+                        allowfullscreen
+                    ></iframe>
+                    <br />Kindly provided by
+                    <span
+                        class="link"
+                        data-url="https://www.youtube.com/user/RaMarcus"
+                        >RaMarcus</span
+                    >
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close waves-effect waves-green btn-flat"
+                    >Close</a
+                >
+            </div>
+        </div>
+        <div id="modal4" class="modal modal-fixed-footer modal-fixed-width">
+            <div class="modal-content">
+                <h4>Run QuestSaberPatch</h4>
+                <a
+                    href="#!"
+                    class="btn waves-effect waves-light patch-make-data-backup tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Make a data backup now before you start to patch."
+                    >Make Backup</a
+                >
+                <p id="questSaberPatchContainer"></p>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn-flat waves-effect waves-green"
+                    >Close</a
+                >
+                <a
+                    href="#!"
+                    class="btn waves-effect waves-light orange patch-beatsaber"
+                    >Patch Beatsaber</a
+                >
+            </div>
+        </div>
+
+        <div id="modal5" class="modal modal-fixed-footer modal-fixed-width">
+            <div class="modal-content">
+                <h4>APK Backups</h4>
+                <a
+                    class="waves-effect waves-light btn open-backup tooltipped"
+                    data-position="bottom"
+                    data-tooltip="This folder contains the backup APK files you have made."
+                    >Open Backup Folder</a
+                >&nbsp;&nbsp;&nbsp;
+                <a
+                    class="waves-effect waves-light btn reset-patch-base tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Reset the patched APK file, this will remove any existing songs in the APK."
+                    >Reset Patched To Base</a
+                >&nbsp;&nbsp;&nbsp;
+                <a
+                    class="waves-effect waves-light btn re-download-patcher tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Download latest QuestSaberPatch"
+                    >Redownload Patcher</a
+                >
+                <p id="backupsContainer"></p>
+                If your app already contains mods you might want to provide an
+                original untouched backup here. Without this it can cause
+                problems with the patcher not working.<br /><br />
+                <a
+                    class="waves-effect waves-light btn select-new-base tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Select a new base APK file to use as a master base copy. The existing master ( if any ) will be moved to the backup list."
+                    >Select New Master</a
+                >&nbsp;&nbsp;&nbsp;
+                <a
+                    class="waves-effect waves-light btn reset-new-backup tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Backup to master from the currently installed version of beat saber. The existing master ( if any ) will be moved to the backup list."
+                    >Backup New Master</a
+                >
+
+                <br />Any current base file will be moved into the backup list
+                and called <span class="chip">bsaber-base-old.apk</span>.
+                <br />The new one will also be copied there as
+                <span class="chip">bsaber-base.apk</span>.<br />
+                <div id="dataBackupsContainer">
+                    <h4>Game Scores Backup</h4>
+                    <p>
+                        If you have data folders on the device you should create
+                        a data backup. A data backup will be auto created
+                        everytime you patch and also auto restored back to the
+                        device. Warning: this can lead to data loss if used
+                        improperly.<br /><br />
+                        <a
+                            href="#!"
+                            class="btn waves-effect waves-light make-data-backup tooltipped"
+                            data-position="bottom"
+                            data-tooltip="Backup data files like PlayerData.dat (local scores), settings.cfg (settings) and any obb files (DLCs)."
+                            >Make Score Backup</a
+                        >&nbsp;&nbsp;&nbsp;
+                        <a
+                            href="#!"
+                            class="btn waves-effect waves-light open-data-backup-folder tooltipped"
+                            data-position="bottom"
+                            data-tooltip="This folder contains the backup data files you have made. These could be restored if need be but you should only need to do this if something goes wrong."
+                            >Open Score Backup Folder</a
+                        >
+                    </p>
+                    <p id="dataBackupsContainerInner"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn-flat waves-effect waves-green"
+                    >Close</a
+                >
+                <a
+                    href="#!"
+                    class="modal-close btn waves-effect waves-light make-backup"
+                    >Make Backup</a
+                >
+            </div>
+        </div>
+
+        <div id="modal6" class="modal modal-fixed-footer modal-fixed-width">
+            <div class="modal-content">
+                <h4>QuestSaberPatch Updated!</h4>
+                <p>
+                    You have just updated quest saber patch. In order to get
+                    things working you may need to reset your beat saber
+                    install. <br /><br />To do this you will need to first
+                    uninstall ( not reinstall ) beat saber from your headset ( a
+                    lot of people have problems uninstalling from the headset so
+                    if thats you then go to the top right icon -
+                    <i class="material-icons">list</i> and look for
+                    <span class="chip">com.beatgame.beatsaber</span> and click
+                    uninstall ).<br /><br />
+                    Now you will need to put your headset on and redownload a
+                    fresh unmodified version of beat saber from the oculus
+                    store. FInally you will need to reset the patcher with this
+                    new by selecting the Backup New Master button below, or the
+                    same button on the backups screen.
+                    <br /><br />
+                    Thank you!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn-flat waves-effect waves-green"
+                    >Close</a
+                >
+                <a
+                    href="#!"
+                    class="btn waves-effect waves-light orange backup-new-master-modal"
+                    >Backup New Master</a
+                >
+            </div>
+        </div>
+        <div id="modal7" class="modal modal-fixed-footer modal-fixed-width">
+            <div class="modal-content">
+                <h4>Add Pack</h4>
+                <div class="input-field">
+                    <input
+                        id="packName"
+                        type="text"
+                        placeholder="Name of the pack"
+                    />
+                    <label for="packName">Pack Name</label>
+                </div>
+                <div>
+                    <a
+                        href="#!"
+                        class="btn waves-effect waves-light add-pack-cover-image"
+                        >Pick Pack Cover Image</a
+                    >
+                    <p class="cover-image-path"></p>
+                </div>
+                <div>
+                    <a
+                        href="#!"
+                        class="btn waves-effect waves-light red delete-pack"
+                        >Delete this pack</a
+                    >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a
+                    href="#!"
+                    class="modal-close btn orange waves-effect waves-light add-pack-close"
+                    >Cancel</a
+                >
+                <a
+                    href="#!"
+                    class="modal-close btn waves-effect waves-light add-pack-button"
+                    >Save Pack</a
+                >
+            </div>
+        </div>
+        <div class="spinner-drag text-center">
             <div class="well well-lg">
-                <div class="loader-initial"></div>
-                <br>
-                <span class="spinner-loading-message">Loading...</span>
+                <h5>Drop APK/OBB to install!</h5>
             </div>
         </div>
-    </div>
-</div>
-<!-- Modal Structure -->
-<div id="modal1" class="modal bottom-sheet modal-fixed-footer">
-    <div class="modal-content">
-        <h4>Add F-Droid Repo</h4>
-        A repo url usually looks something like this - <div class="chip">https://example.com/fdroid/repo/</div> <br>
-        <div class="input-field repo-url">
-            <input id="repoUrl" type="text">
-            <label for="repoUrl">Repo Url</label>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn orange waves-effect waves-light add-repo-close">Cancel</a>
-        <a href="#!" class="modal-close btn waves-effect waves-light add-repo-button">Add Repo</a>
-    </div>
-</div>
-<!-- Modal Structure -->
-<div id="modal2" class="modal bottom-sheet modal-fixed-footer">
-    <div class="modal-content">
-        <h4 id="app-remove-name">Are you sure?</h4>
-        Some of these apps could be related to the core function of your device. Please be very careful when uninstalling things from your device. We accept no liability if you break your device.
-
-        <h5>Continue at your own risk!</h5>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn orange waves-effect waves-light">Cancel</a>
-        <a href="#!" class="modal-close btn waves-effect waves-light confirm-uninstall-app">Uninstall App</a>
-    </div>
-</div>
-<div id="modal3" class="modal modal-fixed-footer modal-fixed-width">
-    <div class="modal-content">
-        <h4>How To Video </h4>
-
-        <p>
-            <iframe width="840" height="410" src="https://www.youtube.com/embed/HspVa4i9rPg" frameborder="0" allowfullscreen></iframe>
-            <br>Kindly provided by <span class="link" data-url="https://www.youtube.com/user/RaMarcus">RaMarcus</span>
-        </p>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
-    </div>
-</div>
-<div id="modal4" class="modal modal-fixed-footer modal-fixed-width">
-    <div class="modal-content">
-        <h4>Run QuestSaberPatch</h4>
-        <a href="#!" class="btn waves-effect waves-light patch-make-data-backup tooltipped" data-position="bottom" data-tooltip="Make a data backup now before you start to patch.">Make Backup</a>
-        <p id="questSaberPatchContainer">
-
-        </p>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn-flat waves-effect waves-green">Close</a>
-        <a href="#!" class="btn waves-effect waves-light orange patch-beatsaber">Patch Beatsaber</a>
-    </div>
-</div>
-
-<div id="modal5" class="modal modal-fixed-footer modal-fixed-width">
-    <div class="modal-content">
-        <h4>APK Backups</h4>
-        <a class="waves-effect waves-light btn open-backup tooltipped" data-position="bottom" data-tooltip="This folder contains the backup APK files you have made.">Open Backup Folder</a>&nbsp;&nbsp;&nbsp;
-        <a class="waves-effect waves-light btn reset-patch-base tooltipped" data-position="bottom" data-tooltip="Reset the patched APK file, this will remove any existing songs in the APK.">Reset Patched To Base</a>&nbsp;&nbsp;&nbsp;
-        <a class="waves-effect waves-light btn re-download-patcher tooltipped" data-position="bottom" data-tooltip="Download latest QuestSaberPatch">Redownload Patcher</a>
-        <p id="backupsContainer">
-
-        </p>
-        If your app already contains mods you might want to provide an original untouched backup here. Without this it can cause problems with the patcher not working.<br><br>
-        <a class="waves-effect waves-light btn select-new-base tooltipped" data-position="bottom" data-tooltip="Select a new base APK file to use as a master base copy. The existing master ( if any ) will be moved to the backup list.">Select New Master</a>&nbsp;&nbsp;&nbsp;
-        <a class="waves-effect waves-light btn reset-new-backup tooltipped" data-position="bottom" data-tooltip="Backup to master from the currently installed version of beat saber. The existing master ( if any ) will be moved to the backup list.">Backup New Master</a>
-
-        <br>Any current base file will be moved into the backup list and called <span class="chip">bsaber-base-old.apk</span>. <br>The new one will also be copied there as <span class="chip">bsaber-base.apk</span>.<br>
-        <div id="dataBackupsContainer">
-            <h4>Game Scores Backup</h4>
-            <p>
-                If you have data folders on the device you should create a data backup. A data backup will be auto created everytime you patch and also auto restored back to the device. Warning: this can lead to data loss if used improperly.<br><br>
-                <a href="#!" class="btn waves-effect waves-light make-data-backup tooltipped" data-position="bottom" data-tooltip="Backup data files like PlayerData.dat (local scores), settings.cfg (settings) and any obb files (DLCs).">Make Score Backup</a>&nbsp;&nbsp;&nbsp;
-                <a href="#!" class="btn waves-effect waves-light open-data-backup-folder tooltipped" data-position="bottom" data-tooltip="This folder contains the backup data files you have made. These could be restored if need be but you should only need to do this if something goes wrong.">Open Score Backup Folder</a>
-            </p>
-            <p id="dataBackupsContainerInner">
-
-            </p>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn-flat waves-effect waves-green">Close</a>
-        <a href="#!" class="modal-close btn waves-effect waves-light make-backup">Make Backup</a>
-    </div>
-</div>
-
-
-<div id="modal6" class="modal modal-fixed-footer modal-fixed-width">
-    <div class="modal-content">
-        <h4>QuestSaberPatch Updated!</h4>
-        <p>
-            You have just updated quest saber patch. In order to get things working you may need to reset your beat saber install. <br><br>To do this you will need to
-            first uninstall ( not reinstall ) beat saber from your headset ( a lot of people have problems uninstalling from the headset so if thats you then go
-            to the top right icon - <i class="material-icons">list</i> and look for <span class="chip">com.beatgame.beatsaber</span> and click uninstall ).<br><br>
-            Now you will need to put your headset on and redownload a fresh unmodified version of beat saber from the oculus store. FInally you will need to reset the
-            patcher with this new by selecting the Backup New Master button below, or the same button on the backups screen.
-            <br><br>
-            Thank you!
-        </p>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn-flat waves-effect waves-green">Close</a>
-        <a href="#!" class="btn waves-effect waves-light orange backup-new-master-modal">Backup New Master</a>
-    </div>
-</div>
-<div id="modal7" class="modal modal-fixed-footer modal-fixed-width">
-    <div class="modal-content">
-        <h4>Add Pack</h4>
-        <div class="input-field">
-            <input id="packName" type="text" placeholder="Name of the pack">
-            <label for="packName">Pack Name</label>
-        </div>
-        <div>
-            <a href="#!" class="btn waves-effect waves-light add-pack-cover-image">Pick Pack Cover Image</a>
-            <p class="cover-image-path"></p>
-        </div>
-        <div>
-            <a href="#!" class="btn waves-effect waves-light red delete-pack">Delete this pack</a>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-close btn orange waves-effect waves-light add-pack-close">Cancel</a>
-        <a href="#!" class="modal-close btn waves-effect waves-light add-pack-button">Save Pack</a>
-    </div>
-</div>
-<div class="spinner-drag text-center">
-    <div class="well well-lg">
-        <h5>Drop APK/OBB to install!</h5>
-    </div>
-</div>
-<div class="spinner-background"></div>
-<ul class="collection temp-move-container">
-
-</ul>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-<script src="js/requires.js"></script>
-<script src="js/setup.js"></script>
-<script src="js/bsaber.js"></script>
-<script src="js/repos.js"></script>
-<script src="js/spinner.js"></script>
-<script src="js/status-bar.js"></script>
-<script src="js/app.js"></script>
-</body>
+        <div class="spinner-background"></div>
+        <ul class="collection temp-move-container"></ul>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+        <script src="js/requires.js"></script>
+        <script src="js/setup.js"></script>
+        <script src="js/bsaber.js"></script>
+        <script src="js/repos.js"></script>
+        <script src="js/spinner.js"></script>
+        <script src="js/status-bar.js"></script>
+        <script src="js/app.js"></script>
+    </body>
 </html>
