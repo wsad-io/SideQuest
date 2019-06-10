@@ -1,4 +1,4 @@
 {
-  "beat-saber":["1.0.0","1.0.1","1.0.2"],
-  "quest-saber-patch":"v0.6.1"
+  "beat-saber":["1.0.0","1.0.1","1.0.2","1.1.0"],
+  "quest-saber-patch":"v0.6.2"
 }
