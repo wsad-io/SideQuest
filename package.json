@@ -9,6 +9,12 @@
   "scripts": {
     "start": "electron ."
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "post-commit": "git update-index -g"
+    }
+  },
   "dependencies": {
     "adbkit": "^2.11.1",
     "extract-zip": "^1.6.7",
@@ -21,6 +27,9 @@
   },
   "devDependencies": {
     "electron": "^4.1.4",
-    "electron-rebuild": "^1.8.4"
+    "electron-rebuild": "^1.8.4",
+    "husky": "^2.3.0",
+    "prettier": "1.17.1",
+    "pretty-quick": "^1.11.0"
   }
 }
