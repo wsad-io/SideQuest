@@ -237,6 +237,7 @@ class Setup {
         // this.connection_refresh_loading.style.display = 'block';
         // this.connection_refresh.style.display = 'none';
         return this.adb.listDevices()
+            .then((devices) => devices.filter(device => device.type !== 'offline'))
             .then((devices) =>{
                 // setTimeout(()=>{
                 //     this.connection_refresh_loading.style.display = 'none';
