@@ -1,9 +1,7 @@
 class App{
     constructor(){
-        this.spinner_drag = document.querySelector('.spinner-drag');
-        this.spinner_background = document.querySelector('.spinner-background');
-        this.spinner_loading_message = document.querySelector('.spinner-loading-message');
-        this.repos = new Repos(this);
+        this.spinner = new Spinner();
+        this.repos = new Repos(this, this.spinner);
         this.reset_patch_base = document.querySelector('.reset-patch-base');
         this.make_backup = document.querySelector('.make-backup');
         this.sync_songs_now = document.querySelector('.sync-songs-now');
@@ -53,7 +51,7 @@ class App{
                         break;
                     case "sidequest://sideload/":
                         this.toggleLoader(true);
-                        this.spinner_loading_message.innerText = 'Installing APK...';
+                        this.spinner.setMessage('Installing APK...');
                         this.setup.installApk(url[1])
                             .then(()=>{
                                 this.toggleLoader(false);
@@ -62,7 +60,7 @@ class App{
                         break;
                     case "sidequest://bsaber/":
                         this.toggleLoader(true);
-                        this.spinner_loading_message.innerText = 'Downloading Map'
+                        this.spinner.setMessage('Downloading Map');
                         this.bsaber.downloadSong(url[1]).then(id=>{
                             this.getMySongs()
                                 .then(()=>this.toggleLoader(false))
@@ -97,7 +95,7 @@ class App{
                 data = JSON.parse(data);
                 if(data.beatsaber){
                     if(this.bsaber){
-                        this.spinner_loading_message.innerText = 'Saving to My Custom Levels...';
+                        this.spinner.setMessage('Saving to My Custom Levels...');
                         this.toggleLoader(true);
                         this.bsaber.downloadSong(data.beatsaber)
                             .then(id=>{
@@ -126,7 +124,7 @@ class App{
                 }
                 if(data.beatsaberRemove){
                     if(this.bsaber) {
-                        this.spinner_loading_message.innerText = 'Removing Beatsaber Song...';
+                        this.spinner.setMessage('Removing Beatsaber Song...');
                         this.toggleLoader(true);
                         this.bsaber.removeSong(data.beatsaberRemove)
                         // .then(()=>new Promise(r=>setTimeout(r,500)))
@@ -157,7 +155,7 @@ class App{
                 this.current_data = [];
                 this.setup = new Setup(this);
                 this.toggleLoader(true);
-                this.spinner_loading_message.innerText = 'Downloading, This might take some time on first launch please wait...';
+                this.spinner.setMessage('Downloading, This might take some time on first launch please wait...');
                 await this.setup.setup();
                 this.setupMenu();
                 this.getMySongs().then(()=>{
@@ -167,7 +165,7 @@ class App{
                 this.repos.setupRepos();
                 this.bsaber = new Bsaber(this);
                 this.bsaber.downloadConverterBinary();
-                this.spinner_loading_message.innerText = 'Downloading, This might take some time on first launch please wait...';
+                this.spinner.setMessage('Downloading, This might take some time on first launch please wait...');
                 this.bsaber.downloadQuestSaberPatch();
                 this.bsaber.setBeatVersion()
                     .catch(e=>{});
@@ -181,7 +179,7 @@ class App{
     resetBase(){
         this.backupsModal.close()
         this.toggleLoader(true);
-        this.spinner_loading_message.innerText = 'Getting Master Backup...';
+        this.spinner.setMessage('Getting Master Backup...');
         this.bsaber.resetBase()
             .then(()=>{
                 this.toggleLoader(false);
@@ -252,7 +250,7 @@ class App{
             }, (files)=> {
                 this.backupsModal.close();
                 this.toggleLoader(true);
-                this.spinner_loading_message.innerText = 'Copying APK...';
+                this.spinner.setMessage('Copying APK...');
                 if (files !== undefined && files.length===1) {
                     let current_path = path.join(appData,'bsaber-base.apk');
                     if(this.setup.doesFileExist(current_path)){
@@ -326,7 +324,7 @@ class App{
                     .catch(e=>{
                         this.showStatus(e.toString(),true,true);
                         questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
-                            There was an error installing. `;
+                            There was an error installing. Please close this window and check the status message.`;
                     })
             }else{
                 this.patchModal.close();
@@ -348,7 +346,7 @@ class App{
             this.backupsModal.close();
             this.bsaber.deleteFolderRecursive(path.join(appData,'saber-quest-patch'));
             this.mkdir(path.join(appData,'saber-quest-patch'));
-            this.spinner_loading_message.innerText = 'Downloading and Extracting QuestSaberPatch';
+            this.spinner.setMessage('Downloading and Extracting QuestSaberPatch');
             this.toggleLoader(true)
             this.bsaber.downloadQuestSaberPatch()
                 .then(()=>{
@@ -364,7 +362,7 @@ class App{
         document.querySelector('.make-data-backup').addEventListener('click',()=>{
             this.backupsModal.close();
             this.toggleLoader(true);
-            this.spinner_loading_message.innerText = 'Backing up data...';
+            this.spinner.setMessage('Backing up data...');
             this.bsaber.makeDataBackup()
                 .then(()=>{
                     this.toggleLoader(false);
@@ -410,29 +408,25 @@ class App{
         let dragTimeout;
         document.ondragover = () => {
             clearTimeout(dragTimeout);
-            this.spinner_drag.style.display = 'block';
-            this.spinner_background.style.display = 'block';
+            this.spinner.showDrag();
             return false;
         };
 
         document.ondragleave = () => {
             dragTimeout = setTimeout(()=>{
-                this.spinner_drag.style.display = 'none';
-                this.spinner_background.style.display = 'none';
+                this.spinner.hideDrag();
             },1000)
             return false;
         };
 
         document.ondragend = () => {
-            this.spinner_drag.style.display = 'none';
-            this.spinner_background.style.display = 'none';
+            this.spinner.hideDrag();
             return false;
         };
 
         document.ondrop = (e) => {
             e.preventDefault();
-            this.spinner_drag.style.display = 'none';
-            this.spinner_background.style.display = 'none';
+            this.spinner.hideDrag();
             const typeBasedActions = {
                 ".apk" : function(filepath, bind){
                     return bind.setup.installLocalApk(filepath)
@@ -459,7 +453,7 @@ class App{
                 let filepath = e.dataTransfer.files[val].path,
                     ext = path.extname(filepath);
                 console.log("Installing", filepath);
-                this.spinner_loading_message.innerText = `Installing ${filepath}, Please wait...`;
+                this.spinner.setMessage(`Installing ${filepath}, Please wait...`);
                 if(typeBasedActions.hasOwnProperty(ext)){
                     this.toggleLoader(true);
                     typeBasedActions[ext](filepath, this)
@@ -490,8 +484,11 @@ class App{
         link.addEventListener('click',()=>this.openExternalLink(link.dataset.url));
     }
     toggleLoader(show){
-        document.querySelector('.spinner').style.display =
-            this.spinner_background.style.display = show ? 'block' : 'none';
+      if (show) {
+        this.spinner.showLoader()
+      } else {
+        this.spinner.hideLoader()
+      }
     }
     openExternalLink(url){
         opn(url);
@@ -601,7 +598,7 @@ class App{
                     let child = this.backupTemplate.content.cloneNode(true);
                     child.querySelector('.backup-name').innerText = f;
                     child.querySelector('.restore-backup').addEventListener('click',()=>{
-                        this.spinner_loading_message.innerText = 'Restoring Backup, Please wait...';
+                        this.spinner.setMessage('Restoring Backup, Please wait...');
                         this.backupsModal.close();
                         this.toggleLoader(true);
                         this.setup.installLocalApk(path.join(appData,'bsaber-backups',f))
@@ -622,7 +619,7 @@ class App{
                     let child = this.backupTemplate.content.cloneNode(true);
                     child.querySelector('.backup-name').innerText = f;
                     child.querySelector('.restore-backup').addEventListener('click',()=>{
-                        this.spinner_loading_message.innerText = 'Restoring Data Backup, Please wait...';
+                        this.spinner.setMessage('Restoring Data Backup, Please wait...');
                         this.backupsModal.close();
                         this.toggleLoader(true);
                         this.bsaber.restoreDataBackup(f)
@@ -876,7 +873,7 @@ class App{
             versionChild.querySelector('.version-name').innerText = 'V. '+p.versionName;
             versionChild.querySelector('.install-apk').addEventListener('click',()=>{
                 this.toggleLoader(true);
-                this.spinner_loading_message.innerText = 'Installing APK...';
+                this.spinner.setMessage('Installing APK...');
 
                 this.setup.installApk(p.apkName.substr(0,7)==='http://'||p.apkName.substr(0,8)==='https://'?p.apkName:this.current_data.url+p.apkName)
                     .then(()=>{
@@ -1269,7 +1266,7 @@ and of course
                         value = 4;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting FFV...';
+                this.spinner.setMessage('Setting FFV...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, "setprop debug.oculus.foveation.level " + value)
                     .then(adb.util.readAll)
@@ -1294,7 +1291,7 @@ and of course
                         value = 4;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting CPU/GPU Setting...';
+                this.spinner.setMessage('Setting CPU/GPU Setting...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.cpuLevel ' + value + ' && setprop debug.oculus.gpuLevel ' + value + '"')
                     .then(adb.util.readAll)
@@ -1319,7 +1316,7 @@ and of course
                         value = 0;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting Chromatic Aberration Setting...';
+                this.spinner.setMessage('Setting Chromatic Aberration Setting...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.forceChroma ' + value + '"')
                     .then(adb.util.readAll)
@@ -1359,7 +1356,7 @@ and of course
                         value = 3072;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting Texture Size Setting...';
+                this.spinner.setMessage('Setting Texture Size Setting...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.textureWidth ' + value + ' && setprop debug.oculus.textureHeight ' + value + '"')
                     .then(adb.util.readAll)
@@ -1387,7 +1384,7 @@ and of course
                         value = 25000000;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting Video Bitrate Setting...';
+                this.spinner.setMessage('Setting Video Bitrate Setting...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.videoBitrate ' + value + '"')
                     .then(adb.util.readAll)
@@ -1412,7 +1409,7 @@ and of course
                         value = 1536;
                         break;
                 }
-                this.spinner_loading_message.innerText = 'Setting Video Resolution Setting...';
+                this.spinner.setMessage('Setting Video Resolution Setting...');
                 this.toggleLoader(true);
                 this.setup.adb.shell(this.setup.deviceSerial, '"setprop debug.oculus.videoResolution ' + value + '"')
                     .then(adb.util.readAll)
@@ -1439,7 +1436,7 @@ and of course
                         }
                     });
             };
-            this.spinner_loading_message.innerText = 'Setting Text...';
+            this.spinner.setMessage('Setting Text...');
             this.toggleLoader(true);
             inputCharacters()
                 .then(()=>{
