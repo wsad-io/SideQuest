@@ -889,15 +889,9 @@ class Bsaber {
                                                 (_resolve, _reject) => {
                                                     transfer.on(
                                                         'progress',
-                                                        stats => {
-                                                            // console.log('[%s] Pushed %d bytes so far',
-                                                            //     this.app.setup.deviceSerial,
-                                                            //     stats.bytesTransferred)
-                                                        }
+                                                        stats => {}
                                                     );
                                                     transfer.on('end', () => {
-                                                        // console.log('[%s] Push complete', this.app.setup.deviceSerial);
-                                                        // this.deleteFolderRecursive(beatsaber.dir);
                                                         _resolve();
                                                     });
                                                     transfer.on(
