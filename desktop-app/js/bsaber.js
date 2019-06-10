@@ -418,10 +418,12 @@ class Bsaber{
                     this.app.spinner_loading_message.innerText = 'Backing Up - '+(Math.round(stats.bytesTransferred/1024/1024))+'MB';
                 });
                 transfer.on('end', ()=>{
-                    if(!this.app.setup.doesFileExist(path.join(appData,'bsaber-base.apk'))){
-                        fs.copyFileSync(backup_save_path,path.join(appData,'bsaber-base.apk'));
-                    }
-                    return resolve();
+                    setTimeout(()=>{
+                        if(!this.app.setup.doesFileExist(path.join(appData,'bsaber-base.apk'))){
+                            fs.copyFileSync(backup_save_path,path.join(appData,'bsaber-base.apk'));
+                        }
+                        return resolve();
+                    },5000);
                 });
                 transfer.on('error', reject);
                 transfer.pipe(fs.createWriteStream(backup_save_path));

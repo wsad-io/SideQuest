@@ -326,23 +326,7 @@ class App{
                     .catch(e=>{
                         this.showStatus(e.toString(),true,true);
                         questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
-                            There was an error installing. Before you see it, would you like to reset your beat saber patched and installed APK from a backup base? ( Recommended )
-                            <br><br><a class="waves-effect waves-light btn install-base-reset">Reset To Base</a>`;
-                        questSaberPatchContainer.querySelector('.install-base-reset').addEventListener('click',()=>{
-                            this.patchModal.close();
-                            this.spinner_loading_message.innerText = 'Installing Base APK';
-                            this.toggleLoader(true);
-                            this.setup.installLocalApk(path.join(appData,'bsaber-base.apk'),true)
-                                .then(()=>this.toggleLoader(false))
-                                .then(()=>{
-                                    if(!this.bsaber.resetPatched()){
-                                        return Promise.reject(new Error("Failed to reset the patched base, the base backup does not exist."));
-                                    }
-                                })
-                                .catch(e2=>{
-                                    this.showStatus(e.toString()+", "+e2.toString(),true,true);
-                                });
-                        });
+                            There was an error installing. `;
                     })
             }else{
                 this.patchModal.close();
