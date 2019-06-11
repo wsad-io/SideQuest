@@ -1026,8 +1026,8 @@ class App {
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-beatdrop')).forEach(e=>e.style.display = 'none');
             [].slice.call(document.querySelectorAll('.bsaber-tooltip.-download-zip')).forEach(e=>{
                 e.style.display = 'none';
-                let hrefParts = e.href.split('/');
-                let songIdParts = hrefParts[hrefParts.length-1].split('-');
+                //let hrefParts = e.href.split('/');
+                //let songIdParts = hrefParts[hrefParts.length-1].split('-');
                 
                 let isAlready = !!e.parentElement.querySelector('.action.post-icon.bsaber-tooltip.-sidequest');
                 if(isAlready) return;
@@ -1037,7 +1037,7 @@ class App {
                 downloadButton.addEventListener('click',()=>{
                     window.Bridge.sendMessage(
                         JSON.stringify({
-                            beatsaber:'https://beatsaver.com/storage/songs/'+songIdParts[0]+'/'+songIdParts[0]+'-'+songIdParts[1]+'.zip'
+                            beatsaber:e.href
                         })
                     );
                 });
@@ -1358,20 +1358,9 @@ class App {
             });
         });
     }
-    cleanSongName(songName, songDirectory) {
-        let name = songName.replace(/\(.+?\)/g, '');
-        name = name.replace(/[^a-z0-9]+/gi, '');
-        if (name !== songName) {
-            fs.renameSync(
-                path.join(songDirectory, songName),
-                path.join(songDirectory, name)
-            );
-        }
-        return name;
-    }
     getMySongs() {
         let songsDirectory = path.join(appData, 'bsaber');
-        let songs = [];
+        this.songs = [];
         return this.mkdir(songsDirectory).then(
             () =>
                 new Promise(resolve => {
@@ -1386,204 +1375,121 @@ class App {
                             resolve();
                         } else {
                             Promise.all(
-                                data.map((folder, i) => {
-                                    let song = { id: folder };
-                                    let songDirectory = path.join(
-                                        songsDirectory,
-                                        folder
-                                    );
-                                    if (
-                                        !fs
-                                            .lstatSync(songDirectory)
-                                            .isDirectory()
-                                    )
-                                        return Promise.resolve();
-                                    return new Promise(r => {
-                                        fs.readdir(
-                                            songDirectory,
-                                            (err, songName) => {
-                                                if (err) {
-                                                    this.showStatus(
-                                                        'Error reading songs directory: ' +
-                                                            songDirectory +
-                                                            ', Error:' +
-                                                            err
-                                                    );
-                                                    r();
-                                                } else {
-                                                    songName = songName.filter(
-                                                        d =>
-                                                            fs
-                                                                .lstatSync(
-                                                                    path.join(
-                                                                        songDirectory,
-                                                                        d
-                                                                    )
-                                                                )
-                                                                .isDirectory()
-                                                    );
-                                                    if (!songName.length) {
-                                                        this.showStatus(
-                                                            'Error, song is empty: ' +
-                                                                path.join(
-                                                                    songDirectory
-                                                                )
-                                                        );
-                                                        return r();
-                                                    }
-                                                    if (songName.length > 1) {
-                                                        this.showStatus(
-                                                            'Error, song has multiple folders: ' +
-                                                                path.join(
-                                                                    songDirectory
-                                                                )
-                                                        );
-                                                        return r();
-                                                    }
-                                                    songName = songName[0];
-                                                    songName = this.cleanSongName(
-                                                        songName,
-                                                        songDirectory
-                                                    );
-                                                    fs.readdir(
-                                                        path.join(
-                                                            songDirectory,
-                                                            songName
-                                                        ),
-                                                        async (
-                                                            err2,
-                                                            fileNames
-                                                        ) => {
-                                                            if (
-                                                                err ||
-                                                                !fileNames.length
-                                                            ) {
-                                                                this.showStatus(
-                                                                    'Error reading songs directory: ' +
-                                                                        path.join(
-                                                                            songDirectory,
-                                                                            songName
-                                                                        ) +
-                                                                        ', Error:' +
-                                                                        err2
-                                                                );
-                                                                r();
-                                                            } else {
-                                                                if (
-                                                                    ~fileNames.indexOf(
-                                                                        'info.json'
-                                                                    )
-                                                                ) {
-                                                                    let innerDir = path.join(
-                                                                        songDirectory,
-                                                                        songName
-                                                                    );
-                                                                    if (
-                                                                        fs.existsSync(
-                                                                            path.join(
-                                                                                innerDir,
-                                                                                'info.json'
-                                                                            )
-                                                                        )
-                                                                    ) {
-                                                                        await this.bsaber.convertSong(
-                                                                            innerDir
-                                                                        );
-                                                                    }
-                                                                }
-                                                                if (
-                                                                    !~fileNames.indexOf(
-                                                                        'info.dat'
-                                                                    )
-                                                                ) {
-                                                                    this.showStatus(
-                                                                        'Error, song has no info.dat: ' +
-                                                                            path.join(
-                                                                                songDirectory,
-                                                                                songName
-                                                                            ) +
-                                                                            ', Error:' +
-                                                                            err2
-                                                                    );
-                                                                    return r();
-                                                                }
-                                                                if (
-                                                                    !~fileNames.indexOf(
-                                                                        'cover.jpg'
-                                                                    ) &&
-                                                                    !~fileNames.indexOf(
-                                                                        'cover.png'
-                                                                    )
-                                                                ) {
-                                                                    fs.copyFileSync(
-                                                                        path.join(
-                                                                            __dirname,
-                                                                            'default-cover.jpg'
-                                                                        ),
-                                                                        path.join(
-                                                                            songDirectory,
-                                                                            songName,
-                                                                            'cover.jpg'
-                                                                        )
-                                                                    );
-                                                                }
-                                                                let covername = ~fileNames.indexOf(
-                                                                    'cover.jpg'
-                                                                )
-                                                                    ? 'cover.jpg'
-                                                                    : ~fileNames.indexOf(
-                                                                          'cover.png'
-                                                                      )
-                                                                    ? 'cover.png'
-                                                                    : 'cover.jpg';
-                                                                song.name = songName;
-                                                                song.path = path.join(
-                                                                    songDirectory,
-                                                                    songName
-                                                                );
-                                                                song.cover =
-                                                                    'file:///' +
-                                                                    path
-                                                                        .join(
-                                                                            songDirectory,
-                                                                            songName,
-                                                                            covername
-                                                                        )
-                                                                        .replace(
-                                                                            /\\/g,
-                                                                            '/'
-                                                                        );
-                                                                song.created = fs
-                                                                    .statSync(
-                                                                        path.join(
-                                                                            songDirectory,
-                                                                            songName,
-                                                                            covername
-                                                                        )
-                                                                    )
-                                                                    .mtime.getTime();
-                                                                songs.push(
-                                                                    song
-                                                                );
-                                                                r();
-                                                            }
-                                                        }
-                                                    );
-                                                }
-                                            }
-                                        );
-                                    });
+                                data.map(async folder => {
+                                    await this.getSong(folder);
                                 })
                             ).then(() => {
-                                this.songs = songs;
                                 this.orderSongs('date');
-                                console.log(this.songs);
                                 resolve();
                             });
                         }
                     });
                 })
         );
+    }
+    migrateSong(fullpath, files, rootpath) {
+        if (files.length) {
+            let _files = fs.readdirSync(path.join(fullpath, files[0]));
+            if (!~_files.indexOf('info.dat') && !~_files.indexOf('info.json')) {
+                return this.migrateSong(
+                    path.join(fullpath, files[0]),
+                    _files.filter(f =>
+                        fs
+                            .lstatSync(path.join(fullpath, files[0], f))
+                            .isDirectory()
+                    ),
+                    rootpath
+                );
+            } else {
+                _files.forEach(f => {
+                    fs.renameSync(
+                        path.join(fullpath, files[0], f),
+                        path.join(rootpath, f)
+                    );
+                });
+                return fs.readdirSync(rootpath);
+            }
+        } else {
+            return false;
+        }
+    }
+    getSong(folderName) {
+        let fullpath = path.join(appData, 'bsaber', folderName);
+        return new Promise(resolve => {
+            fs.readdir(fullpath, async (err, files) => {
+                if (err) {
+                    this.showStatus(
+                        'Error reading songs directory: ' +
+                            fullpath +
+                            ', Error:' +
+                            err
+                    );
+                    return resolve();
+                } else {
+                    if (!~files.indexOf('info.dat')) {
+                        files =
+                            this.migrateSong(
+                                fullpath,
+                                files.filter(f =>
+                                    fs
+                                        .lstatSync(path.join(fullpath, f))
+                                        .isDirectory()
+                                ),
+                                fullpath
+                            ) || files;
+                    }
+                    let song = { id: folderName };
+                    if (~files.indexOf('info.json')) {
+                        await this.bsaber.convertSong(fullpath);
+                    }
+                    if (!~files.indexOf('info.dat')) {
+                        this.showStatus(
+                            'Error, song has no info.dat: ' + fullpath
+                        );
+                        return resolve();
+                    }
+                    if (
+                        !~files.indexOf('cover.jpg') &&
+                        !~files.indexOf('cover.png')
+                    ) {
+                        fs.copyFileSync(
+                            path.join(__dirname, 'default-cover.jpg'),
+                            path.join(fullpath, 'cover.jpg')
+                        );
+                    }
+                    try {
+                        let songData = JSON.parse(
+                            fs.readFileSync(
+                                path.join(fullpath, 'info.dat'),
+                                'utf8'
+                            )
+                        );
+                        let covername = ~files.indexOf('cover.jpg')
+                            ? 'cover.jpg'
+                            : ~files.indexOf('cover.png')
+                            ? 'cover.png'
+                            : 'cover.jpg';
+                        song.name =
+                            songData._songName +
+                            ' - ' +
+                            songData._songAuthorName;
+                        song.path = fullpath;
+                        song.cover =
+                            'file:///' +
+                            path.join(fullpath, covername).replace(/\\/g, '/');
+                        song.created = fs
+                            .statSync(path.join(fullpath, covername))
+                            .mtime.getTime();
+                        this.songs.push(song);
+                        resolve();
+                    } catch (e) {
+                        return this.showStatus(
+                            'Error, cant parse info.dat file: ' + fullpath
+                        );
+                    }
+                }
+            });
+        });
     }
     orderSongs(type) {
         if (type === 'date') {
