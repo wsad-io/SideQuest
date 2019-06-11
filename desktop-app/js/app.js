@@ -1426,17 +1426,13 @@ class App {
                     );
                     return resolve();
                 } else {
+                    let directories = files.filter(f =>
+                        fs.lstatSync(path.join(fullpath, f)).isDirectory()
+                    );
                     if (!~files.indexOf('info.dat')) {
                         files =
-                            this.migrateSong(
-                                fullpath,
-                                files.filter(f =>
-                                    fs
-                                        .lstatSync(path.join(fullpath, f))
-                                        .isDirectory()
-                                ),
-                                fullpath
-                            ) || files;
+                            this.migrateSong(fullpath, directories, fullpath) ||
+                            files;
                     }
                     let song = { id: folderName };
                     if (~files.indexOf('info.json')) {
@@ -1469,10 +1465,14 @@ class App {
                             : ~files.indexOf('cover.png')
                             ? 'cover.png'
                             : 'cover.jpg';
-                        song.name =
-                            songData._songName +
-                            ' - ' +
-                            songData._songAuthorName;
+                        song.name = directories.length
+                            ? directories[0]
+                            : songData._songName +
+                              ' - ' +
+                              songData._songAuthorName;
+
+                        song.name = song.name.replace(/\(.+?\)/g, '');
+                        song.name = song.name.replace(/[^a-z0-9 -]+/gi, '');
                         song.path = fullpath;
                         song.cover =
                             'file:///' +
