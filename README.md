@@ -7,6 +7,7 @@ Credit to http://reddit.com/u/NoBullet for the name!
 ## Discord
 
 [Join us on Discord](https://discord.gg/Q2a5BkZ)
+[Support us on Patreon](https://www.patreon.com/TheExpanseVR)
 
 ## Video Tutorial
 
