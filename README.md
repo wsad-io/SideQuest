@@ -8,6 +8,8 @@ Credit to http://reddit.com/u/NoBullet for the name!
 
 [Join us on Discord](https://discord.gg/Q2a5BkZ)
 
+[Support us on Patreon](https://www.patreon.com/TheExpanseVR)
+
 ## Video Tutorial
 
 [![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
