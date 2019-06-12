@@ -1,6 +1,6 @@
 class App {
     constructor() {
-        this.appVersionName = '0.3.2';
+        this.appVersionName = '0.3.3';
         this.spinner = new Spinner();
         this.repos = new Repos(this, this.spinner);
         this.reset_patch_base = document.querySelector('.reset-patch-base');
