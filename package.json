@@ -7,7 +7,10 @@
     "author": "Shane Harris",
     "main": "app.js",
     "scripts": {
-        "start": "electron ."
+        "start": "electron .",
+        "postinstall": "electron-builder install-app-deps",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
     },
     "husky": {
         "hooks": {
@@ -27,7 +30,7 @@
     },
     "devDependencies": {
         "electron": "^4.1.4",
-        "electron-rebuild": "^1.8.4",
+        "electron-builder": "^20.43.0",
         "husky": "^2.3.0",
         "prettier": "1.17.1",
         "pretty-quick": "^1.11.0"
