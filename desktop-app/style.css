@@ -454,9 +454,8 @@ body {
 .update-available {
     padding: 5px;
     line-height: 16px;
-    top: 95px;
-    left: 15px;
-    right: initial;
+    top: 50px;
+    right: 190px;
     height: 24px;
     color: white;
 }
