@@ -1472,7 +1472,7 @@ class App {
     }
     getMySongs() {
         let songsDirectory = path.join(appData, 'bsaber');
-        this.songs = [];
+        let songs = [];
         return this.mkdir(songsDirectory).then(
             () =>
                 new Promise(resolve => {
@@ -1488,10 +1488,10 @@ class App {
                         } else {
                             Promise.all(
                                 data.map(async folder => {
-                                    await this.getSong(folder);
+                                    await this.getSong(folder, songs);
                                 })
                             ).then(() => {
-                                this.orderSongs('date');
+                                this.songs = songs;
                                 resolve();
                             });
                         }
@@ -1528,7 +1528,7 @@ class App {
             return false;
         }
     }
-    getSong(folderName) {
+    getSong(folderName, songs) {
         let fullpath = path.join(appData, 'bsaber', folderName);
         return new Promise(resolve => {
             fs.readdir(fullpath, async (err, files) => {
@@ -1596,7 +1596,7 @@ class App {
                         song.created = fs
                             .statSync(path.join(fullpath, covername))
                             .mtime.getTime();
-                        this.songs.push(song);
+                        songs.push(song);
                         resolve();
                     } catch (e) {
                         return this.showStatus(
@@ -1608,26 +1608,27 @@ class App {
         });
     }
     orderSongs(type) {
-        if (type === 'date') {
-            this.songs = this.songs
-                .sort((a, b) => {
-                    return a.created < b.created
-                        ? -1
-                        : a.created > b.created
-                        ? 1
-                        : 0;
-                })
-                .reverse();
-        } else {
-            this.songs = this.songs.sort((a, b) => {
-                let textA = a.name.toUpperCase();
-                let textB = b.name.toUpperCase();
-                return textA < textB ? -1 : textA > textB ? 1 : 0;
-            });
-        }
+        this.orderType = type;
     }
     async openCustomLevels() {
         await this.getMySongs().then(async () => {
+            if (this.orderType === 'date') {
+                this.songs = this.songs
+                    .sort((a, b) => {
+                        return a.created < b.created
+                            ? -1
+                            : a.created > b.created
+                            ? 1
+                            : 0;
+                    })
+                    .reverse();
+            } else {
+                this.songs = this.songs.sort((a, b) => {
+                    let textA = a.name.toUpperCase();
+                    let textB = b.name.toUpperCase();
+                    return textA < textB ? -1 : textA > textB ? 1 : 0;
+                });
+            }
             this.add_repo.style.display = 'none';
             this.sync_songs_now.style.display = 'none';
             this.sync_songs.style.display = 'block';
