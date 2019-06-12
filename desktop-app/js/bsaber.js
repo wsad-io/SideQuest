@@ -231,7 +231,7 @@ class Bsaber {
                     );
                 }
                 if (resp['sidequest']) {
-                    if (!resp['sidequest'] === this.app.appVersionName) {
+                    if (!resp['sidequest'] !== this.app.appVersionName) {
                         document.querySelector(
                             '.update-available'
                         ).style.display = 'block';
