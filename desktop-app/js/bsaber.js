@@ -39,7 +39,6 @@ class Bsaber {
             replaceText: jSon.replaceText,
         };
         jSon.packs.forEach((p, i) => {
-            console.warn(p, p.id === '__default_pack' ? p.id : 'pack_' + i);
             let pack = {
                 id: p.id === '__default_pack' ? p.id : 'pack_' + i,
                 name: p.name,
@@ -77,7 +76,7 @@ class Bsaber {
                     ),
                     // List of level IDs in the pack in the order you want them displayed.
                     // Each levelID can be in multiple packs if you want.
-                    levelIDs: songKeys,
+                    levelIDs: this.app.songs,
                 },
             ],
             exitAfterward: true,
@@ -224,12 +223,19 @@ class Bsaber {
                         JSON.stringify(resp['beat-saber'])
                     );
                 }
-                if (resp['quest-saber-patch'] && resp['quest-saber-patch']) {
+                if (resp['quest-saber-patch']) {
                     this.questSaberPatchVersion = resp['quest-saber-patch'];
                     localStorage.setItem(
                         'quest-saber-patch-version',
                         resp['quest-saber-patch']
                     );
+                }
+                if (resp['sidequest']) {
+                    if (!resp['sidequest'] === this.app.appVersionName) {
+                        document.querySelector(
+                            '.update-available'
+                        ).style.display = 'block';
+                    }
                 }
             })
             .catch(e => {

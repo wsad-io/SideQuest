@@ -82,7 +82,9 @@
 
         <template id="deviceSettings">
             <div class="col s12">
-                <div class="right">SideQuest Version: 0.3.2</div>
+                <div class="right side-quest-version">
+                    SideQuest Version: 0.3.2
+                </div>
                 <div class="section-title">SideQuest Stuff</div>
                 <p style="text-align: center">
                     <a
@@ -999,8 +1001,11 @@
                     >Add Repo</a
                 >
                 <a
-                    class="waves-effect waves-light btn sync-songs-now"
-                    href="#modal1"
+                    class="waves-effect waves-light btn update-available link"
+                    data-url="https://github.com/the-expanse/SideQuest/releases"
+                    >Update Available</a
+                >
+                <a class="waves-effect waves-light btn sync-songs-now"
                     >My Downloads</a
                 >
                 <div class="sync-songs">
@@ -1429,6 +1434,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.4/randomColor.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+        <script src="https://unpkg.com/dom-autoscroller@2.2.3/dist/dom-autoscroller.js"></script>
         <script src="js/requires.js"></script>
         <script src="js/setup.js"></script>
         <script src="js/bsaber.js"></script>

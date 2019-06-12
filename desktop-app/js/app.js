@@ -1,5 +1,6 @@
 class App {
     constructor() {
+        this.appVersionName = '0.3.2';
         this.spinner = new Spinner();
         this.repos = new Repos(this, this.spinner);
         this.reset_patch_base = document.querySelector('.reset-patch-base');
@@ -396,84 +397,185 @@ class App {
                     '<br><br><div style="text-align: center"><div class="loader-initial"></div><br>Patching now, <br>this should take 40 - 60 seconds...</div>';
                 this.patch_beatsaber.style.display = 'none';
                 let dataBackupFolder;
-                return this.bsaber
-                    .makeDataBackup()
-                    .then(folder => (dataBackupFolder = folder))
-                    .then(() => this.bsaber.runQuestSaberPatch(songs))
-                    .then(result => {
-                        if (result && result.error) {
-                            return Promise.reject(result.error);
-                        }
-                        let skipped = Object.keys(
-                            result && result.installSkipped
-                                ? result.installSkipped
-                                : {}
-                        ).map(d => {
-                            return (
-                                '&nbsp;&nbsp;<b>' +
-                                d +
-                                '</b>:' +
-                                result.installSkipped[d]
-                            );
-                        });
-                        questSaberPatchContainer.innerHTML =
-                            `<br><h6>Patch Results</h6>
+                return (
+                    this.bsaber
+                        .makeDataBackup()
+                        .then(folder => (dataBackupFolder = folder))
+                        // .then(()=>{
+                        //     throw new Error('System.NullReferenceException: Object reference not set to an instance of an object');
+                        // })
+                        .then(() => this.bsaber.runQuestSaberPatch(songs))
+                        .then(result => {
+                            if (result && result.error) {
+                                return Promise.reject(result.error);
+                            }
+                            let skipped = Object.keys(
+                                result && result.installSkipped
+                                    ? result.installSkipped
+                                    : {}
+                            ).map(d => {
+                                return (
+                                    '&nbsp;&nbsp;<b>' +
+                                    d +
+                                    '</b>:' +
+                                    result.installSkipped[d]
+                                );
+                            });
+                            questSaberPatchContainer.innerHTML =
+                                `<br><h6>Patch Results</h6>
                             <a class="waves-effect waves-light btn install-beat-patch">Install APK to Headset</a><br><br>
                             <b>Current Levels</b>: ` +
-                            (result && result.presentLevels
-                                ? result.presentLevels
-                                : []
-                            ).join(', ') +
-                            `<br><br>
+                                (result && result.presentLevels
+                                    ? result.presentLevels
+                                    : []
+                                ).join(', ') +
+                                `<br><br>
                             <b>Just Installed</b>: ` +
-                            (result && result.installedLevels
-                                ? result.installedLevels
-                                : []
-                            ).join(', ') +
-                            `<br><br>
+                                (result && result.installedLevels
+                                    ? result.installedLevels
+                                    : []
+                                ).join(', ') +
+                                `<br><br>
                             <b>Skipped</b>: <br>` +
-                            (skipped.length ? skipped.join('<br>') : 'none') +
-                            `<br><br>`;
-                        return questSaberPatchContainer.querySelector(
-                            '.install-beat-patch'
-                        );
-                    })
-                    .then(
-                        ele =>
-                            new Promise(r => {
-                                if (ele) {
-                                    ele.addEventListener('click', () => {
-                                        questSaberPatchContainer.innerHTML =
-                                            '<br><br><div style="text-align: center"><div class="loader-initial"></div><br><span id="patch-loading-message">Installing now, <br>this should take 60 - 90 seconds...</span></div>';
-                                        r();
+                                (skipped.length
+                                    ? skipped.join('<br>')
+                                    : 'none') +
+                                `<br><br>`;
+                            return questSaberPatchContainer.querySelector(
+                                '.install-beat-patch'
+                            );
+                        })
+                        .then(
+                            ele =>
+                                new Promise(r => {
+                                    if (ele) {
+                                        ele.addEventListener('click', () => {
+                                            questSaberPatchContainer.innerHTML =
+                                                '<br><br><div style="text-align: center"><div class="loader-initial"></div><br><span id="patch-loading-message">Installing now, <br>this should take 60 - 90 seconds...</span></div>';
+                                            r();
+                                        });
+                                    }
+                                })
+                        )
+                        .then(() =>
+                            this.setup.uninstallApk('com.beatgames.beatsaber')
+                        )
+                        .then(() =>
+                            this.setup.installLocalApk(
+                                path.join(appData, 'bsaber-base_patched.apk'),
+                                true
+                            )
+                        )
+                        .then(() =>
+                            this.bsaber.restoreDataBackup(dataBackupFolder)
+                        )
+                        .then(() => {
+                            questSaberPatchContainer.innerHTML =
+                                '<br><br><h4>Install complete!</h4><br><br>Click close to continue...';
+                        })
+                        .then(() =>
+                            this.showStatus(
+                                'Patching complete. You can now enjoy your custom levels!!'
+                            )
+                        )
+                        .catch(e => {
+                            let error = e.toString();
+                            if (
+                                ~error.indexOf('AppTranslocation') ||
+                                ~error.indexOf(
+                                    'System.IO.DirectoryNotFoundException: Could not find a part of the path'
+                                ) ||
+                                ~error.indexOf(
+                                    'System.NotSupportedException: Image cannot be loaded. Available decoders'
+                                )
+                            ) {
+                                questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
+                            It looks like you are experiencing an issues with your pack file configuration.  
+                            We can attempt to fix this issue for you but it will involve resetting your current packs to default. Please try to sync again after the autofix.<br><br>
+                            <a class="waves-effect waves-light btn auto-fix-translocation">Autofix</a>`;
+                                questSaberPatchContainer
+                                    .querySelector('.auto-fix-translocation')
+                                    .addEventListener('click', () => {
+                                        fs.unlinkSync(
+                                            path.join(appData, '__json.json')
+                                        );
+                                        this.getMySongs().then(() => {
+                                            this.jSon = this.bsaber.getAppJson();
+                                            this.bsaber.saveJson(this.jSon);
+                                            this.patchModal.close();
+                                            this.openCustomLevels();
+                                            this.statusBar.showStatus(
+                                                'Please try to sync again.'
+                                            );
+                                        });
                                     });
-                                }
-                            })
-                    )
-                    .then(() =>
-                        this.setup.uninstallApk('com.beatgames.beatsaber')
-                    )
-                    .then(() =>
-                        this.setup.installLocalApk(
-                            path.join(appData, 'bsaber-base_patched.apk'),
-                            true
-                        )
-                    )
-                    .then(() => this.bsaber.restoreDataBackup(dataBackupFolder))
-                    .then(() => {
-                        questSaberPatchContainer.innerHTML =
-                            '<br><br><h4>Install complete!</h4><br><br>Click close to continue...';
-                    })
-                    .then(() =>
-                        this.showStatus(
-                            'Patching complete. You can now enjoy your custom levels!!'
-                        )
-                    )
-                    .catch(e => {
-                        this.showStatus(e.toString(), true, true);
-                        questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
+                            } else if (
+                                ~error.indexOf(
+                                    'An item with the same key has already been added.'
+                                )
+                            ) {
+                                questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
+                            It looks like your patched APK file has become corrupt. We can attempt to automatically fix this for you and it wont reset any of your songs / settings. Please try to sync again after the autofix.<br><br>
+                            <a class="waves-effect waves-light btn auto-fix-same-key">Autofix</a>`;
+                                questSaberPatchContainer
+                                    .querySelector('.auto-fix-same-key')
+                                    .addEventListener('click', () => {
+                                        this.patchModal.close();
+                                        this.bsaber.resetPatched();
+                                        this.statusBar.showStatus(
+                                            'Please try to sync again.'
+                                        );
+                                    });
+                            } else if (
+                                ~error.indexOf('Error: Command failed:')
+                            ) {
+                                questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
+                            It looks like you are experiencing an issues with your pack file configuration or patcher.  
+                            We can attempt to fix this issue for you but it will involve resetting your current packs to default. Please try to sync again after the autofix.<br><br>
+                            <a class="waves-effect waves-light btn auto-fix-same-key">Autofix</a>`;
+                                questSaberPatchContainer
+                                    .querySelector('.auto-fix-same-key')
+                                    .addEventListener('click', () => {
+                                        this.getMySongs().then(() => {
+                                            this.jSon = this.bsaber.getAppJson();
+                                            this.bsaber.saveJson(this.jSon);
+                                            this.patchModal.close();
+                                            this.bsaber.resetPatched();
+                                            this.openCustomLevels();
+                                            this.statusBar.showStatus(
+                                                'Please try to sync again.'
+                                            );
+                                        });
+                                    });
+                            } else if (
+                                ~error.indexOf(
+                                    'System.NullReferenceException: Object reference not set to an instance of an object'
+                                ) ||
+                                ~error.indexOf(
+                                    'System.ArgumentOutOfRangeException: Index was out of range.'
+                                )
+                            ) {
+                                questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
+                            It looks like you are experiencing an unknown error.  
+                            We can attempt to fix this issue for you and it wont reset any of your songs / settings. Please try to sync again after the autofix.<br><br>
+                            <a class="waves-effect waves-light btn auto-fix-same-key">Autofix</a>`;
+                                questSaberPatchContainer
+                                    .querySelector('.auto-fix-same-key')
+                                    .addEventListener('click', () => {
+                                        this.patchModal.close();
+                                        document
+                                            .querySelector(
+                                                '.re-download-patcher'
+                                            )
+                                            .click();
+                                    });
+                            } else {
+                                questSaberPatchContainer.innerHTML = `<br><h6>Install Failed</h6>
                             There was an error installing. Please close this window and check the status message.`;
-                    });
+                            }
+                            this.showStatus(e.toString(), true, true);
+                        })
+                );
             } else {
                 this.patchModal.close();
                 this.showStatus(
@@ -483,6 +585,13 @@ class App {
                 );
             }
         });
+        document
+            .querySelector('.update-available')
+            .addEventListener('click', () => {
+                this.openExternalLink(
+                    document.querySelector('.update-available').dataset.url
+                );
+            });
         document
             .querySelector('.close-status')
             .addEventListener('click', () => this.hideStatus());
@@ -515,7 +624,10 @@ class App {
                     .downloadQuestSaberPatch()
                     .then(() => {
                         this.toggleLoader(false);
-                        this.resetInstructions.open();
+                        // this.resetInstructions.open();
+                        this.statusBar.showStatus(
+                            'Patcher redownloaded. Please try to sync again.'
+                        );
                         this.openCustomLevels();
                     })
                     .catch(e => {
@@ -1393,10 +1505,13 @@ class App {
             if (!~_files.indexOf('info.dat') && !~_files.indexOf('info.json')) {
                 return this.migrateSong(
                     path.join(fullpath, files[0]),
-                    _files.filter(f =>
-                        fs
-                            .lstatSync(path.join(fullpath, files[0], f))
-                            .isDirectory()
+                    _files.filter(
+                        f =>
+                            fs
+                                .lstatSync(path.join(fullpath, files[0], f))
+                                .isDirectory() &&
+                            f !== '.DS_Store' &&
+                            f !== 'autosaves'
                     ),
                     rootpath
                 );
@@ -1426,8 +1541,13 @@ class App {
                     );
                     return resolve();
                 } else {
-                    let directories = files.filter(f =>
-                        fs.lstatSync(path.join(fullpath, f)).isDirectory()
+                    let directories = files.filter(
+                        f =>
+                            fs
+                                .lstatSync(path.join(fullpath, f))
+                                .isDirectory() &&
+                            f !== '.DS_Store' &&
+                            f !== 'autosaves'
                     );
                     if (!~files.indexOf('info.dat')) {
                         files =
@@ -1460,11 +1580,7 @@ class App {
                                 'utf8'
                             )
                         );
-                        let covername = ~files.indexOf('cover.jpg')
-                            ? 'cover.jpg'
-                            : ~files.indexOf('cover.png')
-                            ? 'cover.png'
-                            : 'cover.jpg';
+                        let covername = songData._coverImageFilename;
                         song.name = directories.length
                             ? directories[0]
                             : songData._songName +
@@ -1511,41 +1627,42 @@ class App {
         }
     }
     async openCustomLevels() {
-        this.add_repo.style.display = 'none';
-        this.sync_songs_now.style.display = 'none';
-        this.sync_songs.style.display = 'block';
-        this.container.innerHTML = '';
-        this.searchFilterContainer.style.display = 'none';
-        this.title.innerHTML = 'Beast Saber Custom Levels';
-        this.beatView.style.left = '-100%';
-        this.apkInstall.style.display = 'block';
-        this.apkInstall.innerHTML = `Special thanks to 
+        await this.getMySongs().then(async () => {
+            this.add_repo.style.display = 'none';
+            this.sync_songs_now.style.display = 'none';
+            this.sync_songs.style.display = 'block';
+            this.container.innerHTML = '';
+            this.searchFilterContainer.style.display = 'none';
+            this.title.innerHTML = 'Beast Saber Custom Levels';
+            this.beatView.style.left = '-100%';
+            this.apkInstall.style.display = 'block';
+            this.apkInstall.innerHTML = `Special thanks to 
 <span class="link" data-url="https://github.com/trishume/QuestSaberPatch">@trishume</span>, 
 <span class="link" data-url="https://github.com/emulamer/QuestStopgap">@emulamer</span>,
 <span class="link" data-url="https://github.com/ATechAdventurer">@ATechAdventurer</span>
 and of course 
 <span class="link" data-url="https://bsaber.com/members/elliotttate/">@elliotttate</span> for beat saber efforts.`;
-        [].slice
-            .call(this.apkInstall.querySelectorAll('.link'))
-            .forEach(link => {
-                link.addEventListener('click', () =>
-                    this.openExternalLink(link.dataset.url)
-                );
-            });
+            [].slice
+                .call(this.apkInstall.querySelectorAll('.link'))
+                .forEach(link => {
+                    link.addEventListener('click', () =>
+                        this.openExternalLink(link.dataset.url)
+                    );
+                });
 
-        this.browser_bar.style.display = 'none';
-        let songs = this.songs || [];
-        let isBeatSaberInstalled = await this.bsaber
-            .isBeatSaberInstalled()
-            .catch(e => true);
-        let isQuestSaberPatch = this.setup.doesFileExist(
-            path.join(appData, 'saber-quest-patch', 'questsaberpatch')
-        );
-        if (isBeatSaberInstalled && isQuestSaberPatch) {
-            if (!songs.length) {
-                this.container.innerHTML = '<h4>Nothing here yet...</h4>';
-            } else {
-                this.container.innerHTML = `
+            this.browser_bar.style.display = 'none';
+            let songs = this.songs || [];
+            let isBeatSaberInstalled = await this.bsaber
+                .isBeatSaberInstalled()
+                .catch(e => true);
+            let isQuestSaberPatch = this.setup.doesFileExist(
+                path.join(appData, 'saber-quest-patch', 'questsaberpatch')
+            );
+            if (isBeatSaberInstalled && isQuestSaberPatch) {
+                if (!songs.length) {
+                    this.container.innerHTML = '<h4>Nothing here yet...</h4>';
+                } else {
+                    this.container.innerHTML = `
                     <div class="col s4 side-packs ">
                         <div class="side-packs-fixed">
                             <a href="#modal7" class="modal-trigger btn waves-effect waves-green right ">Add Pack</a>
@@ -1562,182 +1679,204 @@ and of course
                         
                         </ul>
                     </div>`;
-                document
-                    .querySelector('.sort-link-name')
-                    .addEventListener('click', () => {
-                        this.orderSongs('name');
-                        this.openCustomLevels();
-                    });
-                document
-                    .querySelector('.sort-link-recent')
-                    .addEventListener('click', () => {
-                        this.orderSongs('date');
-                        this.openCustomLevels();
-                    });
-                let songContainer = this.container.querySelector(
-                    '.song-container'
-                );
-                let packContainer = this.container.querySelector(
-                    '.pack-container'
-                );
 
-                let songsDrake = dragula([songContainer, packContainer], {
-                    copy: function(el, source) {
-                        return source === songContainer;
-                    },
-                    accepts: function(el, target) {
-                        return (
-                            target !== songContainer &&
-                            (target !== packContainer ||
-                                el.parentElement === packContainer)
-                        );
-                    },
-                    moves: function(el, source, handle, sibling) {
-                        return !~el.className.indexOf('add-to-drag'); // elements are always draggable by default
-                    },
-                    mirrorContainer: document.querySelector(
-                        '.temp-move-container'
-                    ),
-                });
-                let resetDrop = pack_song_container => {
-                    let current = pack_song_container.querySelector(
-                        '.add-to-drag'
-                    );
-                    if (current) current.parentElement.removeChild(current);
-                    let add_song_here = document.createElement('li');
-                    add_song_here.className = 'add-to-drag';
-                    add_song_here.innerText = 'Drop Song Here!';
-                    pack_song_container.appendChild(add_song_here);
-                };
-                let setPacksFromEles = () => {
-                    this.jSon.packs = [].slice
-                        .call(
-                            this.container
-                                .querySelector('.pack-container')
-                                .querySelectorAll('.packOuter')
-                        )
-                        .map((ele, i) => {
-                            let pack_song_container_el = ele.querySelector(
-                                '.pack-song-container'
-                            );
-                            resetDrop(pack_song_container_el);
-                            return {
-                                id: ele.querySelector('.name').dataset.id,
-                                name: ele.querySelector('.name').dataset.name,
-                                coverImagePath: ele.querySelector('.name')
-                                    .dataset.coverImagePath,
-                                levelIDs: [].slice
-                                    .call(
-                                        pack_song_container_el.querySelectorAll(
-                                            '.circle'
-                                        )
-                                    )
-                                    .map(ele => {
-                                        return {
-                                            id: ele.dataset.id,
-                                            name: ele.dataset.name,
-                                            cover: ele.dataset.cover,
-                                            path: ele.dataset.path,
-                                        };
-                                    }),
-                            };
+                    document
+                        .querySelector('.sort-link-name')
+                        .addEventListener('click', () => {
+                            this.orderSongs('name');
+                            this.openCustomLevels();
                         });
-                };
-                songsDrake.on('cloned', (clone, original, type) => {
-                    if (type === 'copy') {
-                        clone
-                            .querySelector('.delete-song')
-                            .addEventListener('click', () => {
-                                clone.parentElement.removeChild(clone);
-                                setPacksFromEles();
-                                this.bsaber.saveJson(this.jSon);
-                            });
-                    }
-                });
-                songsDrake.on('drop', () => {
-                    setPacksFromEles();
-                    this.bsaber.saveJson(this.jSon);
-                });
-                let addSong = (song, container, deleteCallback) => {
-                    let child = document
-                        .getElementById('songItem')
-                        .content.cloneNode(true);
-                    child.querySelector('.circle').src = song.cover;
-                    child.querySelector('.title').innerHTML = song.name;
-                    child.querySelector('.circle').dataset.id = song.id;
-                    child.querySelector('.circle').dataset.name = song.name;
-                    child.querySelector('.circle').dataset.cover = song.cover;
-                    child.querySelector('.circle').dataset.path = song.path;
-                    container.appendChild(child);
-                    child = container.lastElementChild;
-                    child
-                        .querySelector('.delete-song')
-                        .addEventListener('click', () => deleteCallback(child));
-                };
-                this.jSon.packs.forEach((pack, i) => {
-                    let child = document
-                        .getElementById('packContainer')
-                        .content.cloneNode(true);
-                    child.querySelector('.name').innerHTML =
-                        '&nbsp;&nbsp;' + pack.name;
-                    child.querySelector('.name').dataset.name = pack.name;
-                    child.querySelector('.name').dataset.id = pack.id;
-                    child.querySelector('.name').dataset.coverImagePath =
-                        pack.coverImagePath;
-                    let pack_song_container = child.querySelector(
-                        '.pack-song-container'
+                    document
+                        .querySelector('.sort-link-recent')
+                        .addEventListener('click', () => {
+                            this.orderSongs('date');
+                            this.openCustomLevels();
+                        });
+                    let songContainer = this.container.querySelector(
+                        '.song-container'
                     );
-                    let show_pack = child.querySelector('.show-pack');
-                    show_pack.addEventListener('click', () => {
-                        let isOpen = show_pack.innerText !== 'expand_more';
-                        if (isOpen) {
-                            show_pack.innerText = 'expand_more';
-                            pack_song_container.style.display = 'none';
-                        } else {
-                            show_pack.innerText = 'expand_less';
-                            pack_song_container.style.display = 'block';
+                    let packContainer = this.container.querySelector(
+                        '.pack-container'
+                    );
+
+                    let songsDrake = dragula([songContainer, packContainer], {
+                        copy: function(el, source) {
+                            return source === songContainer;
+                        },
+                        accepts: function(el, target) {
+                            return (
+                                target !== songContainer &&
+                                ((el.parentElement === packContainer &&
+                                    target === packContainer) ||
+                                    (el.parentElement !== packContainer &&
+                                        target !== packContainer))
+                            );
+                        },
+                        moves: function(el, source, handle, sibling) {
+                            return !~el.className.indexOf('add-to-drag'); // elements are always draggable by default
+                        },
+                        mirrorContainer: document.querySelector(
+                            '.temp-move-container'
+                        ),
+                    });
+                    var scroll = autoScroll([window, packContainer], {
+                        margin: 150,
+                        autoScroll: function() {
+                            return this.down && songsDrake.dragging;
+                        },
+                    });
+                    let resetDrop = pack_song_container => {
+                        let current = [].slice.call(
+                            pack_song_container.querySelectorAll('.add-to-drag')
+                        );
+                        if (current && current.length) {
+                            current.forEach(ele => {
+                                ele.parentElement.removeChild(ele);
+                            });
+                        }
+                        let add_song_here = document.createElement('li');
+                        add_song_here.className = 'add-to-drag';
+                        add_song_here.innerText = 'Drop Song Here!';
+                        pack_song_container.appendChild(add_song_here);
+                    };
+                    let setPacksFromEles = () => {
+                        this.jSon.packs = [].slice
+                            .call(
+                                this.container
+                                    .querySelector('.pack-container')
+                                    .querySelectorAll('.packOuter')
+                            )
+                            .map((ele, i) => {
+                                let pack_song_container_el = ele.querySelector(
+                                    '.pack-song-container'
+                                );
+                                resetDrop(pack_song_container_el);
+                                return {
+                                    id: ele.querySelector('.name').dataset.id,
+                                    name: ele.querySelector('.name').dataset
+                                        .name,
+                                    coverImagePath: ele.querySelector('.name')
+                                        .dataset.coverImagePath,
+                                    levelIDs: [].slice
+                                        .call(
+                                            pack_song_container_el.querySelectorAll(
+                                                '.circle'
+                                            )
+                                        )
+                                        .map(ele => {
+                                            return {
+                                                id: ele.dataset.id,
+                                                name: ele.dataset.name,
+                                                cover: ele.dataset.cover,
+                                                path: ele.dataset.path,
+                                            };
+                                        }),
+                                };
+                            });
+                    };
+                    songsDrake.on('cloned', (clone, original, type) => {
+                        if (type === 'copy') {
+                            clone
+                                .querySelector('.delete-song')
+                                .addEventListener('click', () => {
+                                    clone.parentElement.removeChild(clone);
+                                    setPacksFromEles();
+                                    this.bsaber.saveJson(this.jSon);
+                                });
                         }
                     });
-                    if (i === 0) {
-                        show_pack.click();
-                    }
-                    let edit_pack = child.querySelector('.edit-pack');
-                    edit_pack.addEventListener('click', () => {
-                        this.currentPack = pack;
-                        document.querySelector('.delete-pack').style.display =
-                            'inline-block';
-                        this.packEditModal.open();
-                        document.getElementById('packName').value = pack.name;
-                        document.querySelector(
-                            '.cover-image-path'
-                        ).innerHTML = this.packCoverPath = pack.coverImagePath;
+                    songsDrake.on('drop', () => {
+                        setPacksFromEles();
+                        this.bsaber.saveJson(this.jSon);
                     });
-                    songsDrake.containers.push(pack_song_container);
-                    packContainer.appendChild(child);
-                    pack.levelIDs.forEach((song, i) =>
-                        addSong(song, pack_song_container, ele => {
-                            pack.levelIDs.splice(i, 1);
-                            ele.parentElement.removeChild(ele);
-                            this.bsaber.saveJson(this.jSon);
+                    let addSong = (song, container, deleteCallback) => {
+                        let child = document
+                            .getElementById('songItem')
+                            .content.cloneNode(true);
+                        child.querySelector('.circle').src = song.cover;
+                        child.querySelector('.title').innerHTML = song.name;
+                        child.querySelector('.circle').dataset.id = song.id;
+                        child.querySelector('.circle').dataset.name = song.name;
+                        child.querySelector('.circle').dataset.cover =
+                            song.cover;
+                        child.querySelector('.circle').dataset.path = song.path;
+                        container.appendChild(child);
+                        child = container.lastElementChild;
+                        child
+                            .querySelector('.delete-song')
+                            .addEventListener('click', () =>
+                                deleteCallback(child)
+                            );
+                    };
+                    this.jSon.packs.forEach((pack, i) => {
+                        let child = document
+                            .getElementById('packContainer')
+                            .content.cloneNode(true);
+                        child.querySelector('.name').innerHTML =
+                            '&nbsp;&nbsp;' + pack.name;
+                        child.querySelector('.name').dataset.name = pack.name;
+                        child.querySelector('.name').dataset.id = pack.id;
+                        child.querySelector('.name').dataset.coverImagePath =
+                            pack.coverImagePath;
+                        let pack_song_container = child.querySelector(
+                            '.pack-song-container'
+                        );
+                        let show_pack = child.querySelector('.show-pack');
+                        show_pack.addEventListener('click', () => {
+                            let isOpen = show_pack.innerText !== 'expand_more';
+                            if (isOpen) {
+                                show_pack.innerText = 'expand_more';
+                                pack_song_container.style.display = 'none';
+                            } else {
+                                show_pack.innerText = 'expand_less';
+                                pack_song_container.style.display = 'block';
+                            }
+                        });
+                        if (i === 0) {
+                            show_pack.click();
+                        }
+                        let edit_pack = child.querySelector('.edit-pack');
+                        edit_pack.addEventListener('click', () => {
+                            this.currentPack = pack;
+                            document.querySelector(
+                                '.delete-pack'
+                            ).style.display = 'inline-block';
+                            this.packEditModal.open();
+                            document.getElementById('packName').value =
+                                pack.name;
+                            document.querySelector(
+                                '.cover-image-path'
+                            ).innerHTML = this.packCoverPath =
+                                pack.coverImagePath;
+                        });
+                        songsDrake.containers.push(pack_song_container);
+                        packContainer.appendChild(child);
+                        pack.levelIDs.forEach((song, i) =>
+                            addSong(song, pack_song_container, ele => {
+                                pack.levelIDs.splice(i, 1);
+                                ele.parentElement.removeChild(ele);
+                                this.bsaber.saveJson(this.jSon);
+                            })
+                        );
+                        resetDrop(pack_song_container);
+                    });
+                    songs.forEach(song =>
+                        addSong(song, songContainer, () => {
+                            this.bsaber.deleteFolderRecursive(
+                                path.join(appData, 'bsaber', song.id)
+                            );
+                            this.refreshMySongs();
                         })
                     );
-                    resetDrop(pack_song_container);
-                });
-                songs.forEach(song =>
-                    addSong(song, songContainer, () => {
-                        this.bsaber.deleteFolderRecursive(
-                            path.join(appData, 'bsaber', song.id)
-                        );
-                        this.refreshMySongs();
-                    })
-                );
+                }
+            } else if (!isBeatSaberInstalled) {
+                this.container.innerHTML =
+                    '<h4>Beat saber not installed...</h4>';
+            } else if (!isQuestSaberPatch) {
+                this.container.innerHTML =
+                    '<h4>Still downloading files please wait and try again...</h4>';
             }
-        } else if (!isBeatSaberInstalled) {
-            this.container.innerHTML = '<h4>Beat saber not installed...</h4>';
-        } else if (!isQuestSaberPatch) {
-            this.container.innerHTML =
-                '<h4>Still downloading files please wait and try again...</h4>';
-        }
+        });
     }
     refreshMySongs() {
         return this.getMySongs()
@@ -1760,6 +1899,8 @@ and of course
         let child = this.deviceSettings.content.cloneNode(true);
 
         this.container.appendChild(child);
+        document.querySelector('.side-quest-version').innerHTML =
+            'SideQuest Version: ' + this.appVersionName;
         [].slice.call(document.querySelectorAll('.set-ffr')).forEach(ele => {
             ele.addEventListener('click', () => {
                 let value = 0;
