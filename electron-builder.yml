@@ -1,0 +1,11 @@
+---
+win:
+    target:
+        - nsis
+        - zip
+mac:
+    target:
+        - dmg
+        - zip
+linux:
+    target: tar.xz
