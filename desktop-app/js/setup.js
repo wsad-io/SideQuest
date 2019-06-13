@@ -346,7 +346,11 @@ class Setup {
     }
     getPackages() {
         return this.adb.getPackages(this.deviceSerial).then(packages => {
-            this.devicePackages = packages;
+            this.devicePackages = packages.sort((a, b) => {
+                let textA = a.toUpperCase();
+                let textB = b.toUpperCase();
+                return textA < textB ? -1 : textA > textB ? 1 : 0;
+            });
         });
     }
     async setupAdb() {

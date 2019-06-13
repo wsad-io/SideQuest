@@ -806,19 +806,26 @@
             </div>
         </template>
         <template id="packageItem">
-            <div class="col s8 package-height chip-padding">
+            <div class="col s6 package-height chip-padding">
                 <span class="chip"></span>
             </div>
-            <div class="col s2 package-height">
+            <div class="col s2 package-height centered">
                 <a class="waves-effect waves-light btn backup-this-package"
-                    >Backup</a
+                    >Backup APK File</a
                 >
             </div>
-            <div class="col s2 package-height">
+            <div class="col s2 package-height centered">
+                <a
+                    href="#modal2"
+                    class="waves-effect waves-light btn orange clear-app-data modal-trigger"
+                    >Clear App Data</a
+                >
+            </div>
+            <div class="col s2 package-height centered">
                 <a
                     href="#modal2"
                     class="waves-effect waves-light btn red uninstall-package modal-trigger"
-                    >Uninstall</a
+                    >Uninstall App</a
                 >
             </div>
         </template>
@@ -1286,6 +1293,12 @@
                     data-position="bottom"
                     data-tooltip="Download latest QuestSaberPatch"
                     >Redownload Patcher</a
+                >&nbsp;&nbsp;&nbsp;
+                <a
+                    class="waves-effect waves-light btn reset-packs tooltipped"
+                    data-position="bottom"
+                    data-tooltip="Reset your packs to default - this wont delete your songs"
+                    >Reset Packs</a
                 >
                 <p id="backupsContainer"></p>
                 If your app already contains mods you might want to provide an

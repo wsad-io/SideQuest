@@ -1,6 +1,6 @@
 class App {
     constructor() {
-        this.appVersionName = '0.3.3';
+        this.appVersionName = '0.3.4';
         this.spinner = new Spinner();
         this.repos = new Repos(this, this.spinner);
         this.reset_patch_base = document.querySelector('.reset-patch-base');
@@ -483,6 +483,9 @@ class App {
                             if (
                                 ~error.indexOf('AppTranslocation') ||
                                 ~error.indexOf(
+                                    'System.IO.FileNotFoundException: Could not find file'
+                                ) ||
+                                ~error.indexOf(
                                     'System.IO.DirectoryNotFoundException: Could not find a part of the path'
                                 ) ||
                                 ~error.indexOf(
@@ -536,6 +539,9 @@ class App {
                                 questSaberPatchContainer
                                     .querySelector('.auto-fix-same-key')
                                     .addEventListener('click', () => {
+                                        fs.unlinkSync(
+                                            path.join(appData, '__json.json')
+                                        );
                                         this.getMySongs().then(() => {
                                             this.jSon = this.bsaber.getAppJson();
                                             this.bsaber.saveJson(this.jSon);
@@ -608,6 +614,19 @@ class App {
             .addEventListener('click', () => {
                 shell.openItem(path.join(appData, 'bsaber'));
             });
+
+        document.querySelector('.reset-packs').addEventListener('click', () => {
+            fs.unlinkSync(path.join(appData, '__json.json'));
+            this.getMySongs().then(() => {
+                this.jSon = this.bsaber.getAppJson();
+                this.bsaber.saveJson(this.jSon);
+                this.patchModal.close();
+                this.bsaber.resetPatched();
+                this.openCustomLevels();
+                this.statusBar.showStatus('Please try to sync again.');
+            });
+        });
+
         document
             .querySelector('.re-download-patcher')
             .addEventListener('click', () => {
@@ -1389,6 +1408,25 @@ class App {
                             ).innerText =
                                 'Are you sure you want to remove ' + p + '?';
                         });
+
+                    child
+                        .querySelector('.clear-app-data')
+                        .addEventListener('click', () => {
+                            this.setup.adb
+                                .shell(
+                                    this.setup.deviceSerial,
+                                    'pm clear  ' + p
+                                )
+                                .then(adb.util.readAll)
+                                .then(res => {
+                                    this.showStatus('App Data Cleared OK!!');
+                                    this.toggleLoader(false);
+                                })
+                                .catch(e => {
+                                    this.showStatus(e.toString(), true, true);
+                                    this.toggleLoader(false);
+                                });
+                        });
                     child
                         .querySelector('.backup-this-package')
                         .addEventListener('click', () => {
@@ -1487,9 +1525,11 @@ class App {
                             resolve();
                         } else {
                             Promise.all(
-                                data.map(async folder => {
-                                    await this.getSong(folder, songs);
-                                })
+                                data
+                                    .filter(d => d !== '.DS_Store')
+                                    .map(async folder => {
+                                        await this.getSong(folder, songs);
+                                    })
                             ).then(() => {
                                 this.songs = songs;
                                 resolve();
@@ -1564,15 +1604,15 @@ class App {
                         );
                         return resolve();
                     }
-                    if (
-                        !~files.indexOf('cover.jpg') &&
-                        !~files.indexOf('cover.png')
-                    ) {
-                        fs.copyFileSync(
-                            path.join(__dirname, 'default-cover.jpg'),
-                            path.join(fullpath, 'cover.jpg')
-                        );
-                    }
+                    // if (
+                    //     !~files.indexOf('cover.jpg') &&
+                    //     !~files.indexOf('cover.png')
+                    // ) {
+                    //     fs.copyFileSync(
+                    //         path.join(__dirname, 'default-cover.jpg'),
+                    //         path.join(fullpath, 'cover.jpg')
+                    //     );
+                    // }
                     try {
                         let songData = JSON.parse(
                             fs.readFileSync(
@@ -1931,6 +1971,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         this.showStatus('FFR level set to ' + value + '!!');
                         this.toggleLoader(false);
                     })
@@ -1966,6 +2007,7 @@ and of course
                         )
                         .then(adb.util.readAll)
                         .then(res => {
+                            console.log(res.toString());
                             this.showStatus(
                                 'CPU & GPR lock level set to ' + value + '!!'
                             );
@@ -1999,6 +2041,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         this.showStatus(
                             'Chromatic Aberration set to ' + value + '!!'
                         );
@@ -2049,6 +2092,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         this.showStatus('Texture Size set to ' + value + '!!');
                         this.toggleLoader(false);
                     })
@@ -2081,6 +2125,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         this.showStatus('Video Bitrate set to ' + value + '!!');
                         this.toggleLoader(false);
                     })
@@ -2110,6 +2155,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         this.showStatus(
                             'Video Resolution set to ' + value + '!!'
                         );
@@ -2133,6 +2179,7 @@ and of course
                     )
                     .then(adb.util.readAll)
                     .then(res => {
+                        console.log(res.toString());
                         if (characters.length) {
                             return inputCharacters();
                         }
@@ -2187,7 +2234,6 @@ and of course
                         this.showStatus(e.toString(), true, true);
                     });
             });
-
         document
             .querySelector('.open-adb-folder')
             .addEventListener('click', () => {
