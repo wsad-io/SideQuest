@@ -1,6 +1,6 @@
 node_modules
 .idea
 platform-tools
-build
+dist
 desktop-app/sources/*.json
 tmp
