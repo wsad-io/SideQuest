@@ -237,7 +237,23 @@ class Setup {
     }
     installApk(url) {
         return this.adb
-            .install(this.deviceSerial, new Readable().wrap(request(url)))
+            .install(
+                this.deviceSerial,
+                new Readable().wrap(
+                    progress(request(url), { throttle: 300 }).on(
+                        'progress',
+                        state => {
+                            this.app.spinner.setMessage(
+                                'Downloading APK... ' +
+                                    Math.round(state.percent * 100) +
+                                    '%<br>' +
+                                    url
+                            );
+                            //console.log('progress', state);
+                        }
+                    )
+                )
+            )
             .catch(e => {
                 this.app.toggleLoader(false);
                 this.app.showStatus(e.toString(), true, true);
