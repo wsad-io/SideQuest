@@ -4,11 +4,13 @@ Credit to http://reddit.com/u/NoBullet for the name!
 
 [Latest Download](https://github.com/the-expanse/SideQuest/releases)
 
-## Discord
+## Discord & Support
 
-[Join us on Discord](https://discord.gg/Q2a5BkZ)
+Join us on [Discord](https://discord.gg/pqUz9F7)!
 
-[Support us on Patreon](https://www.patreon.com/TheExpanseVR)
+Catch us on [Patreon](https://www.patreon.com/TheExpanseVR)! - 
+
+Support us on [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)! - 
 
 ## Video Tutorial
 
