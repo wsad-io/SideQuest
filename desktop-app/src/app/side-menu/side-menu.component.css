@@ -38,7 +38,7 @@
   left: 0;
   width: 135px;
 }
-.video-menu {
+.side-sub-menu,.menu-item-setup {
   display: block;
   color: white;
   outline: none;

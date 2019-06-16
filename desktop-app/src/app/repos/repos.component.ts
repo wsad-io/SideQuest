@@ -11,8 +11,5 @@ export class ReposComponent implements OnInit {
   constructor(public repoService:RepoService) { }
 
   ngOnInit() {
-    this.getRepos();
-  }
-  getRepos(){
   }
 }

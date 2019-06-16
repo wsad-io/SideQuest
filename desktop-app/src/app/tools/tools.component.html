@@ -1,0 +1,150 @@
+<div class="container" [ngClass]="appService.getThemeCssClass('text')">
+  <div class="right side-quest-version">
+    SideQuest Version: 0.3.2
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">SideQuest Stuff</div>
+  <div class="button-section">
+    <div
+      class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+      [ngClass]="appService.getThemeCssClass('button')"
+      (click)="appService.openFolder(folder.MAIN)">
+      Open Main App Folder
+    </div>
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+         [ngClass]="appService.getThemeCssClass('button')"
+         (click)="appService.openFolder(folder.APK_BACKUPS)">
+      Open APK Backup Folder
+    </div>
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+         [ngClass]="appService.getThemeCssClass('button')"
+         (click)="appService.openFolder(folder.ADB)">
+      Open ADB Folder
+    </div>
+    <div  class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+          [ngClass]="appService.getThemeCssClass('button')"
+          (click)="appService.openFolder(folder.BSABER)">
+      Open Bsaber Folder
+    </div>
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+         [ngClass]="appService.getThemeCssClass('button')"
+         (click)="appService.openFolder(folder.BSABER_BACKUPS)">
+      Open Bsaber Backup Folder
+    </div>
+    <div  class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+          [ngClass]="appService.getThemeCssClass('button')"
+          (click)="appService.openFolder(folder.DATA_BACKUPS)">
+      Open Bsaber Data Folder
+    </div>
+    <div  class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+          [ngClass]="appService.getThemeCssClass('button')"
+          (click)="appService.openFolder(folder.QUEST_SABER_PATCH)">
+      Open Quest Saber Patch Folder
+    </div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Pavlov Audio</div>
+  <div class="button-section">
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')"
+       (click)="setPavlovPermission()"
+    >Grant Pavlov Audio Permission</div
+    >&nbsp;&nbsp;&nbsp;&nbsp;
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Paste Text to your device</div>
+
+  <div class="button-section">
+    <div class="input-field ">
+      <input id="devicePaste" [ngClass]="appService.getThemeCssClass('input')" [type]="isPassword?'password':'text'" [(ngModel)]="textToSend"/>
+      <label for="devicePaste" [ngClass]="appService.getThemeCssClass('label')">Text to Paste</label>
+    </div>
+    <div class="switch">
+      <label>
+        Text
+        <input type="checkbox" [(ngModel)]="isPassword" />
+        <span class="lever"></span>
+        Password
+      </label>
+    </div>
+    <div class="waves-effect waves-light btn paste-text-button right pink-button"
+       (click)="pasteToDevice()"
+       [ngClass]="appService.getThemeCssClass('button')">Send</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">
+    Set FFR ( Fixed Foveated Rendering ) level
+  </div>
+  This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better
+  performance, lower is better quality.
+  <div class="button-section">
+    <div
+       class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setFFR(FFR.OFF)">Off</div>
+    <div
+       class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setFFR(FFR.LOW)">Low</div>
+    <div
+       class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setFFR(FFR.MEDIUM)">Medium</div>
+    <div
+       class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setFFR(FFR.HIGH)">High</div>
+    <div
+       class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setFFR(FFR.HIGH_TOP)">High Top</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Set CPU and GPU level</div>
+  This can improve performance for 2D apps & games.
+  <div class="button-section">
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')"
+      (click)="setGPU(GPU._2)">Level 2</div>
+    <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')"
+      (click)="setGPU(GPU._4)">Level 4</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Chromatic Aberration</div>
+  This will enable/disable chromatic aberration.
+  <div class="button-section">
+    <div class="waves-effect waves-light btn set-ca margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')"
+    (click)="setCa(CA.ON)">On</div>
+    <div class="waves-effect waves-light btn set-ca margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')"
+         (click)="setCa(CA.OFF)">Off</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Default Texture Size</div>
+  This will change how high quality some of the in game textures are rendered at.
+  <div class="button-section">
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._512)">512</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._768)">768</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._1280)">1280</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._1536)">1536</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._2048)">2048</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._2560)">2560</div>
+    <div class="waves-effect waves-light btn set-sso margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSSO(SSO._3072)">3072</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Capture Video Bitrate</div>
+  This will increase the quality of captured videos.
+
+  <div class="button-section">
+    <div class="waves-effect waves-light btn set-svb margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSVB(SVB._5Mbps)">5Mbps</div>
+    <div class="waves-effect waves-light btn set-svb margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSVB(SVB._15Mbps)">15Mbps</div>
+    <div class="waves-effect waves-light btn set-svb margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSVB(SVB._25Mbps)">25Mbps</div>
+  </div>
+  <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Video Recording Resolution</div>
+  This will increase the resolution of captured videos.
+  <div class="button-section">
+    <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSVR(SVR._1024)">1024</div>
+    <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
+       [ngClass]="appService.getThemeCssClass('button')" (click)="setSVR(SVR._1536)">1536</div>
+  </div>
+</div>

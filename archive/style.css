@@ -70,12 +70,12 @@
 .card .card-title {
     font-size: 16px;
 }
-.image-background {
-    height: 150px;
-    width: 100%;
-    background-size: cover;
-    background-color: #586161;
-}
+/*.image-background {*/
+    /*height: 150px;*/
+    /*width: 100%;*/
+    /*background-size: cover;*/
+    /*background-color: #586161;*/
+/*}*/
 /*.browser-loading {*/
     /*margin-bottom: -15px;*/
     /*margin-left: 15px;*/
@@ -174,9 +174,9 @@
     /*font-family: 'PT Sans', sans-serif;*/
     /*-webkit-app-region: no-drag;*/
 /*}*/
-.margin-top-bottom {
-    margin-bottom: 5px;
-}
+/*.margin-top-bottom {*/
+    /*margin-bottom: 5px;*/
+/*}*/
 /*.section-title {*/
     /*float: initial;*/
     /*font-size: 2rem;*/
@@ -194,9 +194,6 @@
     /*max-width: 25px;*/
     /*vertical-align: middle;*/
 /*}*/
-.chip-padding {
-    padding-top: 4px !important;
-}
 /*.icon-text {*/
     /*height: 26px;*/
     /*line-height: 1.8;*/
@@ -357,9 +354,6 @@
 /*#close-app {*/
     /*right: 15px;*/
 /*}*/
-.package-height {
-    height: 40px;
-}
 /*.connection-status-connected {*/
     /*background-color: #4caf50;*/
 /*}*/
@@ -375,16 +369,16 @@
 .uninstall-apk {
     display: none;
 }
-.link,
-.sort-link {
-    color: lightseagreen;
-    cursor: pointer;
-}
-.link-white {
-    color: lightcyan;
-    cursor: pointer;
-    text-decoration: underline;
-}
+/*.link,*/
+/*.sort-link {*/
+    /*color: lightseagreen;*/
+    /*cursor: pointer;*/
+/*}*/
+/*.link-white {*/
+    /*color: lightcyan;*/
+    /*cursor: pointer;*/
+    /*text-decoration: underline;*/
+/*}*/
 /*.setup-image {*/
     /*width: 100%;*/
 /*}*/

@@ -1,0 +1,15 @@
+
+.status-bar {
+  background-color: #4caf50;
+  position: fixed;
+  z-index: 10;
+  bottom: 0px;
+  left: 135px;
+  color: white;
+  width: calc(100% - 135px);
+  padding: 5px;
+  padding-left: 10px;
+}
+.status-bar-warning {
+  background-color: #ff9800;
+}

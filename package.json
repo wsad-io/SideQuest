@@ -8,7 +8,7 @@
     "main": "app.js",
     "scripts": {
         "concurrently": "concurrently",
-        "start": "concurrently \"electron .\" \"cd desktop-app && ng serve\"",
+        "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
         "postinstall": "electron-builder install-app-deps",
         "pack": "electron-builder --dir",
         "dist": "electron-builder"
@@ -39,7 +39,8 @@
         "request": "^2.88.0",
         "request-progress": "^3.0.0",
         "semver": "^6.0.0",
-        "targz": "^1.0.1"
+        "targz": "^1.0.1",
+        "wait-on": "^3.2.0"
     },
     "devDependencies": {
         "electron": "^4.1.4",

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AdbClientService } from '../adb-client.service';
+import { AdbClientService, ConnectionStatus } from '../adb-client.service';
 import { AppService, ThemeMode } from '../app.service';
 
 @Component({
@@ -9,11 +9,33 @@ import { AppService, ThemeMode } from '../app.service';
 })
 export class HeaderComponent implements OnInit {
   theme = ThemeMode;
-  constructor(private adbService:AdbClientService, public appService:AppService) {
+  isMaximized:boolean;
+  constructor(public adbService:AdbClientService, public appService:AppService) {
 
   }
 
   ngOnInit() {
 
+  }
+  getConnectionCssClass(){
+    return {
+      'connection-status-connected': this.adbService.deviceStatus === ConnectionStatus.CONNECTED,
+      'connection-status-unauthorized': this.adbService.deviceStatus === ConnectionStatus.UNAUTHORIZED,
+      'connection-status-disconnected': this.adbService.deviceStatus === ConnectionStatus.DISCONNECTED,
+      'connection-status-too-many': this.adbService.deviceStatus === ConnectionStatus.TOOMANY
+    }
+  }
+  closeApp(){
+    this.appService.remote.getCurrentWindow().close();
+  }
+  minimizeApp(){
+    this.appService.remote.getCurrentWindow().minimize();
+  }
+  maximizeApp(){
+    this.isMaximized = !this.isMaximized;
+    this.appService.remote.getCurrentWindow()[this.isMaximized?'unmaximize':'maximize']();
+  }
+  openDebugger(){
+    this.appService.remote.getCurrentWindow().toggleDevTools();
   }
 }

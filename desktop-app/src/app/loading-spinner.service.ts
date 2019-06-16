@@ -19,10 +19,6 @@ export class LoadingSpinnerService {
     this.spinner.isLoading = false;
     this.spinner.isActive = true;
   }
-  hideDrag() {
-    this.spinner.isLoading = false;
-    this.spinner.isActive = false;
-  }
   showLoader() {
     this.spinner.isLoading = this.spinner.isActive = true;
   }

@@ -8,13 +8,20 @@
 
 .content {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 160px);
   padding-left: 135px;
+  padding-top: 1em;
   border-bottom-right-radius: 5px;
   border-bottom-left-radius: 5px;
   border-top-left-radius: 12px;
-  background-color:#36393f;
   overflow: auto;
+  transition: background-color 350ms ease-out;
+}
+.content-dark-theme{
+  background-color:#36393f;
+}
+.content-light-theme{
+  background-color:#f0f0f0;
 }
 .loader-initial {
   border: 16px solid #f3f3f3; /* Light grey */

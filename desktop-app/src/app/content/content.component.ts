@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RepoService } from '../repo.service';
+import { AppService, ThemeMode } from '../app.service';
 
 @Component({
   selector: 'app-content',
@@ -7,8 +8,8 @@ import { RepoService } from '../repo.service';
   styleUrls: ['./content.component.css']
 })
 export class ContentComponent implements OnInit {
-
-  constructor(repoService:RepoService) { }
+  theme = ThemeMode;
+  constructor(repoService:RepoService, public appService:AppService) { }
 
   ngOnInit() {
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ApplicationRef, ChangeDetectorRef, Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { RepoBody, RepoItem } from './repo-item/repo-item.component';
@@ -8,22 +8,24 @@ import { RepoBody, RepoItem } from './repo-item/repo-item.component';
 })
 export class RepoService {
   repos:RepoItem[] = [];
-  constructor(private appService:AppService,private spinnerService:LoadingSpinnerService) {
+  currentRepo:RepoItem;
+  constructor(private appService:AppService,private spinnerService:LoadingSpinnerService, private appRef:ApplicationRef) {
     this.getRepos();
   }
   getRepos(){
     this.appService.fs.readFile(this.appService.appData + '/sources.txt', 'utf8', (err, data) => {
       if (!err) {
-        console.log(data);
-        setTimeout(() =>data.split('\n').forEach(url => this.addRepo(url)));
+        this.repos.length = 0;
+        this.spinnerService.showLoader();
+        Promise.all(data.split('\n').map(url => this.addRepo(url)))
+          .then(() => this.repos.sort((a, b) => a.order - b.order))
+          //.then(() => console.log(this.repos))
+          .then(() => this.appRef.tick());
       }
     });
   }
   addRepo(url:string){
-
-    console.log(this.repos.length);
     this.spinnerService.setMessage(`Loading ${url}`);
-    let index = ++this.repos.length;
     url = url.trim();
     if (url[url.length - 1] !== '/') {
       url += '/';
@@ -50,6 +52,8 @@ export class RepoService {
         }
       });
     }).then((repo:RepoBody) => {
+
+      let index = this.repos.length;
       this.repos.push({
         name: repo.repo.name,
         icon: repo.repo.icon,

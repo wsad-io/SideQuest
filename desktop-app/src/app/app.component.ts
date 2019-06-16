@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
+import { StatusBarService } from './status-bar.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,12 @@ import { LoadingSpinnerService } from './loading-spinner.service';
 })
 export class AppComponent {
   @ViewChild('spinner') spinner;
-  constructor(spinnerService:LoadingSpinnerService){
-    spinnerService.setSpinner(this.spinner)
+  @ViewChild('status') status;
+  constructor(private spinnerService:LoadingSpinnerService,private statusService:StatusBarService){
+  }
+  ngAfterViewInit(){
+
+    this.spinnerService.setSpinner(this.spinner);
+    this.statusService.setStatus(this.status);
   }
 }

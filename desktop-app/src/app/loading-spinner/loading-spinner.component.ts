@@ -7,7 +7,7 @@ import { LoadingSpinnerService } from '../loading-spinner.service';
   styleUrls: ['./loading-spinner.component.css']
 })
 export class LoadingSpinnerComponent implements OnInit {
-  isActive:boolean;
+  isActive:boolean = true;
   isLoading:boolean;
   loadingMessage:string;
   constructor(spinnerService:LoadingSpinnerService) {

@@ -4,34 +4,31 @@
   <div class="header-title">SideQuest</div>
   <div class="apk-install">Drag and drop your APK/OBB files <br>over this window to install!</div>
   <div class="title-menu-container">
-    <i id="musiclist" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Beast Saber Custom Levels">
+    <i routerLink="custom-levels" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Beast Saber Custom Levels">
       queue_music
     </i>
-    <i id="connection-refresh" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Refresh">
-      refresh
+    <i routerLink="packages" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Currently Installed Apps">
+      dashboard
     </i>
-    <i id="installed-apps" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Currently Installed Apps">
-      list
-    </i>
-    <i id="device-settings" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Device Settings & Tools">
+    <i id="device-settings" routerLink="tools" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Device Settings & Tools">
       build
     </i>
-    <i id="open-debugger" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Open Debugger">
+    <i (click)="openDebugger()" id="open-debugger" mz-tooltip class="material-icons white-text " position="bottom" tooltip="Open Debugger">
       bug_report
     </i>
-    <i *ngIf="appService.isTheme(theme.LIGHT)" (click)="appService.setTheme(theme.DARK)" id="day-mode" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Dark theme.">
+    <i *ngIf="appService.isTheme(theme.LIGHT)" (click)="appService.setTheme(theme.DARK)" id="day-mode" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Dark theme.">
       brightness_2
     </i>
-    <i *ngIf="appService.isTheme(theme.DARK)" (click)="appService.setTheme(theme.LIGHT)"  id="night-mode" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Light theme.">
+    <i *ngIf="appService.isTheme(theme.DARK)" (click)="appService.setTheme(theme.LIGHT)"  id="night-mode" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Light theme.">
       brightness_5
     </i>
-    <i id="minimize-app" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Minimize the app to the taskbar.">
+    <i (click)="minimizeApp()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Minimize the app to the taskbar.">
       minimize
     </i>
-    <i id="maximize-app" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Maximize the app to fill your screen.">
+    <i (click)="maximizeApp()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Maximize the app to fill your screen.">
       aspect_ratio
     </i>
-    <i id="close-app" mz-tooltip class="material-icons white-text" position="bottom" tooltip="Close the app.">
+    <i (click)="closeApp()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Close the app.">
       close
     </i>
   </div>
@@ -58,10 +55,12 @@
   </svg>
   <div
     id="connection-status"
-    class="connection-status-unauthorized tooltipped"
-    data-position="bottom"
-    data-tooltip="Device Connection Status">
-    <div id="connection-status-message">Connecting...</div>
+    class="connection-status-unauthorized"
+    [ngClass]="getConnectionCssClass()"
+    mz-tooltip
+    position="bottom"
+    tooltip="Device Connection Status">
+    <div id="connection-status-message">{{adbService.deviceStatusMessage}}</div>
   </div>
   <!--<a class="waves-effect waves-light btn add-repo modal-trigger" href="#modal1">-->
     <!--Add Repo-->
@@ -141,8 +140,8 @@
   <div id="searchFilterContainer">
     <div class="search">
       <div class="input-field inline search-box">
-        <input id="searchBox" type="text" />
-        <label for="searchBox" class="active">
+        <input id="searchBox" class="input-dark-theme" type="text" />
+        <label for="searchBox" class="active label-dark-theme">
           Search
         </label>
       </div>

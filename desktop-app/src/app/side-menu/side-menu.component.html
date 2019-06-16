@@ -1,25 +1,31 @@
 <div class="side-menu">
   <div class="menu-items">
-    <app-side-menu-item *ngFor="let repo of repoService.repos" [repo]="consoleIt(repo)"></app-side-menu-item>
+    <div class="menu-item" *ngFor="let repo of repoService.repos; let i = index" >
+      <div class="menu-item-inner menu no-outline" mz-tooltip position="right"
+           tooltip="{{repo.body.repo.description}}" routerLink="/apps/{{i}}">
+        <img class="menu-icon" src="{{repo.url}}icons/{{repo.icon}}" /><br />
+        <span class="menu-name">{{repo.name}}</span>
+      </div>
+    </div>
   </div>
 
   <div class="menu-item-beat">
     <div
-      class="menu-item-inner beat-menu side-sub-menu tooltipped"
-      data-position="right"
-      data-tooltip="Browse and install custom songs from www.bsaber.com."
+      class="menu-item-inner beat-menu side-sub-menu"
+      mz-tooltip=""
+      position="right"
+      tooltip="Browse and install custom songs from www.bsaber.com."
     >
       <img src="assets/images/bsaber.png" class="menu-icon" /><br />
       <span class="menu-name">Beast Saber</span>
     </div>
   </div>
 
-  <div class="menu-item-repo" routerLink="/repos">
+  <div class="menu-item-repo" >
     <div
-      class="menu-item-inner add-menu side-sub-menu tooltipped"
-      data-position="right"
-      data-tooltip="Manage the app repos shown in the side menu."
-      data-type="repos"
+      class="menu-item-inner add-menu side-sub-menu" mz-tooltip routerLink="/repos"
+      position="right"
+      tooltip="Manage the app repos shown in the side menu."
     >
       <div class="row no-margin" >
         <div class="col s6 no-padding">
@@ -30,11 +36,12 @@
     </div>
   </div>
   <div class="menu-item-video">
-    <a
-      class="menu-item-inner video-menu side-sub-menu modal-trigger tooltipped"
-      data-position="right"
-      data-tooltip="Watch a great how-to video on how to use SideQuest."
-      href="#modal3"
+    <div
+      class="menu-item-inner video-menu side-sub-menu"
+      mz-tooltip
+      position="right"
+      tooltip="Watch a great how-to video on how to use SideQuest."
+      (click)="videoModal.openModal()"
     >
       <div class="row no-margin">
         <div class="col s6 no-padding">
@@ -44,13 +51,14 @@
         </div>
         <div class="col s6 no-padding icon-text">How-To</div>
       </div>
-    </a>
+    </div>
   </div>
-  <div class="menu-item-setup" routerLink="/setup">
+  <div class="menu-item-setup" >
     <div
-      class="menu-item-inner setup-menu side-sub-menu tooltipped"
-      data-position="right"
-      data-tooltip="Setup developer mode. You should only have to do this once."
+      class="menu-item-inner setup-menu side-sub-menu"
+      mz-tooltip
+      position="right" routerLink="/setup"
+      tooltip="Setup developer mode. You should only have to do this once."
     >
       <div class="row no-margin">
         <div class="col s6 no-padding">
@@ -66,3 +74,24 @@
   >Wifi Mode</a
   >
 </div>
+
+<mz-modal #videoModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>How To Video</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <iframe
+      width="655.609756097561"
+      height="420"
+      style="width: 100%;"
+      src="https://www.youtube.com/embed/HspVa4i9rPg"
+      frameborder="0"
+      allowfullscreen
+    ></iframe>
+    <br />Kindly provided by
+    <app-link url="https://www.youtube.com/user/RaMarcus" text="RaMarcus"></app-link>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>

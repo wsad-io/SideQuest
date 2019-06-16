@@ -1,0 +1,10 @@
+.package-height {
+  height: 40px;
+}
+.package-item{
+  border-bottom: 1px solid #cfcfcf;
+}
+
+.chip-padding {
+  padding-top: 3px !important;
+}

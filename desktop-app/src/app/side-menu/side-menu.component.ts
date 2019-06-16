@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RepoService } from '../repo.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-side-menu',
@@ -8,13 +9,11 @@ import { RepoService } from '../repo.service';
 })
 export class SideMenuComponent implements OnInit {
 
-  constructor(public repoService:RepoService) { }
+  constructor(public router:Router,public repoService:RepoService) { }
 
   ngOnInit() {
-    setTimeout(()=>console.log(this.repoService.repos),5000)
   }
-
-  consoleIt(test){
-    //console.log(test);
+  openRepo(index){
+    this.router.navigateByUrl('/apps/'+index);
   }
 }

@@ -1,13 +1,14 @@
 <div class="row">
   <div class="col s12 m6">
-    <div class="setup-content">
+    <div class="setup-content" [ngClass]="appService.getThemeCssClass('text')">
       <div class="section-title">
         Step 1: Create Organisation
       </div>
       <div>
         Put the Oculus Headset in developer mode to be able to sideload to the Headset. To do this,
         you have to be a registered "developer". This process is free. Go to
-        <span class="link" data-url="https://dashboard.oculus.com">dashboard.oculus.com</span>
+        <app-link url="https://dashboard.oculus.com"
+                  text="dashboard.oculus.com"></app-link>
         on your PC and create an 'organization'. You'll be asked to accept the developer agreement.
       </div>
       <br><br>
@@ -16,17 +17,14 @@
     </div>
   </div>
   <div class="col s12 m6">
-    <div class="setup-content">
+    <div class="setup-content" [ngClass]="appService.getThemeCssClass('text')">
       <div class="section-title">
         Step 2: Install Drivers ( Windows Only - skip this on Mac / Linux )
       </div>
       <div>
         Install the driver software for your device. Go to
-        <span
-          class="link"
-          data-url="https://developer.oculus.com/downloads/package/oculus-go-adb-drivers/">
-          developer.oculus.com
-        </span>
+        <app-link url="https://developer.oculus.com/downloads/package/oculus-go-adb-drivers/"
+                  text="developer.oculus.com"></app-link>
         on your PC and download the drivers for your headset. The Oculus Go drivers work for the
         quest also. To install the drivers extract the zip folder, right click the
         <div class="chip">android_winusb.inf</div>
@@ -40,7 +38,7 @@
 <div class="clear-fix"></div>
 <div class="row">
   <div class="col s12 m6">
-    <div class="setup-content">
+    <div class="setup-content" [ngClass]="appService.getThemeCssClass('text')">
       <div class="section-title">
         Step 3: Enable Developer Mode and Reboot
       </div>
@@ -55,7 +53,7 @@
     </div>
   </div>
   <div class="col s12 m6">
-    <div class="setup-content">
+    <div class="setup-content" [ngClass]="appService.getThemeCssClass('text')">
       <div class="section-title">
         Step 4: Connect USB Cable and Allow USB Debugging
       </div>
@@ -73,52 +71,64 @@
 <div class="clear-fix"></div>
 <div class="row">
   <div class="col s12">
-    <div class="section-title">
-      Step 5: Install App Launcher
-    </div>
-    <div class="setup-content">
-      Install a launcher to make finding apps easier on your headset. This launcher will be found in
-      the library under 'Unknown Sources' on the menu on the left. Open it to find all the apps that
-      have been installed on your device.
-    </div>
-    <app-loading-spinner-small></app-loading-spinner-small>
-    <a href="#" class="waves-effect waves-light btn install-launcher">Install App Launcher</a>
-    <div style="text-align: center">
-      You will then be able to install apps to your headset and open them from the launcher. You can
-      find it in the side menu of the library under the Unknown Sources section called
-      <span class="chip">SideQuest</span>. This will show you all the apps on the device even hidden
-      ones you would otherwise not see.
-    </div>
-    <div style="text-align: center" class="install-expanse-container">
-      <app-loading-spinner-small></app-loading-spinner-small>
-      <a href="#" class="waves-effect waves-dark white btn install-expanse">
+    <div class="container">
+      <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">
+        Step 5: Install App Launcher
+      </div>
+      <div [ngClass]="appService.getThemeCssClass('text')">
+        Install a launcher to make finding apps easier on your headset. This launcher will be found in
+        the library under 'Unknown Sources' on the menu on the left. Open it to find all the apps that
+        have been installed on your device.
+      </div><br>
+      <span class="chip" *ngIf="isLauncherInstalled()">SideQuest Launcher Installed!</span>
+      <app-loading-spinner-small *ngIf="isInstallingLauncher"></app-loading-spinner-small>
+      <div class="waves-effect waves-light btn pink-button"
+           *ngIf="!isInstalledLauncher&&!isInstallingLauncher"
+           [ngClass]="appService.getThemeCssClass('button')"
+            (click)="installLauncher()">
+        Install App Launcher
+      </div>
+      <br><br>
+      <div [ngClass]="appService.getThemeCssClass('text')">
+        You will then be able to install apps to your headset and open them from the launcher. You can
+        find it in the side menu of the library under the Unknown Sources section called
+        <span class="chip">SideQuest - TV</span> and <span class="chip">SideQuest - Home</span>.  This will show you all the apps on the device even hidden
+        ones you would otherwise not see.
+      </div><br>
+      <span class="chip" *ngIf="isExpanseInstalled()">The Expanse VR Installed!</span>
+      <app-loading-spinner-small *ngIf="isInstallingExpanse"></app-loading-spinner-small>
+      <div class="waves-effect waves-light btn pink-button"
+           *ngIf="!isInstalledExpanse&&!isInstallingExpanse"
+           [ngClass]="appService.getThemeCssClass('button')"
+           (click)="installExpanse()">
         Install Your First App - The Expanse
-      </a>
-    </div>
-    <div style="text-align: center">
-      If you want to install your own APK files just drag and drop them over this window.
-    </div>
-    <div style="text-align: center">
-      Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some
-      with Avast antivirus in particular. <br />If you have any problems or want to say hi drop us a
-      line on discord - <span class="link" data-url="https://discord.gg/HNnDPSu">discord</span>.
+      </div><br><br>
+      <div [ngClass]="appService.getThemeCssClass('text')">
+        If you want to install your own APK files just drag and drop them over this window.
+      </div>
+      <div [ngClass]="appService.getThemeCssClass('text')">
+        Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some
+        with Avast antivirus in particular. <br />If you have any problems or want to say hi drop us a
+        line on discord - <app-link url="https://discord.gg/HNnDPSu" text="discord"></app-link>.
+      </div>
     </div>
   </div>
 </div>
 <div class="clear-fix"></div>
 <div class="row" style="display: none;">
   <div class="col s12">
-    <div class="section-title">
+    <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">
       App Developers Link to your apps!
     </div>
-    <div style="text-align: center">
+    <div style="text-align: center"  [ngClass]="appService.getThemeCssClass('text')">
       Use our custom protocol to be able to install APK files, add repos and even load custom beat
       saber songs direct from your website.
     </div>
     <span
-      class="chip tooltipped"
-      data-position="right"
-      data-tooltip="Example: sidequest://repo#https://example.com/fdroid/repo"
+      class="chip"
+      mz-tooltip
+      position="right"
+      tooltip="Example: sidequest://repo#https://example.com/fdroid/repo"
     >sidequest://repo#URL_OF_REPO</span
     ><br />
     <span
