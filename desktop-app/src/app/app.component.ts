@@ -9,8 +9,8 @@ import { StatusBarService } from './status-bar.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  @ViewChild('spinner') spinner;
-  @ViewChild('status') status;
+  @ViewChild('spinner',{static:false}) spinner;
+  @ViewChild('status',{static:false}) status;
   constructor(private spinnerService:LoadingSpinnerService,private statusService:StatusBarService){
   }
   ngAfterViewInit(){

@@ -15,7 +15,7 @@ export class SideQuestCardComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.app);
+    //console.log(this.app);
   }
 
 }
