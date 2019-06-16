@@ -1,0 +1,179 @@
+
+#connection-refresh,
+#connection-refresh-loading {
+  display: none;
+}
+.title-menu-container{
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  -webkit-app-region: no-drag;
+  z-index: 99;
+}
+.title-menu-container i{
+  margin-right: 10px;
+  cursor: pointer;
+}
+#device-settings {
+  font-size: 1.2rem;
+  vertical-align:top;
+  margin-top: 4px;
+}
+.browser-input {
+  width: calc(100% - 200px);
+  display: inline-block;
+  margin-right: 13px;
+  margin-left: 13px
+}
+#browser-bar {
+  position: absolute;
+  top: 65px;
+  left: 30px;
+  width: calc(100% - 40px);
+  -webkit-app-region: no-drag;
+  display: none;
+}
+.topper{
+  background: #202225;
+  height: 35px;
+  width: 100%;
+}
+.header {
+  height: 160px;
+  background: transparent url(../../assets/images/bg-header.png) left bottom no-repeat;
+  position: relative;
+  -webkit-user-select: none;
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+  overflow:hidden;
+  -webkit-app-region: drag;
+}
+.header-title{
+  position:absolute;
+  top: 40px;
+  left: 135px;
+  font-size: 2.5rem;
+  margin-top: 0.4em;
+  margin-left: 1em;
+  color: #ffffff;
+  font-family: 'PT Sans', sans-serif;
+}
+.apk-install {
+  font-size: 0.9rem;
+  position: absolute;
+  top: 105px;
+  left: 175px;
+  color: #ffffff;
+  font-family: 'PT Sans', sans-serif;
+  -webkit-app-region: no-drag;
+}
+.filter {
+  width: 200px;
+}
+.filters {
+  position: absolute;
+  top: 60px;
+  left: 60px;
+  -webkit-app-region: no-drag;
+}
+.search {
+  position: absolute;
+  top: 60px;
+  right: -10px;
+  -webkit-app-region: no-drag;
+}
+.search-box {
+  width: 400px;
+}
+.search-button-margin {
+  margin-right: 2em;
+  margin-left: 1em;
+}
+.content-section {
+  border: 1px solid #dde1e2;
+  background: white;
+}
+.content-section-header {
+  border-bottom: 1px solid #dde1e2;
+  padding: 1em 2em;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: capitalize;
+  height: 60px;
+}
+.content-section-inner {
+  padding: 1em;
+}
+.content-padding {
+  padding: 2em;
+}
+#connection-status-message {
+  text-align: left;
+  white-space: nowrap;
+  float: left;
+  margin-left: 30px;
+  margin-top: -2px;
+  color: white;
+}
+#connection-status {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  -webkit-app-region: no-drag;
+}
+.connection-status-connected {
+  background-color: #4caf50;
+}
+.connection-status-unauthorized {
+  background-color: #ff9800;
+}
+.connection-status-disconnected {
+  background-color: #f44336;
+}
+.connection-status-too-many {
+  background-color: #9c27b0;
+}
+.add-repo,
+.sync-songs,
+.sync-songs-now,
+.update-available {
+  position: absolute;
+  top: 85px;
+  right: 15px;
+  -webkit-app-region: no-drag;
+}
+.update-available {
+  padding: 5px;
+  line-height: 16px;
+  top: 50px;
+  right: 190px;
+  height: 24px;
+  color: white;
+}
+.sync-songs-now {
+  top: 45px;
+}
+.update-repo,
+.delete-repo,
+.restore-backup {
+  padding-top: 4px;
+}
+.edit-repo {
+  font-size: 14px;
+}
+.browser-loading {
+  margin-bottom: -15px;
+  margin-left: 15px;
+}
+.logo {
+  background: transparent url('/assets/images/logo.png') center center no-repeat;
+  background-size: 85.47579298831386px 100px;
+  width: 135px;
+  height: 130px;
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  border-top-left-radius: 5px;
+}

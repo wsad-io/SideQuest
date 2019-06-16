@@ -17,8 +17,9 @@ function createWindow() {
         },
         icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png'),
     });
-    mainWindow.loadFile('desktop-app/index.html');
-    //mainWindow.webContents.openDevTools();
+    mainWindow.loadURL('http://localhost:4200');
+    //mainWindow.loadFile('desktop-app/index.html');
+    mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });

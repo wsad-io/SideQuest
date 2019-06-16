@@ -7,7 +7,8 @@
     "author": "Shane Harris",
     "main": "app.js",
     "scripts": {
-        "start": "electron .",
+        "concurrently": "concurrently",
+        "start": "concurrently \"electron .\" \"cd desktop-app && ng serve\"",
         "postinstall": "electron-builder install-app-deps",
         "pack": "electron-builder --dir",
         "dist": "electron-builder"
@@ -18,8 +19,20 @@
             "post-commit": "git update-index -g"
         }
     },
+    "prettier": {
+        "tabWidth": 4,
+        "printWidth": 132,
+        "semi": true,
+        "jsxBracketSameLine": true,
+        "parser": "typescript",
+        "singleQuote": true,
+        "useTabs": false,
+        "trailingComma": "es5"
+    },
     "dependencies": {
+        "@types/node": "^12.0.8",
         "adbkit": "^2.11.1",
+        "concurrently": "^4.1.0",
         "extract-zip": "^1.6.7",
         "md5": "^2.2.1",
         "opn": "^6.0.0",

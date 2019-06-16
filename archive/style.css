@@ -1,0 +1,570 @@
+
+.side-packs {
+    height: 100%;
+}
+.side-packs-fixed {
+    position: fixed;
+    width: 26.5%;
+    height: 100%;
+}
+.delete-pack {
+    display: none;
+}
+.sort-songs {
+    float: right;
+}
+.no-margin-top {
+    margin-top: 0;
+}
+.pack-container {
+    height: calc(100% - 250px);
+    overflow: auto;
+    background-image: url(papyrus.png);
+    border-right: 1px solid #cfcfcf;
+}
+.pack-song-container-outer {
+    border-bottom: 1px solid #e0e0e0;
+    border-top: 1px solid #e0e0e0;
+}
+.collection {
+    border: 0px solid #e0e0e0;
+}
+.add-to-pack {
+    padding: 1em;
+    width: 100%;
+    border: 3px dashed darkgrey;
+    text-align: center;
+}
+.show-pack {
+    margin-right: 0.5em;
+    font-size: 2rem;
+}
+.pack-song-container {
+    padding: 10px;
+}
+.pack-song-container {
+    display: none;
+}
+
+/*html,*/
+/*body {*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*padding: 0;*/
+    /*margin: 0;*/
+    /*background: transparent;*/
+    /*overflow: hidden;*/
+/*}*/
+/** {*/
+    /*box-sizing: border-box;*/
+/*}*/
+.bsaber-webview {
+    height: 100%;
+    width: 100%;
+    background: #f0f0f0;
+    position: absolute;
+    overflow: auto;
+    z-index: 8;
+    left: -100%;
+}
+.card .card-title {
+    font-size: 16px;
+}
+.image-background {
+    height: 150px;
+    width: 100%;
+    background-size: cover;
+    background-color: #586161;
+}
+/*.browser-loading {*/
+    /*margin-bottom: -15px;*/
+    /*margin-left: 15px;*/
+/*}*/
+/*.browser-input {*/
+    /*width: calc(100% - 200px);*/
+    /*display: inline-block;*/
+/*}*/
+/*#browser-bar {*/
+    /*position: absolute;*/
+    /*top: 65px;*/
+    /*left: 30px;*/
+    /*width: calc(100% - 40px);*/
+    /*-webkit-app-region: no-drag;*/
+    /*display: none;*/
+/*}*/
+/*.content {*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*padding-left: 135px;*/
+/*}*/
+/*.video-menu {*/
+    /*display: block;*/
+    /*color: white;*/
+    /*outline: none;*/
+/*}*/
+.modal-fixed-width {
+    width: 890px;
+}
+/*.body-content {*/
+    /*height: calc(100% - 135px);*/
+    /*width: 100%;*/
+    /*background: #f0f0f0;*/
+    /*position: relative;*/
+    /*overflow: auto;*/
+/*}*/
+.color-picker {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+/*.side-nav {*/
+    /*width: 135px;*/
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    /*height: 100%;*/
+    /*background: #586161;*/
+    /*border-top-left-radius: 40px;*/
+/*}*/
+/*.menu-items {*/
+    /*margin-top: 92px;*/
+    /*height: calc(100% - 361px);*/
+    /*overflow: hidden;*/
+    /*overflow-y: auto;*/
+    /*border-bottom: 1px solid #afafaf;*/
+    /*border-top: 1px solid #afafaf;*/
+/*}*/
+/*.logo {*/
+    /*background: #4f5858 url('logo.png') center center no-repeat;*/
+    /*background-size: 85.47579298831386px 100px;*/
+    /*width: 135px;*/
+    /*height: 135px;*/
+    /*-webkit-user-select: none;*/
+    /*-webkit-app-region: drag;*/
+    /*border-top-left-radius: 40px;*/
+/*}*/
+/*.add-to-drag {*/
+    /*width: 100%;*/
+    /*padding: 1em;*/
+    /*border: 2px dashed #3f3f3f;*/
+    /*text-align: center;*/
+/*}*/
+/*.header {*/
+    /*height: 135px;*/
+    /*background: #f8f8f8;*/
+    /*position: relative;*/
+    /*-webkit-user-select: none;*/
+    /*-webkit-app-region: drag;*/
+/*}*/
+/*.header-title,*/
+/*.section-title {*/
+    /*float: left;*/
+    /*font-size: 2.5rem;*/
+    /*margin-top: 0.4em;*/
+    /*margin-left: 1em;*/
+    /*color: #6f6f6f;*/
+    /*font-family: 'PT Sans', sans-serif;*/
+/*}*/
+/*.apk-install {*/
+    /*font-size: 1rem;*/
+    /*position: absolute;*/
+    /*top: 65px;*/
+    /*left: 40px;*/
+    /*color: #6f6f6f;*/
+    /*font-family: 'PT Sans', sans-serif;*/
+    /*-webkit-app-region: no-drag;*/
+/*}*/
+.margin-top-bottom {
+    margin-bottom: 5px;
+}
+/*.section-title {*/
+    /*float: initial;*/
+    /*font-size: 2rem;*/
+    /*display: block;*/
+/*}*/
+/*.side-sub-menu {*/
+    /*vertical-align: middle;*/
+/*}*/
+/*.menu-icon {*/
+    /*font-size: 2rem;*/
+    /*max-width: 48px;*/
+/*}*/
+/*.fixed-menu-icon {*/
+    /*font-size: 1.8rem;*/
+    /*max-width: 25px;*/
+    /*vertical-align: middle;*/
+/*}*/
+.chip-padding {
+    padding-top: 4px !important;
+}
+/*.icon-text {*/
+    /*height: 26px;*/
+    /*line-height: 1.8;*/
+    /*text-align: left;*/
+/*}*/
+/*.no-margin {*/
+    /*margin: 0;*/
+/*}*/
+/*.no-padding {*/
+    /*padding: 0;*/
+/*}*/
+/*.menu-item a {*/
+    /*color: white;*/
+    /*display: block;*/
+/*}*/
+.modal-overlay {
+    border-top-left-radius: 40px;
+    height: 100%;
+    top: 0;
+}
+/*.menu-item-beat {*/
+    /*top: 135px;*/
+    /*height: 92px;*/
+/*}*/
+/*.menu-item-repo {*/
+    /*bottom: 92px;*/
+/*}*/
+/*.menu-item-video {*/
+    /*bottom: 46px;*/
+/*}*/
+/*.menu-item-inner:hover {*/
+    /*cursor: pointer;*/
+    /*background: rgba(200, 200, 200, 0.4);*/
+    /*border-radius: 4px;*/
+/*}*/
+/*.menu-item-inner:hover:after,*/
+/*.menu-item-inner.active:after {*/
+    /*content: '';*/
+    /*display: block;*/
+    /*position: absolute;*/
+    /*right: 0;*/
+    /*top: calc(50% - 10px);*/
+    /*border-color: transparent;*/
+    /*border-right-color: #fff;*/
+    /*border-width: 10px;*/
+    /*border-style: solid;*/
+    /*pointer-events: none;*/
+    /*cursor: pointer;*/
+/*}*/
+/*.menu-item-inner {*/
+    /*text-align: center;*/
+    /*padding-top: 15px;*/
+    /*padding-bottom: 15px;*/
+/*}*/
+/*.menu-item-inner.side-sub-menu {*/
+    /*padding-top: 8px;*/
+    /*padding-bottom: 8px;*/
+/*}*/
+/*.filter {*/
+    /*width: 200px;*/
+/*}*/
+/*.filters {*/
+    /*position: absolute;*/
+    /*top: 60px;*/
+    /*left: 60px;*/
+    /*-webkit-app-region: no-drag;*/
+/*}*/
+/*.search {*/
+    /*position: absolute;*/
+    /*top: 60px;*/
+    /*right: -10px;*/
+    /*-webkit-app-region: no-drag;*/
+/*}*/
+/*.search-box {*/
+    /*width: 400px;*/
+/*}*/
+/*.search-button-margin {*/
+    /*margin-right: 2em;*/
+    /*margin-left: 1em;*/
+/*}*/
+/*.content-section {*/
+    /*border: 1px solid #dde1e2;*/
+    /*background: white;*/
+/*}*/
+/*.content-section-header {*/
+    /*border-bottom: 1px solid #dde1e2;*/
+    /*padding: 1em 2em;*/
+    /*font-size: 1.2em;*/
+    /*font-weight: bold;*/
+    /*text-transform: capitalize;*/
+    /*height: 60px;*/
+/*}*/
+/*.content-section-inner {*/
+    /*padding: 1em;*/
+/*}*/
+/*.content-padding {*/
+    /*padding: 2em;*/
+/*}*/
+/*#connection-status-message {*/
+    /*text-align: right;*/
+    /*white-space: nowrap;*/
+    /*float: right;*/
+    /*margin-right: 30px;*/
+    /*margin-top: -2px;*/
+/*}*/
+/*#connection-status {*/
+    /*width: 20px;*/
+    /*height: 20px;*/
+    /*border-radius: 10px;*/
+    /*position: absolute;*/
+    /*right: 200px;*/
+    /*top: 17px;*/
+    /*-webkit-app-region: no-drag;*/
+/*}*/
+/*::-webkit-scrollbar {*/
+    /*height: 16px;*/
+    /*width: 16px;*/
+    /*background: #e0e0e0;*/
+/*}*/
+/*::-webkit-scrollbar-corner {*/
+    /*background: #cfcfcf;*/
+/*}*/
+/*::-webkit-scrollbar-thumb {*/
+    /*background: #009688;*/
+/*}*/
+/*#connection-refresh,*/
+/*#connection-refresh-loading {*/
+    /*display: none;*/
+/*}*/
+/*#device-settings,*/
+/*#installed-apps,*/
+/*#close-app,*/
+/*#open-debugger,*/
+/*#musiclist {*/
+    /*position: absolute;*/
+    /*right: 50px;*/
+    /*top: 15px;*/
+    /*cursor: pointer;*/
+    /*-webkit-app-region: no-drag;*/
+    /*z-index: 99;*/
+    /*color: #4f4f4f;*/
+/*}*/
+.is-installed {
+    display: none;
+}
+/*#open-debugger {*/
+    /*right: 50px;*/
+/*}*/
+/*#device-settings {*/
+    /*right: 85px;*/
+/*}*/
+/*#musiclist {*/
+    /*right: 155px;*/
+/*}*/
+/*#installed-apps {*/
+    /*right: 120px;*/
+/*}*/
+/*#close-app {*/
+    /*right: 15px;*/
+/*}*/
+.package-height {
+    height: 40px;
+}
+/*.connection-status-connected {*/
+    /*background-color: #4caf50;*/
+/*}*/
+/*.connection-status-unauthorized {*/
+    /*background-color: #ff9800;*/
+/*}*/
+/*.connection-status-disconnected {*/
+    /*background-color: #f44336;*/
+/*}*/
+/*.connection-status-too-many {*/
+    /*background-color: #9c27b0;*/
+/*}*/
+.uninstall-apk {
+    display: none;
+}
+.link,
+.sort-link {
+    color: lightseagreen;
+    cursor: pointer;
+}
+.link-white {
+    color: lightcyan;
+    cursor: pointer;
+    text-decoration: underline;
+}
+/*.setup-image {*/
+    /*width: 100%;*/
+/*}*/
+
+#connection-ip-address {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    width: 135px;
+    color: white;
+    text-align: center;
+}
+/*#enable-wifi {*/
+    /*position: absolute;*/
+    /*bottom: 30px;*/
+    /*left: 15px;*/
+    /*display: none;*/
+/*}*/
+.help-link {
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+}
+.fixed-height {
+    height: 300px;
+}
+.status-bar,
+.status-bar-warning {
+    display: none;
+    background-color: #4caf50;
+    position: fixed;
+    z-index: 10;
+    bottom: 0px;
+    color: white;
+    width: calc(100% - 135px);
+    padding: 5px;
+    padding-left: 10px;
+}
+.status-bar-warning {
+    background-color: #ff9800;
+}
+/*.add-repo,*/
+/*.sync-songs,*/
+/*.sync-songs-now,*/
+/*.update-available {*/
+    /*position: absolute;*/
+    /*display: none;*/
+    /*top: 85px;*/
+    /*right: 15px;*/
+    /*-webkit-app-region: no-drag;*/
+/*}*/
+/*.update-available {*/
+    /*padding: 5px;*/
+    /*line-height: 16px;*/
+    /*top: 50px;*/
+    /*right: 190px;*/
+    /*height: 24px;*/
+    /*color: white;*/
+/*}*/
+/*.sync-songs-now {*/
+    /*top: 45px;*/
+/*}*/
+/*.update-repo,*/
+/*.delete-repo,*/
+/*.restore-backup {*/
+    /*padding-top: 4px;*/
+/*}*/
+/*.edit-repo {*/
+    /*font-size: 14px;*/
+/*}*/
+.cursor {
+    cursor: pointer;
+}
+.modal.bottom-sheet {
+    max-height: initial;
+    height: 260px;
+}
+#dataBackupsContainer {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.collection {
+    border-left: 0px solid black;
+}
+/*.loader-initial {*/
+    /*border: 16px solid #f3f3f3; !* Light grey *!*/
+    /*border-top: 16px solid #0094ca; !* Blue *!*/
+    /*border-radius: 50%;*/
+    /*width: 120px;*/
+    /*height: 120px;*/
+    /*animation: spin 2s linear infinite;*/
+    /*display: inline-block;*/
+    /*margin-bottom: 20px;*/
+/*}*/
+.app-meta {
+    text-align: left;
+}
+.app-image-container {
+    position: relative;
+    padding-bottom: 15px;
+}
+.app-image {
+    min-width: 128px;
+    min-height: 128px;
+    max-width: 100%;
+}
+/*.text-center {*/
+    /*text-align: center;*/
+/*}*/
+.install-apk {
+    margin-top: -8px;
+}
+.collapsible-header {
+    display: block;
+}
+/*.spinner,*/
+/*.spinner-drag {*/
+    /*position: fixed;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
+    /*z-index: 10;*/
+    /*display: none;*/
+/*}*/
+/*.spinner-background {*/
+    /*background-color: rgba(255, 255, 255, 0.5);*/
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    /*height: 100%;*/
+    /*width: 100%;*/
+    /*border-top-left-radius: 40px;*/
+    /*z-index: 9;*/
+    /*display: none;*/
+/*}*/
+/*.well {*/
+    /*min-height: 20px;*/
+    /*padding: 19px;*/
+    /*margin-bottom: 20px;*/
+    /*background-color: #f5f5f5;*/
+    /*border: 1px solid #e3e3e3;*/
+    /*border-radius: 4px;*/
+    /*box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);*/
+/*}*/
+/*.well-lg {*/
+    /*padding: 24px;*/
+    /*border-radius: 6px;*/
+/*}*/
+
+/*@keyframes spin {*/
+    /*0% {*/
+        /*transform: rotate(0deg);*/
+    /*}*/
+    /*100% {*/
+        /*transform: rotate(360deg);*/
+    /*}*/
+/*}*/
+
+/*.gu-mirror {*/
+    /*position: fixed !important;*/
+    /*margin: 0 !important;*/
+    /*z-index: 9999 !important;*/
+    /*opacity: 0.8;*/
+    /*-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';*/
+    /*filter: alpha(opacity=80);*/
+/*}*/
+/*.gu-hide {*/
+    /*display: none !important;*/
+/*}*/
+/*.gu-unselectable {*/
+    /*-webkit-user-select: none !important;*/
+    /*-moz-user-select: none !important;*/
+    /*-ms-user-select: none !important;*/
+    /*user-select: none !important;*/
+/*}*/
+/*.gu-transit {*/
+    /*opacity: 0.2;*/
+    /*-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=20)';*/
+    /*filter: alpha(opacity=20);*/
+/*}*/
+
+.collection .collection-item.avatar {
+    min-height: 64px;
+}
