@@ -1,22 +1,25 @@
-<div class="col s6 l3">
-  <div class="card sticky-action fixed-height"  [ngClass]="appService.getThemeCssClass('card')">
-    <div class="card-image waves-effect waves-block waves-light">
-      <div class="activator image image-background" [ngStyle]="{'background-image':'url('+app.icon+')'}"></div>
-    </div>
-    <div class="card-content">
-      <i class="material-icons right green-text">done</i>
-      <span class="card-title card-title-one activator truncate" [ngClass]="appService.getThemeCssClass('text')">{{app.name}}</span>
-    </div>
-    <div class="card-reveal" [ngClass]="appService.getThemeCssClass('card')">
-      <span class="card-title card-title-two truncate" [ngClass]="appService.getThemeCssClass('text')">{{app.name}}</span>
-      <p class="description">
-        Here is some more information about this product that is only revealed once clicked on.
-      </p>
-    </div>
-    <div class="card-action right-align">
-      <div class="cfooter no-outline" routerLink="/app/{{app.packageName}}">MORE</div>
-      <!--<a href="#" class="waves-effect waves-light btn install-apk">Install</a>-->
-    </div>
+
+<div class="card sticky-action fixed-height"  [ngClass]="appService.getThemeCssClass('card')">
+  <div class="card-image waves-effect waves-block waves-light">
+    <div class="activator image image-background" [ngStyle]="{'background-image':'url('+app.icon+')'}"></div>
+  </div>
+  <div class="card-content">
+    <i class="material-icons left green-text">done</i>
+    <span class="card-title card-title-one activator truncate" [ngClass]="appService.getThemeCssClass('text')">
+    <i class="material-icons right white-text cursor" *ngIf="!isAppScreen">more_vert</i>
+      {{app.name}}
+
+    </span>
+  </div>
+  <div class="card-reveal" *ngIf="!isAppScreen" [ngClass]="appService.getThemeCssClass('card')">
+    <span class="card-title card-title-two truncate" [ngClass]="appService.getThemeCssClass('text')">{{app.name}}</span>
+    <p class="description">
+      Here is some more information about this product that is only revealed once clicked on.
+    </p>
+  </div>
+  <div class="card-action right-align" *ngIf="!isAppScreen">
+    <div class="cfooter no-outline" routerLink="/app/{{index}}/{{app.packageName}}">MORE</div>
+    <!--<a href="#" class="waves-effect waves-light btn install-apk">Install</a>-->
   </div>
 </div>
 <!--<div class="card">-->

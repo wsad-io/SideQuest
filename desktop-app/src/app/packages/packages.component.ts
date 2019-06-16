@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdbClientService } from '../adb-client.service';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-packages',
@@ -8,11 +9,11 @@ import { AdbClientService } from '../adb-client.service';
 })
 export class PackagesComponent implements OnInit {
 
-  constructor(public adbService:AdbClientService) {
+  constructor(public adbService:AdbClientService, appService:AppService) {
+    appService.webService.isWebviewOpen = false;
   }
 
   ngOnInit() {
     this.adbService.getPackages();
   }
-
 }

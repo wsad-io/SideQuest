@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
 import { ContentComponent } from './content/content.component';
@@ -27,6 +27,8 @@ import { SanitizeHtmlPipe } from './sanitize-html.pipe';
 import { SideQuestAppsComponent } from './side-quest-apps/side-quest-apps.component';
 import { SideQuestCardComponent } from './side-quest-card/side-quest-card.component';
 import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.component';
+import { SideQuestAppVersionComponent } from './side-quest-app-version/side-quest-app-version.component';
+import { WebviewComponent } from './webview/webview.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,9 @@ import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.
     SanitizeHtmlPipe,
     SideQuestAppsComponent,
     SideQuestCardComponent,
-    SideQuestDetailComponent
+    SideQuestDetailComponent,
+    SideQuestAppVersionComponent,
+    WebviewComponent
   ],
   imports: [
     BrowserModule,
@@ -60,6 +64,7 @@ import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.
     BrowserAnimationsModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { AdbClientService, ConnectionStatus } from '../adb-client.service';
 import { AppService, ThemeMode } from '../app.service';
 
@@ -8,14 +8,15 @@ import { AppService, ThemeMode } from '../app.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
+  @ViewChild('header',{static:false}) header;
   theme = ThemeMode;
   isMaximized:boolean;
   constructor(public adbService:AdbClientService, public appService:AppService) {
 
   }
-
-  ngOnInit() {
-
+  ngOnInit(){}
+  ngAfterViewInit() {
+    this.appService.setTitleEle(this.header.nativeElement)
   }
   getConnectionCssClass(){
     return {

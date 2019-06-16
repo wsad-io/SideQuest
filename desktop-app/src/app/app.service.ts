@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { RepoItem } from './repo-item/repo-item.component';
 import { RepoService } from './repo.service';
+import { WebviewService } from './webview.service';
 export enum ThemeMode {
   LIGHT,DARK
 }
@@ -25,6 +26,8 @@ export class AppService {
   progress:any;
   Readable:any;
   opn:any;
+  titleEle:HTMLElement;
+  webService:WebviewService;
   currentTheme:ThemeMode = ThemeMode.DARK;
   constructor() {
     this.path = (<any>window).require('path');
@@ -72,6 +75,17 @@ const { spawn } = require('child_process');
       //  return this.fs.existsSync(path);
     } catch (err) {
       return false;
+    }
+  }
+  setWebviewService(webService:WebviewService){
+    this.webService = webService
+  }
+  setTitleEle(ele:HTMLElement){
+    this.titleEle = ele;
+  }
+  setTitle(title:string){
+    if(this.titleEle){
+      this.titleEle.innerText = title;
     }
   }
   isTheme(theme:ThemeMode){

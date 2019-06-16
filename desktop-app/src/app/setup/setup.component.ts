@@ -12,9 +12,12 @@ export class SetupComponent implements OnInit {
   isInstalledLauncher:boolean;
   isInstallingExpanse:boolean;
   isInstalledExpanse:boolean;
-  constructor(public appService:AppService, private adbService:AdbClientService) { }
+  constructor(public appService:AppService, private adbService:AdbClientService) {
+    appService.webService.isWebviewOpen = false;
+  }
 
   ngOnInit() {
+    this.appService.setTitle("Setup for Sideloading");
   }
 
   isExpanseInstalled(){

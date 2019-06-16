@@ -12,24 +12,34 @@ export class RepoService {
   constructor(private appService:AppService,private spinnerService:LoadingSpinnerService, private appRef:ApplicationRef) {
     this.getRepos();
   }
+  setCurrent(index:number){
+    if(this.repos.length&&this.repos[index]){
+      this.currentRepo = this.repos[index];
+      return this.currentRepo;
+    }else{
+      return {name:'',body:{apps:[]}};
+    }
+  }
   getRepos(){
     this.appService.fs.readFile(this.appService.appData + '/sources.txt', 'utf8', (err, data) => {
       if (!err) {
         this.repos.length = 0;
         this.spinnerService.showLoader();
-        Promise.all(data.split('\n').map(url => this.addRepo(url)))
+        Promise.all(data.split('\n').map((url,i) => this.addRepo(url,i)))
           .then(() => this.repos.sort((a, b) => a.order - b.order))
           //.then(() => console.log(this.repos))
           .then(() => this.appRef.tick());
       }
     });
   }
-  addRepo(url:string){
+  addRepo(url:string,i?:number){
     this.spinnerService.setMessage(`Loading ${url}`);
     url = url.trim();
     if (url[url.length - 1] !== '/') {
       url += '/';
     }
+
+    let index = i||this.repos.length;
     return new Promise(async (resolve, reject) => {
       if (~this.repos.map(d => d.url).indexOf(url)) {
         reject('Repo already added!');
@@ -53,7 +63,6 @@ export class RepoService {
       });
     }).then((repo:RepoBody) => {
 
-      let index = this.repos.length;
       this.repos.push({
         name: repo.repo.name,
         icon: repo.repo.icon,

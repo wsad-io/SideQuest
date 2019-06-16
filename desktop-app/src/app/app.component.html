@@ -6,3 +6,4 @@
 
 <app-loading-spinner #spinner></app-loading-spinner>
 <app-status-bar #status></app-status-bar>
+<webview id="beatView" #webview src="https://bsaber.com/" [ngStyle]="{'left':webService.isWebviewOpen?'135px':'-100%'}" class="bsaber-webview" preload="file:///./preload.js"></webview>

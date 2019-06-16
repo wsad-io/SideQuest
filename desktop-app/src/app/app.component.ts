@@ -1,8 +1,9 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ViewChild } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
-
+import { WebviewService } from './webview.service';
+declare let __dirname;
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -11,11 +12,12 @@ import { StatusBarService } from './status-bar.service';
 export class AppComponent {
   @ViewChild('spinner',{static:false}) spinner;
   @ViewChild('status',{static:false}) status;
-  constructor(private spinnerService:LoadingSpinnerService,private statusService:StatusBarService){
+  @ViewChild('webview',{static:false}) webview;
+  constructor(private spinnerService:LoadingSpinnerService,private statusService:StatusBarService,private appService:AppService,public webService:WebviewService){
   }
   ngAfterViewInit(){
-
     this.spinnerService.setSpinner(this.spinner);
     this.statusService.setStatus(this.status);
+    this.webService.setWebView(this.webview.nativeElement);
   }
 }

@@ -10,6 +10,8 @@ import { AppService } from '../app.service';
 })
 export class SideQuestCardComponent implements OnInit {
   @Input('app') app:JSONApp;
+  @Input('index') index:number;
+  @Input('is-app-screen') isAppScreen:boolean;
   constructor(public repoService:RepoService,public appService:AppService) {
 
   }

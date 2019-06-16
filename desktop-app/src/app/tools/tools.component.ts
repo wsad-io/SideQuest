@@ -45,9 +45,13 @@ export class ToolsComponent implements OnInit {
   GPU = GPU;
   constructor(public appService:AppService, public adbService:AdbClientService,
               private spinnerService:LoadingSpinnerService,
-              private statusService:StatusBarService) { }
+              private statusService:StatusBarService) {
+    appService.webService.isWebviewOpen = false;
+  }
 
-  ngOnInit() {  }
+  ngOnInit() {
+    this.appService.setTitle("Device Settings & Tools");
+  }
   setFFR(ffr:FFR){
     let value:number = 0;
     switch(ffr){

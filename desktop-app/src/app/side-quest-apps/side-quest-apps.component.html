@@ -1,3 +1,5 @@
 <div class="row">
-    <app-side-quest-card *ngFor="let app of getApps()" [app]="app"></app-side-quest-card>
+  <div class="col s6 l3"  *ngFor="let app of getApps()" >
+    <app-side-quest-card [app]="app" [index]="currentRepo"></app-side-quest-card>
+  </div>
 </div>

@@ -25,3 +25,11 @@
   border-top-left-radius: 40px;
   z-index: 9;
 }
+#beatView{
+  width: calc(100% - 135px);
+  height: calc(100% - 160px);
+  top: 160px;
+  left: 135px;
+  position: fixed;
+  z-index: 8;
+}
