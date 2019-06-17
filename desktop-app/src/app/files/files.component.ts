@@ -33,6 +33,7 @@ export class FilesComponent implements OnInit {
               public appService:AppService,
               public statusService:StatusBarService) {
     this.appService.resetTop();
+    appService.webService.isWebviewOpen = false;
   }
   ngOnAfterViewInit(){
     M.FloatingActionButton.init(this.fixedAction.nativeElement, {});
