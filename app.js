@@ -4,6 +4,7 @@ const fs = require('fs');
 let mainWindow, open_url, is_loaded;
 
 function createWindow() {
+    console.log('creat window');
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -80,19 +81,10 @@ function setupMenu() {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-const gotTheLock = app.requestSingleInstanceLock
-    ? app.requestSingleInstanceLock()
-    : true;
+const gotTheLock = app.requestSingleInstanceLock ? app.requestSingleInstanceLock() : true;
 let parseOpenUrl = argv => {
     if (argv[1] && argv[1].length && argv[1].substr(0, 12) === 'sidequest://') {
-        fs.writeFileSync(
-            path.join(
-                app.getPath('appData'),
-                'SideQuest',
-                'test_output_loaded.txt'
-            ),
-            argv[1].toString()
-        );
+        fs.writeFileSync(path.join(app.getPath('appData'), 'SideQuest', 'test_output_loaded.txt'), argv[1].toString());
         mainWindow.webContents.send('open-url', argv[1].toString());
     }
 };
@@ -120,10 +112,7 @@ if (!gotTheLock) {
     app.setAsDefaultProtocolClient('sidequest');
     app.on('open-url', function(event, url) {
         event.preventDefault();
-        fs.writeFileSync(
-            path.join(app.getPath('appData'), 'SideQuest', 'test_output.txt'),
-            url
-        );
+        fs.writeFileSync(path.join(app.getPath('appData'), 'SideQuest', 'test_output.txt'), url);
         if (is_loaded) {
             mainWindow.webContents.send('open-url', url);
         } else {

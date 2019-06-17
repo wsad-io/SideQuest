@@ -7,11 +7,14 @@ import { AppService } from './app.service';
 export class WebviewService {
   webView:any;
   isWebviewOpen:boolean;
+  currentAddress:string = 'https://bsaber.com/';
+  isWebviewLoading:boolean = false;
   constructor(private appService:AppService) {
     appService.setWebviewService(this);
   }
   setWebView(webView){
     this.webView = webView;
+    console.log(this.webView);
     this.setupWebview();
   }
   setupWebview() {
@@ -100,8 +103,8 @@ export class WebviewService {
     // });
 
     this.webView.addEventListener('did-start-loading', e => {
-      //webaddress.value = this.beatView.getURL();
-      //this.browser_loading.style.display = 'inline-block';
+      this.currentAddress = this.webView.getURL();
+      this.isWebviewLoading = true;
       this.webView.insertCSS(customCss);
     });
     this.webView.addEventListener('did-navigate-in-page', () => {
@@ -123,28 +126,27 @@ export class WebviewService {
       }, 8500);
     });
     this.webView.addEventListener('did-stop-loading', async e => {
-      //webaddress.value = this.beatView.getURL();
-      //this.browser_loading.style.display = 'none';
+      this.currentAddress = this.webView.getURL();
+      this.isWebviewLoading = false;
       this.webView.insertCSS(customCss);
       //if (this.bsaber) {
         this.webView.executeJavaScript(customJS);
        // this.bsaber.getCurrentDeviceSongs();
       //}
     });
-    // send_button.addEventListener('click', () => {
-    //   fix_address();
-    //   this.beatView.loadURL(webaddress.value);
-    // });
-    // back_button.addEventListener('click', () => {
-    //   if (this.beatView.canGoBack()) {
-    //     this.beatView.goBack();
-    //   }
-    // });
-    // forward_button.addEventListener('click', () => {
-    //   if (this.beatView.canGoForward()) {
-    //     this.beatView.goForward();
-    //   }
-    // });
     //this.webView.openDevTools();
+  }
+  back(){
+      if (this.webView.canGoBack()) {
+        this.webView.goBack();
+      }
+  }
+  forward(){
+    if (this.webView.canGoForward()) {
+      this.webView.goForward();
+    }
+  }
+  send(){
+    this.webView.loadURL(this.currentAddress);
   }
 }

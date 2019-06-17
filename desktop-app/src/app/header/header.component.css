@@ -27,12 +27,12 @@
 }
 #browser-bar {
   position: absolute;
-  top: 65px;
-  left: 30px;
-  width: calc(100% - 40px);
+  top: 90px;
+  left: 320px;
+  width: calc(100% - 340px);
   -webkit-app-region: no-drag;
-  display: none;
 }
+
 .topper{
   background: #202225;
   height: 35px;

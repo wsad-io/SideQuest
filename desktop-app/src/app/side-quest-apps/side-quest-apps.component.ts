@@ -17,6 +17,8 @@ export class SideQuestAppsComponent implements OnInit {
   currentRepo:number = 0;
 
   constructor(private route: ActivatedRoute,private repoService:RepoService,private appService:AppService,router:Router) {
+    this.appService.resetTop();
+    this.appService.showSearch = true;
     this.sub = router.events.subscribe((val) => {
       if(val instanceof NavigationEnd){
         appService.webService.isWebviewOpen = false;

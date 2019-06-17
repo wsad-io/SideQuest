@@ -3,7 +3,7 @@
     <div *ngIf="isLoading" class="loader-initial"></div>
     <h5 *ngIf="!isLoading" >Drop APK/OBB to install!</h5>
     <br />
-    <span class="spinner-loading-message">{{loadingMessage}}</span>
+    <span class="spinner-loading-message" [innerHTML]="loadingMessage"></span>
   </div>
 </div>
 <div *ngIf="isActive" class="spinner-background"></div>

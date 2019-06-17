@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AdbClientService, ConnectionStatus } from '../adb-client.service';
 import { AppService, ThemeMode } from '../app.service';
+import { WebviewService } from '../webview.service';
 
 @Component({
   selector: 'app-header',
@@ -11,7 +12,7 @@ export class HeaderComponent implements OnInit {
   @ViewChild('header',{static:false}) header;
   theme = ThemeMode;
   isMaximized:boolean;
-  constructor(public adbService:AdbClientService, public appService:AppService) {
+  constructor(public adbService:AdbClientService, public appService:AppService, public webService:WebviewService) {
 
   }
   ngOnInit(){}

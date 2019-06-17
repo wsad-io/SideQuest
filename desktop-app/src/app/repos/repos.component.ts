@@ -11,6 +11,8 @@ import { AppService } from '../app.service';
 export class ReposComponent implements OnInit {
   constructor(public repoService:RepoService,private appService:AppService) {
     appService.webService.isWebviewOpen = false;
+    this.appService.resetTop();
+    this.appService.showRepo = true;
   }
 
   ngOnInit() {

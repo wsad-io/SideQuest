@@ -46,6 +46,7 @@ export class ToolsComponent implements OnInit {
   constructor(public appService:AppService, public adbService:AdbClientService,
               private spinnerService:LoadingSpinnerService,
               private statusService:StatusBarService) {
+    this.appService.resetTop();
     appService.webService.isWebviewOpen = false;
   }
 

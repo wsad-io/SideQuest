@@ -11,6 +11,7 @@ export class PackagesComponent implements OnInit {
 
   constructor(public adbService:AdbClientService, appService:AppService) {
     appService.webService.isWebviewOpen = false;
+    appService.resetTop();
   }
 
   ngOnInit() {

@@ -14,6 +14,7 @@ export class SetupComponent implements OnInit {
   isInstalledExpanse:boolean;
   constructor(public appService:AppService, private adbService:AdbClientService) {
     appService.webService.isWebviewOpen = false;
+    this.appService.resetTop();
   }
 
   ngOnInit() {

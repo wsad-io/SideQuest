@@ -1,0 +1,66 @@
+<div *ngIf="isConnected()">
+  <nav class="pink lighten-2">
+    <div class="nav-wrapper breadcrumb-wrapper container">
+      <div class="col s12">
+        <a *ngFor="let breadcrumb of breadcrumbs" href="javascript:void(0)"
+           class="breadcrumb" (click)="open('/'+breadcrumb.path)">{{breadcrumb.name}}</a>
+      </div>
+    </div>
+  </nav>
+</div>
+<div class="container">
+  <div *ngIf="!isConnected()">
+    <h4 [ngClass]="appService.getThemeCssClass('text')">No device connected...</h4>
+
+  </div>
+  <div *ngIf="isConnected()">
+    <div *ngFor="let file of files" class="vertical-align cursor" [ngClass]="appService.getThemeCssClass('text')" (click)="openFile(file)">
+      <div class="right"><span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}</div>
+      <i class="material-icons medium vertical-align" [ngClass]="appService.getThemeCssClass('text')">{{file.icon}}</i>{{file.name}}
+    </div>
+  </div>
+  <br><br>
+</div>
+<div class="fixed-action-btn" #fixedAction *ngIf="isConnected()">
+  <a class="btn-floating btn-large pink lightn-2" mz-tooltip position="left" tooltip="Add something">
+    <i class="large material-icons">add</i>
+  </a>
+  <ul>
+    <li mz-tooltip position="left" tooltip="Copy file to this folder" (click)="uploadFiles()"><a class="btn-floating purple"><i class="material-icons">insert_drive_file</i></a></li>
+    <li mz-tooltip position="left" tooltip="Make folder in this folder" (click)="mkDirModal.openModal()"><a class="btn-floating blue"><i class="material-icons">folder</i></a></li>
+  </ul>
+</div>
+
+<mz-modal #mkDirModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Make Folder</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Please enter a folder name.
+    <div class="input-field ">
+      <input id="devicePaste" type="text" [(ngModel)]="folderName"/>
+      <label for="devicePaste">Folder Name</label>
+    </div>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="makeFolder()">Make Folder</button>
+  </mz-modal-footer>
+</mz-modal>
+<mz-modal #filesModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Save this file to your PC</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Pick a location on your PC to save this file:<br><br>
+    <button mz-button class="pink-button" (click)="pickLocation()">Select Location</button><br><br>
+    Current Location: {{adbService.savePath}}
+
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="saveFile()">Save To PC</button>
+  </mz-modal-footer>
+</mz-modal>
+

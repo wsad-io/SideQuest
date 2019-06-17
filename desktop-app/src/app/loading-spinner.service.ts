@@ -6,9 +6,7 @@ import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.compo
 })
 export class LoadingSpinnerService {
   spinner:LoadingSpinnerComponent;
-  constructor() {
-
-  }
+  constructor() {}
   setSpinner(spinner:LoadingSpinnerComponent){
     this.spinner = spinner;
   }

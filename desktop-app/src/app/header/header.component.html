@@ -2,7 +2,7 @@
   <div class="topper"></div>
   <div class="logo"></div>
   <div class="header-title" #header>SideQuest</div>
-  <div class="apk-install">Drag and drop your APK/OBB files <br>over this window to install!</div>
+  <div class="apk-install" *ngIf="!appService.showBrowserBar">Drag and drop your APK/OBB files <br>over this window to install!</div>
   <div class="title-menu-container">
     <i routerLink="custom-levels" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Beast Saber Custom Levels">
       queue_music
@@ -62,82 +62,84 @@
     tooltip="Device Connection Status">
     <div id="connection-status-message">{{adbService.deviceStatusMessage}}</div>
   </div>
-  <!--<a class="waves-effect waves-light btn add-repo modal-trigger" href="#modal1">-->
-    <!--Add Repo-->
-  <!--</a>-->
-  <!--<a class="waves-effect waves-light btn update-available link" data-url="https://github.com/the-expanse/SideQuest/releases">-->
-    <!--Update Available-->
-  <!--</a>-->
-  <!--<a class="waves-effect waves-light btn sync-songs-now">My Downloads</a>-->
-  <!--<div class="sync-songs">-->
-    <!--<span class="beat-saber-version"></span>&nbsp;&nbsp;-->
-    <!--<a-->
-      <!--class="waves-effect waves-light btn refresh-songs-one tooltipped"-->
-      <!--data-position="bottom"-->
-      <!--data-tooltip="Refresh the songs in this list.">-->
-      <!--Refresh Songs-->
-    <!--</a>-->
-    <!--&nbsp;&nbsp;-->
-    <!--<a-->
-      <!--class="waves-effect waves-light btn open-songs-main-one tooltipped"-->
-      <!--data-position="bottom"-->
-      <!--data-tooltip="Open your custom levels folder.">-->
-      <!--Open Custom Levels Folder-->
-    <!--</a>-->
-    <!--&nbsp;&nbsp;-->
-    <!--<a-->
-      <!--class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped"-->
-      <!--data-position="bottom"-->
-      <!--data-tooltip="Manage your APK and Data backups."-->
-      <!--href="#modal5">-->
-      <!--Backups-->
-    <!--</a>-->
-    <!--&nbsp;&nbsp;-->
-    <!--<a-->
-      <!--class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped"-->
-      <!--data-position="bottom"-->
-      <!--data-tooltip="Build a new beat saber APK and install these songs."-->
-      <!--href="#modal4">-->
-      <!--Sync Custom Levels-->
-    <!--</a>-->
-  <!--</div>-->
-  <!--<div id="browser-bar">-->
-    <!--<a class="btn-floating waves-effect waves-light browser-button browser-back-button">-->
-      <!--<i class="material-icons">keyboard_arrow_left</i>-->
-    <!--</a>-->
-    <!--<a class="btn-floating waves-effect waves-light browser-button browser-forward-button">-->
-      <!--<i class="material-icons">keyboard_arrow_right</i>-->
-    <!--</a>-->
-    <!--<div class="input-field inline browser-input">-->
-      <!--<input id="web_address" type="text" placeholder="Address" />-->
-      <!--<label class="active" for="web_address">-->
-        <!--Address-->
-      <!--</label>-->
-    <!--</div>-->
-    <!--<a class="btn-floating waves-effect waves-light browser-button browser-send-button">-->
-      <!--<i class="material-icons">send</i>-->
-    <!--</a>-->
-    <!--<svg-->
-      <!--class="browser-loading uil-ring-alt"-->
-      <!--width="40px"-->
-      <!--height="40px"-->
-      <!--xmlns="http://www.w3.org/2000/svg"-->
-      <!--viewBox="0 0 100 100"-->
-      <!--preserveAspectRatio="xMidYMid">-->
-      <!--<rect x="0" y="0" width="100" height="100" fill="none" class="bk" />-->
-      <!--<circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round" />-->
-      <!--<circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round">-->
-        <!--<animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502" />-->
-        <!--<animate-->
-          <!--attributeName="stroke-dasharray"-->
-          <!--dur="1s"-->
-          <!--repeatCount="indefinite"-->
-          <!--values="150.6 100.4;1 250;150.6 100.4"-->
-        <!--/>-->
-      <!--</circle>-->
-    <!--</svg>-->
-  <!--</div>-->
-  <div id="searchFilterContainer">
+  <div *ngIf="appService.showRepo" class="waves-effect waves-light btn add-repo pink-button">
+    Add Repo
+  </div>
+  <div *ngIf="appService.updateAvailable" class="waves-effect waves-light btn update-available link pink-button"
+       data-url="https://github.com/the-expanse/SideQuest/releases">
+    Update Available
+  </div>
+  <a *ngIf="appService.showBrowserBar" class="waves-effect waves-light btn pink-button sync-songs-now">
+    <i class="material-icons left">queue_music</i>My Downloads</a>
+  <div class="sync-songs" *ngIf="appService.showCustomActions">
+    <span class="beat-saber-version"></span>&nbsp;&nbsp;
+    <a
+      class="waves-effect waves-light btn refresh-songs-one tooltipped"
+      data-position="bottom"
+      data-tooltip="Refresh the songs in this list.">
+      Refresh Songs
+    </a>
+    &nbsp;&nbsp;
+    <a
+      class="waves-effect waves-light btn open-songs-main-one tooltipped"
+      data-position="bottom"
+      data-tooltip="Open your custom levels folder.">
+      Open Custom Levels Folder
+    </a>
+    &nbsp;&nbsp;
+    <a
+      class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped"
+      data-position="bottom"
+      data-tooltip="Manage your APK and Data backups."
+      href="#modal5">
+      Backups
+    </a>
+    &nbsp;&nbsp;
+    <a
+      class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped"
+      data-position="bottom"
+      data-tooltip="Build a new beat saber APK and install these songs."
+      href="#modal4">
+      Sync Custom Levels
+    </a>
+  </div>
+  <div id="browser-bar" *ngIf="appService.showBrowserBar">
+    <a class="btn-floating waves-effect waves-light browser-button browser-back-button pink-button" (click)="webService.back()">
+      <i class="material-icons">keyboard_arrow_left</i>
+    </a>
+    <a class="btn-floating waves-effect waves-light browser-button browser-forward-button pink-button" (click)="webService.forward()">
+      <i class="material-icons">keyboard_arrow_right</i>
+    </a>
+    <div class="input-field inline browser-input">
+      <input id="web_address" class="input-dark-theme" type="text" [(ngModel)]="webService.currentAddress" placeholder="Address" />
+      <label class="active label-dark-theme" for="web_address">
+        Address
+      </label>
+    </div>
+    <a class="btn-floating waves-effect waves-light browser-button browser-send-button pink-button" (click)="webService.send()">
+      <i class="material-icons">send</i>
+    </a>
+    <svg
+      class="browser-loading uil-ring-alt"
+      width="40px"
+      height="40px"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="xMidYMid">
+      <rect x="0" y="0" width="100" height="100" fill="none" class="bk" />
+      <circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round" />
+      <circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round">
+        <animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502" />
+        <animate
+          attributeName="stroke-dasharray"
+          dur="1s"
+          repeatCount="indefinite"
+          values="150.6 100.4;1 250;150.6 100.4"
+        />
+      </circle>
+    </svg>
+  </div>
+  <div id="searchFilterContainer" *ngIf="appService.showSearch">
     <div class="search">
       <div class="input-field inline search-box">
         <input id="searchBox" class="input-dark-theme" type="text" />
@@ -146,6 +148,7 @@
         </label>
       </div>
       <a class="waves-effect waves-dark btn search-button-margin white black-text">search</a>
+      <a class="waves-effect waves-dark btn search-button-margin white black-text">Pick APK/OBB</a>
     </div>
     <div class="filters" style="display: none">
       <div class="input-field inline filter ">

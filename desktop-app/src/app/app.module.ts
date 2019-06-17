@@ -5,8 +5,6 @@ import { SideMenuComponent } from './side-menu/side-menu.component';
 import { ContentComponent } from './content/content.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-
-
 import { MzButtonModule, MzModalModule, MzTooltipModule } from 'ngx-materialize';
 import { DragulaModule } from 'ng2-dragula';
 import { HeaderComponent } from './header/header.component';
@@ -29,42 +27,46 @@ import { SideQuestCardComponent } from './side-quest-card/side-quest-card.compon
 import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.component';
 import { SideQuestAppVersionComponent } from './side-quest-app-version/side-quest-app-version.component';
 import { WebviewComponent } from './webview/webview.component';
+import { WebviewDirective } from './webview.directive';
+import { FilesComponent } from './files/files.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    SideMenuComponent,
-    ContentComponent,
-    HeaderComponent,
-    StatusBarComponent,
-    LoadingSpinnerComponent,
-    SetupComponent,
-    LoadingSpinnerSmallComponent,
-    ReposComponent,
-    RepoItemComponent,
-    PackagesComponent,
-    PackageItemComponent,
-    ToolsComponent,
-    LinkComponent,
-    SanitizeHtmlPipe,
-    SideQuestAppsComponent,
-    SideQuestCardComponent,
-    SideQuestDetailComponent,
-    SideQuestAppVersionComponent,
-    WebviewComponent
-  ],
-  imports: [
-    BrowserModule,
-    DragulaModule.forRoot(),
-    FormsModule,
-    RouterModule.forRoot(AppRoutes),
-    MzTooltipModule,
-    MzModalModule,
-    MzButtonModule,
-    BrowserAnimationsModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+    declarations: [
+        AppComponent,
+        SideMenuComponent,
+        ContentComponent,
+        HeaderComponent,
+        StatusBarComponent,
+        LoadingSpinnerComponent,
+        SetupComponent,
+        LoadingSpinnerSmallComponent,
+        ReposComponent,
+        RepoItemComponent,
+        PackagesComponent,
+        PackageItemComponent,
+        ToolsComponent,
+        LinkComponent,
+        SanitizeHtmlPipe,
+        SideQuestAppsComponent,
+        SideQuestCardComponent,
+        SideQuestDetailComponent,
+        SideQuestAppVersionComponent,
+        WebviewComponent,
+        WebviewDirective,
+        FilesComponent,
+    ],
+    imports: [
+        BrowserModule,
+        DragulaModule.forRoot(),
+        FormsModule,
+        RouterModule.forRoot(AppRoutes),
+        MzTooltipModule,
+        MzModalModule,
+        MzButtonModule,
+        BrowserAnimationsModule,
+    ],
+    providers: [],
+    bootstrap: [AppComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule { }
+export class AppModule {}
