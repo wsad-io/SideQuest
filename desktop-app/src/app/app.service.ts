@@ -4,6 +4,7 @@ import { RepoItem } from './repo-item/repo-item.component';
 import { RepoService } from './repo.service';
 import { WebviewService } from './webview.service';
 import { BsaberService } from './bsaber.service';
+import { FilesComponent } from './files/files.component';
 export enum ThemeMode {
     LIGHT,
     DARK,
@@ -27,6 +28,8 @@ export class AppService {
     showCustomActions: boolean;
     updateAvailable: boolean;
     showRepo: boolean;
+    isFilesOpen: boolean;
+    filesComponent: FilesComponent;
 
     appData: string;
     fs: any;
@@ -41,6 +44,7 @@ export class AppService {
     Readable: any;
     opn: any;
     spawn: any;
+    md5: any;
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: ThemeMode = ThemeMode.DARK;
@@ -54,9 +58,10 @@ export class AppService {
         this.os = (<any>window).require('os');
         this.Readable = (<any>window).require('stream').Readable;
         this.opn = (<any>window).require('opn');
+        this.md5 = (<any>window).require('md5');
         this.spawn = (<any>window).require('child_process').spawn;
         /*
-    const opn = require('opn');
+const opn = require('opn');
 const remote = require('electron').remote;
 const ipcRenderer = require('electron').ipcRenderer;
 const eApp = require('electron').remote.app;
@@ -76,7 +81,7 @@ const Readable = require('stream').Readable;
 const appData = path.join(eApp.getPath('appData'),'SideQuest');
 const semver = require('semver');
 const { spawn } = require('child_process');
-     */
+ */
         this.electron = (<any>window).require('electron');
         this.remote = this.electron.remote;
         this.nativeApp = this.electron.remote.app;
@@ -96,6 +101,7 @@ const { spawn } = require('child_process');
         this.showCustomActions = false;
         this.updateAvailable = false;
         this.showRepo = false;
+        this.isFilesOpen = false;
     }
     doesFileExist(path) {
         try {

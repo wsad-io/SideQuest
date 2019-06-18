@@ -1,4 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { RepoService } from '../repo.service';
+import { StatusBarService } from '../status-bar.service';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-repo-item',
@@ -7,10 +10,15 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class RepoItemComponent implements OnInit {
   @Input('repo') repo:RepoItem;
-  constructor() { }
+  @Input('i') i:number;
+  constructor(public repoService:RepoService,private appService:AppService,private statusService:StatusBarService) { }
 
   ngOnInit() {
 
+  }
+  deleteRepo(){
+    this.repoService.deleteRepo(this.i);
+    this.statusService.showStatus('Repo deleted OK!');
   }
 }
 

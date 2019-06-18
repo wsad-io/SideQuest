@@ -2,6 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AdbClientService, ConnectionStatus } from '../adb-client.service';
 import { AppService, ThemeMode } from '../app.service';
 import { WebviewService } from '../webview.service';
+import { LoadingSpinnerService } from '../loading-spinner.service';
+import { StatusBarService } from '../status-bar.service';
+import { RepoService } from '../repo.service';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +15,13 @@ export class HeaderComponent implements OnInit {
   @ViewChild('header',{static:false}) header;
   theme = ThemeMode;
   isMaximized:boolean;
-  constructor(public adbService:AdbClientService, public appService:AppService, public webService:WebviewService) {
+  addrepoUrl:string = '';
+  constructor(public adbService:AdbClientService,
+              public appService:AppService,
+              public webService:WebviewService,
+              public spinnerService:LoadingSpinnerService,
+              public statusService:StatusBarService,
+              public repoService:RepoService) {
 
   }
   ngOnInit(){}
@@ -39,5 +48,41 @@ export class HeaderComponent implements OnInit {
   }
   openDebugger(){
     this.appService.remote.getCurrentWindow().toggleDevTools();
+  }
+  selectAppToInstall() {
+    this.appService.electron.remote.dialog.showOpenDialog(
+      {
+        properties: ['openFile','multiSelections'],
+        defaultPath: this.adbService.savePath,
+      },
+      files => {
+        files.forEach(f => {
+          let filepath = f;
+          this.spinnerService.setMessage(
+            `Installing ${filepath}, Please wait...`
+          );
+          let install = this.adbService.installFile(filepath);
+          if (install) {
+            install.then(() => {
+              this.statusService.showStatus(
+                'Installed APK File: ' + filepath,
+                false
+              );
+            })
+              .catch(e => {
+                this.statusService.showStatus(e.toString(), true);
+              });
+          }
+        });
+      });
+  }
+  addRepo(){
+    this.spinnerService.showLoader();
+    this.repoService.addRepo(this.addrepoUrl)
+      .then(()=>this.addrepoUrl = '')
+      .then(()=>this.spinnerService.hideLoader())
+      .then(()=>this.statusService.showStatus('Repo added OK!!'))
+      .then(()=>this.repoService.saveRepos())
+      .catch(e=>this.statusService.showStatus(e.toString(),true));
   }
 }

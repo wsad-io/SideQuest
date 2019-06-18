@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
 import { WebviewService } from './webview.service';
+import { DragAndDropService } from './drag-and-drop.service';
 declare let __dirname;
 @Component({
     selector: 'app-root',
@@ -17,7 +18,8 @@ export class AppComponent {
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService,
         private appService: AppService,
-        public webService: WebviewService
+        public webService: WebviewService,
+        public dragService: DragAndDropService
     ) {}
     ngAfterViewInit() {
         this.spinnerService.setSpinner(this.spinner);

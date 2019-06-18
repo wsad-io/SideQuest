@@ -27,10 +27,30 @@ export class RepoService {
         this.spinnerService.showLoader();
         Promise.all(data.split('\n').map((url,i) => this.addRepo(url,i)))
           .then(() => this.repos.sort((a, b) => a.order - b.order))
-          //.then(() => console.log(this.repos))
-          .then(() => this.appRef.tick());
+         // / .then(() => console.log(this.repos))
+          .then(() => setTimeout(()=>this.appRef.tick()));
       }
     });
+  }
+  saveRepos() {
+    this.appService.fs.writeFile(
+      this.appService.appData + '/sources.txt',
+      this.repos.map(d => d.url).join('\n'),
+      err => {
+        if (err) alert('Failed to write sources.txt:' + err);
+      }
+    );
+  }
+  deleteRepo(index) {
+    const cachePath = this.appService.path.join(
+      this.appService.appData,
+      'sources',
+      this.appService.md5(this.repos[index].url) + '.json'
+    );
+    if (this.appService.fs.existsSync(cachePath)) {
+      this.appService.fs.unlinkSync(cachePath);
+    }
+    this.repos.splice(index, 1);
   }
   addRepo(url:string,i?:number){
     this.spinnerService.setMessage(`Loading ${url}`);

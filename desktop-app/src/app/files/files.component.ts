@@ -33,6 +33,8 @@ export class FilesComponent implements OnInit {
               public appService:AppService,
               public statusService:StatusBarService) {
     this.appService.resetTop();
+    appService.filesComponent = this;
+    appService.isFilesOpen = true;
     appService.webService.isWebviewOpen = false;
   }
   ngOnAfterViewInit(){
@@ -51,41 +53,41 @@ export class FilesComponent implements OnInit {
         })
     }
   }
+  uploadFilesFromList(files:string[]){
+    if (files !== undefined && files.length) {
+      Promise.all(files.map(f=> {
+        return this.adbService.client.push(
+          this.adbService.deviceSerial,
+          f, this.appService.path.posix.join(this.currentPath,this.appService.path.basename(f)))
+          .then(transfer => {
+            return new Promise((resolve, reject) => {
+              transfer.on('progress', stats => {
+                this.statusService.showStatus('File uploading: ' + f + ' ' +
+                  (Math.round(
+                    (stats.bytesTransferred / 1024 / 1024)*100
+                  )/100) +
+                  'MB');
+              });
+              transfer.on('end', () => {
+                return resolve();
+              });
+              transfer.on('error', reject);
+            })
+          })
+      })).then(()=>{
+        this.statusService.showStatus('Files Uploaded!!');
+        this.open(this.currentPath);
+      })
+        .catch(e=>this.statusService.showStatus(e.toString(),true));
+    }
+  }
   uploadFiles(){
     this.appService.electron.remote.dialog.showOpenDialog(
       {
-        properties: ['openFile','openFiles'],
+        properties: ['openFile','multiSelections'],
         defaultPath: this.adbService.savePath,
       },
-      files => {
-        if (files !== undefined && files.length) {
-          Promise.all(files.map(f=> {
-            console.log(f, this.appService.path.posix.join(this.currentPath,this.appService.path.basename(f)));
-            return this.adbService.client.push(
-              this.adbService.deviceSerial,
-              f, this.appService.path.posix.join(this.currentPath,this.appService.path.basename(f)))
-              .then(transfer => {
-                return new Promise((resolve, reject) => {
-                  transfer.on('progress', stats => {
-                    this.statusService.showStatus('File uploading: ' + f + ' ' +
-                      (Math.round(
-                        (stats.bytesTransferred / 1024 / 1024)*100
-                      )/100) +
-                      'MB');
-                  });
-                  transfer.on('end', () => {
-                     return resolve();
-                  });
-                  transfer.on('error', reject);
-                })
-              })
-          })).then(()=>{
-            this.statusService.showStatus('Files Uploaded!!');
-            this.open(this.currentPath);
-          })
-            .catch(e=>this.statusService.showStatus(e.toString(),true));
-        }
-      }
+      files => this.uploadFilesFromList(files)
     );
   }
   saveFile(){

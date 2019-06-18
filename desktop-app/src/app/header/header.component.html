@@ -62,14 +62,14 @@
     tooltip="Device Connection Status">
     <div id="connection-status-message">{{adbService.deviceStatusMessage}}</div>
   </div>
-  <div *ngIf="appService.showRepo" class="waves-effect waves-light btn add-repo pink-button">
+  <div *ngIf="appService.showRepo" (click)="addRepoModal.openModal()" class="waves-effect waves-light btn add-repo pink-button">
     Add Repo
   </div>
   <div *ngIf="appService.updateAvailable" class="waves-effect waves-light btn update-available link pink-button"
        data-url="https://github.com/the-expanse/SideQuest/releases">
     Update Available
   </div>
-  <a *ngIf="appService.showBrowserBar" class="waves-effect waves-light btn pink-button sync-songs-now">
+  <a *ngIf="appService.showBrowserBar" routerLink="custom-levels" class="waves-effect waves-light btn pink-button sync-songs-now no-outline">
     <i class="material-icons left">queue_music</i>My Downloads</a>
   <div class="sync-songs" *ngIf="appService.showCustomActions">
     <span class="beat-saber-version"></span>&nbsp;&nbsp;
@@ -148,7 +148,7 @@
         </label>
       </div>
       <a class="waves-effect waves-dark btn search-button-margin white black-text">search</a>
-      <a class="waves-effect waves-dark btn search-button-margin white black-text">Pick APK/OBB</a>
+      <a class="waves-effect waves-dark btn search-button-margin white black-text" (click)="selectAppToInstall()">Pick APK/OBB</a>
     </div>
     <div class="filters" style="display: none">
       <div class="input-field inline filter ">
@@ -159,3 +159,26 @@
     </div>
   </div>
 </div>
+
+
+<mz-modal #addRepoModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Add F-Droid Repo</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    A repo url usually looks something like this -
+    <div class="chip">https://example.com/fdroid/repo/</div>
+    <br />
+    <div class="input-field repo-url">
+      <input id="repoUrl" type="text" [(ngModel)]="addrepoUrl"/>
+      <label for="repoUrl">Repo Url</label>
+    </div>
+
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="addRepo()">Add Repo</button>
+  </mz-modal-footer>
+</mz-modal>
+

@@ -7,6 +7,7 @@ import { SideQuestAppsComponent } from './side-quest-apps/side-quest-apps.compon
 import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.component';
 import { WebviewComponent } from './webview/webview.component';
 import { FilesComponent } from './files/files.component';
+import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
 
 export const AppRoutes: Routes = [
     { path: 'setup', component: SetupComponent },
@@ -17,5 +18,6 @@ export const AppRoutes: Routes = [
     { path: 'app/:index/:package', component: SideQuestDetailComponent },
     { path: 'webview', component: WebviewComponent },
     { path: 'device-files', component: FilesComponent },
+    { path: 'custom-levels', component: CustomLevelsComponent },
     { path: '**', component: SideQuestAppsComponent },
 ];

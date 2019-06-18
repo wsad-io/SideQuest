@@ -13,7 +13,11 @@
     "typeRoots": [
       "node_modules/@types"
     ],
-
+    "paths": {
+      "@angular/*": [
+        "../node_modules/@angular/*"
+      ]
+    },
     "types": [
       "jquery",
       "materialize-css"

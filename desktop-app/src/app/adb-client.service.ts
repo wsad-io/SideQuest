@@ -37,6 +37,23 @@ export class AdbClientService {
         this.setSavePath();
         this.setupAdb().then(() => this.connectedStatus());
     }
+    installFile(filepath) {
+        this.spinnerService.showLoader();
+        let extention = this.appService.path.extname(filepath);
+        switch (extention) {
+            case '.apk':
+                return this.installLocalApk(filepath).then(() => this.spinnerService.hideLoader());
+            case '.obb':
+                if (this.appService.path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)) {
+                    return this.installLocalObb(filepath).then(() => this.spinnerService.hideLoader());
+                } else {
+                    this.spinnerService.hideLoader();
+                    return Promise.reject('Invalid OBB');
+                }
+            case '.zip':
+                return this.installLocalZip(filepath, false, () => this.spinnerService.hideLoader());
+        }
+    }
     setSavePath() {
         localStorage.setItem('save-path', this.savePath);
     }
@@ -51,6 +68,15 @@ export class AdbClientService {
                 return textA < textB ? -1 : textA > textB ? 1 : 0;
             });
         });
+    }
+    getPackageInfo(packageName) {
+        return this.client
+            .shell(this.deviceSerial, 'dumpsys package ' + packageName + '  | grep versionName')
+            .then(this.ADB.util.readAll)
+            .then(res => {
+                let versionParts = res.toString().split('=');
+                return versionParts.length ? versionParts[1] : '0.0.0.0';
+            });
     }
     makeDirectory(dir) {
         return this.client.shell(this.deviceSerial, 'mkdir "' + dir + '"').then(this.ADB.util.readAll);
@@ -211,7 +237,7 @@ export class AdbClientService {
                 })
         );
     }
-    installLocalApk(filepath, dontCatchError) {
+    installLocalApk(filepath: string, dontCatchError?: boolean) {
         let p = this.client.install(this.deviceSerial, this.appService.fs.createReadStream(filepath));
         if (!dontCatchError) {
             p = p.catch(e => {
@@ -221,7 +247,7 @@ export class AdbClientService {
         }
         return p;
     }
-    installLocalObb(filepath, dontCatchError, cb = null) {
+    installLocalObb(filepath: string, dontCatchError = false, cb = null) {
         let filename = this.appService.path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
         let p = this.client

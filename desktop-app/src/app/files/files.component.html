@@ -1,6 +1,7 @@
+<br><br><br>
 <div *ngIf="isConnected()">
-  <nav class="pink lighten-2">
-    <div class="nav-wrapper breadcrumb-wrapper container">
+  <nav class="pink lighten-2 breadcrumb-wrapper ">
+    <div class="nav-wrapper container">
       <div class="col s12">
         <a *ngFor="let breadcrumb of breadcrumbs" href="javascript:void(0)"
            class="breadcrumb" (click)="open('/'+breadcrumb.path)">{{breadcrumb.name}}</a>
