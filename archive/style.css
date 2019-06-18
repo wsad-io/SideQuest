@@ -1,50 +1,50 @@
 
-.side-packs {
-    height: 100%;
-}
-.side-packs-fixed {
-    position: fixed;
-    width: 26.5%;
-    height: 100%;
-}
-.delete-pack {
-    display: none;
-}
-.sort-songs {
-    float: right;
-}
-.no-margin-top {
-    margin-top: 0;
-}
-.pack-container {
-    height: calc(100% - 250px);
-    overflow: auto;
-    background-image: url(papyrus.png);
-    border-right: 1px solid #cfcfcf;
-}
-.pack-song-container-outer {
-    border-bottom: 1px solid #e0e0e0;
-    border-top: 1px solid #e0e0e0;
-}
-.collection {
-    border: 0px solid #e0e0e0;
-}
-.add-to-pack {
-    padding: 1em;
-    width: 100%;
-    border: 3px dashed darkgrey;
-    text-align: center;
-}
-.show-pack {
-    margin-right: 0.5em;
-    font-size: 2rem;
-}
-.pack-song-container {
-    padding: 10px;
-}
-.pack-song-container {
-    display: none;
-}
+/*.side-packs {*/
+    /*height: 100%;*/
+/*}*/
+/*.side-packs-fixed {*/
+    /*position: fixed;*/
+    /*width: 26.5%;*/
+    /*height: 100%;*/
+/*}*/
+/*.delete-pack {*/
+    /*display: none;*/
+/*}*/
+/*.sort-songs {*/
+    /*float: right;*/
+/*}*/
+/*.no-margin-top {*/
+    /*margin-top: 0;*/
+/*}*/
+/*.pack-container {*/
+    /*height: calc(100% - 250px);*/
+    /*overflow: auto;*/
+    /*background-image: url(papyrus.png);*/
+    /*border-right: 1px solid #cfcfcf;*/
+/*}*/
+/*.pack-song-container-outer {*/
+    /*border-bottom: 1px solid #e0e0e0;*/
+    /*border-top: 1px solid #e0e0e0;*/
+/*}*/
+/*.collection {*/
+    /*border: 0px solid #e0e0e0;*/
+/*}*/
+/*.add-to-pack {*/
+    /*padding: 1em;*/
+    /*width: 100%;*/
+    /*border: 3px dashed darkgrey;*/
+    /*text-align: center;*/
+/*}*/
+/*.show-pack {*/
+    /*margin-right: 0.5em;*/
+    /*font-size: 2rem;*/
+/*}*/
+/*.pack-song-container {*/
+    /*padding: 10px;*/
+/*}*/
+/*.pack-song-container {*/
+    /*display: none;*/
+/*}*/
 
 /*html,*/
 /*body {*/

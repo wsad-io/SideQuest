@@ -4,7 +4,6 @@ const fs = require('fs');
 let mainWindow, open_url, is_loaded;
 
 function createWindow() {
-    console.log('creat window');
     // Create the browser window.
     mainWindow = new BrowserWindow({
         width: 1280,
@@ -19,7 +18,7 @@ function createWindow() {
         icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png'),
     });
     mainWindow.loadURL('http://localhost:4200');
-    //mainWindow.loadFile('desktop-app/index.html');
+    //mainWindow.loadFile('desktop-app/dist/desktop-app/index.html');
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;

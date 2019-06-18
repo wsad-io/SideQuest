@@ -1,5 +1,5 @@
-http://showmewhatyougot.x10host.com/vr-games/
-http://showmewhatyougot.x10host.com/vr-apps/
-http://keepsummersafe.x10host.com/android-games/
-http://keepsummersafe.x10host.com/android-apps/
-http://showmewhatyougot.x10host.com/nsfw/
+https://the-expanse.github.io/SideQuestRepos/vr-games/
+https://the-expanse.github.io/SideQuestRepos/vr-apps/
+https://the-expanse.github.io/SideQuestRepos/android-games/
+https://the-expanse.github.io/SideQuestRepos/android-apps/
+https://the-expanse.github.io/SideQuestRepos/nsfw/

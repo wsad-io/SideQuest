@@ -31,7 +31,6 @@ import { WebviewDirective } from './webview.directive';
 import { FilesComponent } from './files/files.component';
 import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
 import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.component';
-import { SongPackItemComponent } from './song-pack-item/song-pack-item.component';
 
 @NgModule({
     declarations: [
@@ -59,7 +58,6 @@ import { SongPackItemComponent } from './song-pack-item/song-pack-item.component
         FilesComponent,
         CustomLevelsComponent,
         SongPackManagerComponent,
-        SongPackItemComponent,
     ],
     imports: [
         BrowserModule,

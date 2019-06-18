@@ -27,7 +27,7 @@ export class RepoService {
         this.spinnerService.showLoader();
         Promise.all(data.split('\n').map((url,i) => this.addRepo(url,i)))
           .then(() => this.repos.sort((a, b) => a.order - b.order))
-         // / .then(() => console.log(this.repos))
+          .then(() => console.log(this.repos))
           .then(() => setTimeout(()=>this.appRef.tick()));
       }
     });
