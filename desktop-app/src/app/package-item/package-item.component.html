@@ -1,12 +1,6 @@
-<div class="col s5 package-height chip-padding package-item">
-  <span class="chip">{{package}}</span>
+<div class="col s10 package-height chip-padding package-item">
+  <span class="chip"><img *ngIf="repoApp" [src]="repoApp.icon">{{repoApp?repoApp.name:package}}</span>
 </div>
-<div class="col s2 package-height centered">
-  <a class="waves-effect waves-light btn backup-this-package">Backup APK File</a>
-</div>
-<div class="col s3 package-height centered">
-  <a href="#modal2" class="waves-effect waves-light btn orange clear-app-data modal-trigger">Clear App Data</a>
-</div>
-<div class="col s2 package-height centered">
-  <a href="#modal2" class="waves-effect waves-light btn red uninstall-package modal-trigger">Uninstall App</a>
+<div class="col s2 package-height centered package-item">
+  <i class="material-icons cursor grey-text settings" (click)="openSettings()">settings</i>
 </div>

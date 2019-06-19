@@ -1,9 +1,45 @@
-<!--<nav class="pink lighten-2 ">-->
-  <!--<div class="nav-wrapper container">-->
-    <!--<div class="col s12">-->
-      <!--<a *ngFor="let breadcrumb of breadcrumbs" href="javascript:void(0)"-->
-         <!--class="breadcrumb" (click)="open('/'+breadcrumb.path)">{{breadcrumb.name}}</a>-->
-    <!--</div>-->
-  <!--</div>-->
-<!--</nav>-->
-<app-song-pack-manager [ngClass]="appService.getThemeCssClass('text')"></app-song-pack-manager>
+<app-song-pack-manager
+  [ngClass]="appService.getThemeCssClass('text')"
+  [packs]="(bsaberService.jSon?bsaberService.jSon.packs:[])"
+  [songs]="bsaberService.songs" (addPack)="addPackModal.openModal()"
+  (editPack)="addPack.name = $event.name;addPack.id = $event.id;addPack.coverImagePath = $event.coverImagePath;addPackModal.openModal()"
+  (addPack)="addPackModal.openModal()"
+  (saveJson)="bsaberService.saveJson(bsaberService.jSon)">
+
+</app-song-pack-manager>
+
+
+<mz-modal #addPackModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Add/Edit Pack</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Enter a name and select an image for your pack.
+    <br />
+    <div class="input-field repo-url">
+      <input id="PackName" type="text" [(ngModel)]="addPack.name" placeholder="Pack Name"/>
+      <label for="PackName">Pack Name</label>
+    </div><br><br>
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Add a song pack." (click)="selectImage()">
+      Select Image
+    </div><br><br>
+    <span class="chip">{{addPack.coverImagePath}}</span><br><br>
+    <div *ngIf="addPack.id"
+      class="waves-effect waves-light btn small-button red"
+      mz-tooltip
+      position="bottom"
+      tooltip="Add a song pack." (click)="deletePack();addPackModal.closeModal()">
+      Delete pack
+    </div><br>
+    <span *ngIf="addPack.id">Warning: This cannot be undone!</span>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close (click)="resetAddPack()">Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="addEditPack()">Save Pack</button>
+  </mz-modal-footer>
+</mz-modal>
+

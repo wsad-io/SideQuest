@@ -141,15 +141,17 @@
 .sync-songs-now,
 .update-available {
   position: absolute;
-  top: 85px;
+  top: 115px;
   right: 15px;
   -webkit-app-region: no-drag;
 }
 .update-available {
-  padding: 5px;
-  line-height: 16px;
   top: 50px;
   right: 190px;
+}
+.small-button {
+  padding: 5px;
+  line-height: 16px;
   height: 24px;
   color: white;
 }

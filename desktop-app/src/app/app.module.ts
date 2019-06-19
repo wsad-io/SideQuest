@@ -5,7 +5,7 @@ import { SideMenuComponent } from './side-menu/side-menu.component';
 import { ContentComponent } from './content/content.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MzButtonModule, MzModalModule, MzTooltipModule } from 'ngx-materialize';
+import { MzButtonModule, MzCheckboxModule, MzModalModule, MzTooltipModule } from 'ngx-materialize';
 import { DragulaModule } from 'ng2-dragula';
 import { HeaderComponent } from './header/header.component';
 import { StatusBarComponent } from './status-bar/status-bar.component';
@@ -67,7 +67,8 @@ import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.
         MzTooltipModule,
         MzModalModule,
         MzButtonModule,
-        BrowserAnimationsModule,
+      MzCheckboxModule,
+      BrowserAnimationsModule,
     ],
     providers: [],
     bootstrap: [AppComponent],

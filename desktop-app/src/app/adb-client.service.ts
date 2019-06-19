@@ -71,7 +71,7 @@ export class AdbClientService {
     }
     getPackageInfo(packageName) {
         return this.client
-            .shell(this.deviceSerial, 'dumpsys package ' + packageName + '  | grep versionName')
+            .shell(this.deviceSerial, 'yar' + packageName + '  | grep versionName')
             .then(this.ADB.util.readAll)
             .then(res => {
                 let versionParts = res.toString().split('=');

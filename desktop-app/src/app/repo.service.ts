@@ -1,7 +1,7 @@
 import { ApplicationRef, ChangeDetectorRef, Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
-import { RepoBody, RepoItem } from './repo-item/repo-item.component';
+import { JSONApp, RepoBody, RepoItem } from './repo-item/repo-item.component';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +9,32 @@ import { RepoBody, RepoItem } from './repo-item/repo-item.component';
 export class RepoService {
   repos:RepoItem[] = [];
   currentRepo:RepoItem;
+  allApps:any = {};
+  indexUrl:string = 'https://the-expanse.github.io/SideQuestRepos/';
   constructor(private appService:AppService,private spinnerService:LoadingSpinnerService, private appRef:ApplicationRef) {
+    this.getAppIndex();
     this.getRepos();
+  }
+  getAppIndex(){
+    this.appService.request(this.indexUrl)
+    return new Promise((resolve, reject) => {
+      this.appService.request(this.indexUrl+'app-index.json', (error, response, body) => {
+        if (error) {
+          return reject(error);
+        } else {
+          try {
+            let body = JSON.parse(response.body);
+            Object.keys(body).forEach(packageName=>{
+              this.allApps[packageName] = body[packageName];
+              this.allApps[packageName].icon = this.indexUrl+this.allApps[packageName].icon;
+            });
+            resolve();
+          } catch (e) {
+            return reject('JSON parse Error');
+          }
+        }
+      });
+    })
   }
   setCurrent(index:number){
     if(this.repos.length&&this.repos[index]){
@@ -27,8 +51,20 @@ export class RepoService {
         this.spinnerService.showLoader();
         Promise.all(data.split('\n').map((url,i) => this.addRepo(url,i)))
           .then(() => this.repos.sort((a, b) => a.order - b.order))
-          .then(() => console.log(this.repos))
-          .then(() => setTimeout(()=>this.appRef.tick()));
+          .then(() => setTimeout(()=>this.appRef.tick()))
+          .then(() => {
+            this.repos.reduce((a,repo)=>{
+              a = a.concat(repo.body.apps.map(app=>{
+                app.__package = repo.body.packages[app.packageName];
+                return app
+              }));
+              return a;
+            },[])
+              .forEach(app=>{
+                this.allApps[app.packageName] = {name:app.name,icon:app.icon};
+              })
+          })
+          .then(()=>console.log(this.allApps));
       }
     });
   }

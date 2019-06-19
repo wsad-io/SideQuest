@@ -23,12 +23,13 @@ interface QuestSaberPatchColors {
   colorA: QuestSaberPatchColor;
   colorB: QuestSaberPatchColor;
 }
-interface QuestSaberPatchPack {
+export interface QuestSaberPatchPack {
   id: string;
   name: string;
   coverImagePath: string;
-  levelIDs: string[]|SongItem[];
+  levelIDs?: string[]|SongItem[];
   isOpen?:boolean;
+  icon?:string;
 }
 export interface QuestSaberPatchJson {
   apkPath:string;
@@ -267,7 +268,9 @@ export class BsaberService {
     if (this.appService.fs.existsSync(jsonFile)) {
       try {
         let dataString = this.appService.fs.readFileSync(jsonFile, 'utf8');
+
         data = JSON.parse(dataString);
+        console.log(data);
         if (data.ensureInstalled) {
           data.levels = data.ensureInstalled;
           delete data.ensureInstalled;
@@ -283,6 +286,10 @@ export class BsaberService {
         }
         data.packs.forEach((d,i) => {
           d.isOpen = i === 0;
+          if(d.coverImagePath){
+            let imageIcon = this.appService.getBase64Image(d.coverImagePath);
+            if(imageIcon) d.icon = imageIcon;
+          }
           d.levelIDs = (<string[]>d.levelIDs)
             .map(l => {
               let index = songKeys.indexOf(l);
@@ -429,16 +436,21 @@ export class BsaberService {
             );
             let covername = songData._coverImageFilename;
 
+            let coverPath = 'data:image/'+songData._coverImageFilename.split('.').pop()+';base64,';
+
+
             let song:SongItem = {
               id: folderName,
               name: directories.length
                 ? directories[0]
-                : songData._songName +
-                ' - ' +
-                songData._songAuthorName,
+                : songData._songName+" - "+songData._songAuthorName,
               path: fullpath,
-              cover: 'file://' +
-              this.appService.path.join(fullpath, covername).replace(/\\/g, '/'),
+              _songAuthorName:songData._songAuthorName,
+              _levelAuthorName:songData._levelAuthorName,
+              _beatsPerMinute:songData._beatsPerMinute,
+              _difficultyBeatmapSets:(songData._difficultyBeatmapSets._difficultyBeatmaps||[]).map(d=>d._difficulty),
+              cover: coverPath+this.appService.fs.readFileSync(this.appService.path.join(fullpath, covername)).toString('base64'),
+              //'file://' +this.appService.path.join(fullpath, covername).replace(/\\/g, '/'),
               created:this.appService.fs
                 .statSync(this.appService.path.join(fullpath, covername))
                 .mtime.getTime()

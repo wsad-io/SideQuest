@@ -1,6 +1,7 @@
 <div class="container">
   <div class="row">
-    <app-package-item *ngFor="let package of adbService.devicePackages;" [package]="package"></app-package-item>
+    <app-package-item *ngFor="let package of adbService.devicePackages;" [package]="package"
+                      (settings)="currentPackage = $event;appSettingsModal.openModal();getCurrentInstalledInfo()"></app-package-item>
   </div>
 </div>
 <div id="modal2" class="modal bottom-sheet modal-fixed-footer">
@@ -16,3 +17,26 @@
     <a href="#!" class="modal-close btn waves-effect waves-light confirm-uninstall-app">Uninstall App</a>
   </div>
 </div>
+
+
+<mz-modal #appSettingsModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>App Settings</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <span class="chip">
+      <img *ngIf="currentPackage.repoApp" [src]="currentPackage.repoApp.icon">
+      {{currentPackage.repoApp?currentPackage.repoApp.name:currentPackage.package}}
+    </span>
+    <br><br>
+    <a class="waves-effect waves-light btn backup-this-package">Backup APK File</a><br><br><br>
+    <a href="#modal2" class="waves-effect waves-light btn orange clear-app-data modal-trigger">Clear App Data</a><br><br>
+    <a href="#modal2" class="waves-effect waves-light btn red uninstall-package modal-trigger">Uninstall App</a>
+
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>
+

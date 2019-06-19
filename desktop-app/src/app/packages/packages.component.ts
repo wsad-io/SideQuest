@@ -8,7 +8,7 @@ import { AppService } from '../app.service';
   styleUrls: ['./packages.component.css']
 })
 export class PackagesComponent implements OnInit {
-
+  currentPackage:any = {appRepo:{},package:''};
   constructor(public adbService:AdbClientService, appService:AppService) {
     appService.webService.isWebviewOpen = false;
     appService.resetTop();
@@ -16,5 +16,11 @@ export class PackagesComponent implements OnInit {
 
   ngOnInit() {
     this.adbService.getPackages();
+  }
+  getCurrentInstalledInfo(){
+    this.adbService.getPackageInfo(this.currentPackage.package)
+      .then(info=>{
+        console.log(this.currentPackage.package,info);
+      })
   }
 }

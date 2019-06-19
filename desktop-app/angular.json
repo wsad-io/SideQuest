@@ -30,9 +30,8 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/materialize-css/dist/js/materialize.min.js",
-              "node_modules/dom-autoscroller/dist/dom-autoscroller.js",
-              "node_modules/@simonwep/pickr/dist/pickr.min.js",
-              "node_modules/randomcolor/randomColor.js"
+              "node_modules/dom-autoscroller/dist/bundle.js",
+              "node_modules/@simonwep/pickr/dist/pickr.min.js"
             ]
           },
           "configurations": {

@@ -1,13 +1,27 @@
-import { ApplicationRef, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { BsaberService } from '../bsaber.service';
 import { DragulaService } from 'ng2-dragula';
 import { Subscription } from 'rxjs/Subscription';
+import { AppService } from '../app.service';
+declare let autoScroll;
 export interface SongItem{
   id:string;
   name:string;
   path:string;
   cover:string;
   created:number;
+  selected?:boolean;
+  _songAuthorName?:string;
+  _levelAuthorName?:string;
+  _beatsPerMinute?:string;
+  _difficultyBeatmapSets?:string[];
 }
 @Component({
   selector: 'app-song-pack-manager',
@@ -15,13 +29,20 @@ export interface SongItem{
   styleUrls: ['./song-pack-manager.component.css']
 })
 export class SongPackManagerComponent implements OnInit {
+  @Input('packs') packs;
+  @Input('songs') songs;
+  @Output('addPack') addPack = new EventEmitter();
+  @Output('editPack') editPack = new EventEmitter();
+  @Output('saveJson') saveJson = new EventEmitter();
   @ViewChild('song_container',{static:false}) song_container;
   @ViewChild('pack_container',{static:false}) pack_container;
-  BAG = "DRAGULA_EVENTS";
+  @ViewChild('mirror_holder',{static:false}) mirror_holder;
+  checkboxChecked:boolean;
+  BAG = 'SONGS';
   subs = new Subscription();
-  public constructor(private dragulaService: DragulaService,public bsaberService:BsaberService,private changeRef:ApplicationRef) {
+  public constructor(private dragulaService: DragulaService,public bsaberService:BsaberService,private appService:AppService) {
 
-    dragulaService.createGroup('SONGS', {
+    this.dragulaService.createGroup(this.BAG, {
       copy: (el, source)=> {
         return source === this.song_container.nativeElement;
       },
@@ -37,62 +58,90 @@ export class SongPackManagerComponent implements OnInit {
       moves: (el, source, handle, sibling)=> {
         return !~el.className.indexOf('add-to-drag'); // elements are always draggable by default
       },
-      // mirrorContainer: document.querySelector(
-      //   '.temp-move-container'
-      // ),
+      copyItem: (item: any) => ({ ...item })
+      //mirrorContainer: this.mirror_holder.nativeElement,
     });
-    // var scroll = autoScroll([window, this.pack_container.nativeElement], {
-    //   margin: 150,
-    //   autoScroll: function() {
-    //     return this.down && songsDrake.dragging;
-    //   },
-    // });
-    this.subs.add(dragulaService.drag(this.BAG)
-      .subscribe(({ el }) => {
-        //this.removeClass(el, 'ex-moved');
-      })
-    );
+    // this.subs.add(dragulaService.drag(this.BAG)
+    //   .subscribe(({ el }) => {
+    //     //this.removeClass(el, 'ex-moved');
+    //   })
+    // );
     this.subs.add(dragulaService.drop(this.BAG)
       .subscribe(({ el }) => {
         //this.addClass(el, 'ex-moved');
+        // console.log('dropped');
+        this.saveJson.emit();
       })
     );
-    this.subs.add(dragulaService.over(this.BAG)
-      .subscribe(({ el, container }) => {
-        console.log('over', container);
-        //this.addClass(container, 'ex-over');
-      })
-    );
-    this.subs.add(dragulaService.out(this.BAG)
-      .subscribe(({ el, container }) => {
-        console.log('out', container);
-        //this.removeClass(container, 'ex-over');
-      })
-    );
+    // this.subs.add(dragulaService.over(this.BAG)
+    //   .subscribe(({ el, container }) => {
+    //     //console.log('over', container);
+    //     //this.addClass(container, 'ex-over');
+    //   })
+    // );
+    // this.subs.add(dragulaService.out(this.BAG)
+    //   .subscribe(({ el, container }) => {
+    //    // console.log('out', container);
+    //     //this.removeClass(container, 'ex-over');
+    //   })
+    // );
   }
   ngOnDestroy(){
     this.dragulaService.destroy('SONGS');
     this.subs.unsubscribe();
   }
-  ngOnInit() {
+  ngOnInit(){}
+  ngAfterViewInit() {
+    let drake = this.dragulaService.find('SONGS').drake;
+
+    var scroll = autoScroll([window, this.pack_container.nativeElement], {
+      margin: 150,
+      autoScroll: function() {
+        return this.down && drake.dragging;
+      },
+    });
+  }
+  hasSelected(){
+    return this.songs.filter(s=>s.selected).length;
+  }
+  addSelected(pack){
+    pack.levelIDs = pack.levelIDs.concat(this.songs.filter(s=>s.selected));
+    this.songs.forEach(s=>s.selected = false);
+    this.checkboxChecked = false;
   }
   uniquePack(pack){
     let keys = {};
+    pack.isOpen = false;
     pack.levelIDs = pack.levelIDs.filter((a)=> {
-      let key = a.id + '|' + a.name;
-      if (!keys['_'+key]) {
-        keys['_'+key] = true;
+      let key = '_' + a.id + '|' + a.name;
+      if (!keys[key]) {
+        keys[key] = true;
         return true;
       }
     });
-    pack.isOpen = false;
-    setTimeout(()=>pack.isOpen = true,100);
-  }
-  sortPack(pack){
-    pack.levelIDs = pack.levelIDs.sort((a, b) => {
-      let textA = a.name.toUpperCase();
-      let textB = b.name.toUpperCase();
-      return textA < textB ? -1 : textA > textB ? 1 : 0;
+    setTimeout(()=>{
+      pack.isOpen = true;
+      this.saveJson.emit();
     });
+  }
+  sortPack(pack,isRecent?){
+    if(isRecent){
+      pack.levelIDs = pack.levelIDs
+        .sort((a, b) => {
+          return a.created < b.created
+            ? -1
+            : a.created > b.created
+              ? 1
+              : 0;
+        })
+        .reverse();
+    }else{
+      pack.levelIDs = pack.levelIDs.sort((a, b) => {
+        let textA = a.name.toUpperCase();
+        let textB = b.name.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+    }
+    this.saveJson.emit();
   }
 }
