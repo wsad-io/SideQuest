@@ -43,6 +43,12 @@ If you have any problems you can hit the debugger icon to capture any errors - t
 
 I will be adding more apps to the repos and I will be notifying of repo updates on my [discord server](https://discord.gg/Q2a5BkZ) - you can then manually update the repos in the repos section to get the new app listings.
 
+## App Developers: 
+
+Until we create a Developer portal, you can contact me directly on my [discord server](https://discord.gg/Q2a5BkZ) if you want to distribute your app via SideQuest.
+
+If you want to distribute via SideQuest, but need to link your users directly to the latest SideQuest releases on your website, here's some [sample code](https://jsfiddle.net/uagx31ps/).
+
 ## Browser Extensions
 
 [@ATechAdventurer](https://github.com/ATechAdventurer) was kind enough to make some browser extensions:
