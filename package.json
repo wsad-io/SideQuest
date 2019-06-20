@@ -9,7 +9,7 @@
     "scripts": {
         "concurrently": "concurrently",
         "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
-        "postinstall": "electron-builder install-app-deps",
+        "postinstall": "electron-builder install-app-deps && cd desktop-app && yarn install",
         "pack": "electron-builder --dir",
         "dist": "electron-builder"
     },
@@ -44,6 +44,7 @@
         "wait-on": "^3.2.0"
     },
     "devDependencies": {
+        "@angular/cli": "^8.0.3",
         "electron": "^4.1.4",
         "electron-builder": "^20.43.0",
         "husky": "^2.3.0",
