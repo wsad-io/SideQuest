@@ -11,7 +11,8 @@
         "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
         "postinstall": "electron-builder install-app-deps",
         "pack": "electron-builder --dir",
-        "dist": "electron-builder"
+        "dist": "electron-builder",
+        "reset": "rm -rf node_modules && rm -rf desktop-app/node_modules && yarn install && cd desktop-app && npm install"
     },
     "husky": {
         "hooks": {
@@ -48,6 +49,7 @@
         "electron-builder": "^20.43.0",
         "husky": "^2.3.0",
         "prettier": "1.17.1",
-        "pretty-quick": "^1.11.0"
+        "pretty-quick": "^1.11.0",
+        "@angular/cli": "^8.0.3"
     }
 }
