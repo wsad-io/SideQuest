@@ -15,6 +15,10 @@
 
   </div>
   <div *ngIf="isConnected()">
+    <div *ngIf="!files.length">
+      <h4 [ngClass]="appService.getThemeCssClass('text')">No files here...</h4>
+
+    </div>
     <div *ngFor="let file of files" class="vertical-align cursor" [ngClass]="appService.getThemeCssClass('text')" (click)="openFile(file)">
       <div class="right"><span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}</div>
       <i class="material-icons medium vertical-align" [ngClass]="appService.getThemeCssClass('text')">{{file.icon}}</i>{{file.name}}

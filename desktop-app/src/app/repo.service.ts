@@ -63,8 +63,7 @@ export class RepoService {
               .forEach(app=>{
                 this.allApps[app.packageName] = {name:app.name,icon:app.icon};
               })
-          })
-          .then(()=>console.log(this.allApps));
+          });
       }
     });
   }
@@ -107,6 +106,7 @@ export class RepoService {
         } else {
           try {
             let repo_body:RepoBody = JSON.parse(body);
+            console.log(repo_body)
             if (!this.isValidRepo(repo_body)) {
               reject('Repo not valid or unsupported version!');
             } else {

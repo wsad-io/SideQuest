@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { JSONApp, JSONPackage } from '../repo-item/repo-item.component';
+import { AdbClientService } from '../adb-client.service';
 
 @Component({
   selector: 'app-side-quest-app-version',
@@ -8,9 +9,11 @@ import { JSONApp, JSONPackage } from '../repo-item/repo-item.component';
 })
 export class SideQuestAppVersionComponent implements OnInit {
   @Input('apk') apk:JSONPackage;
-  constructor() { }
+  constructor(private adbService:AdbClientService) { }
 
   ngOnInit() {
   }
-
+  install(){
+    this.adbService.installAPK(this.apk.apkName);
+  }
 }

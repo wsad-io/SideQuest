@@ -1,0 +1,114 @@
+const adb = require('adbkit');
+const fs = require('fs');
+const request = require('request');
+const progress = require('request-progress');
+const Readable = require('stream').Readable;
+module.exports = class ADB {
+    setupAdb(adbPath) {
+        if (this.client) return;
+        this.client = adb.createClient({
+            bin: adbPath,
+        });
+    }
+    install(serial, path, isLocal, cb, scb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .install(
+                serial,
+                isLocal
+                    ? fs.createReadStream(path)
+                    : new Readable().wrap(
+                          progress(request(path), { throttle: 60 }).on('progress', state => {
+                              scb(state);
+                          })
+                      )
+            )
+            .then(cb)
+            .catch(e => ecb(e));
+    }
+    uninstall(serial, packageName, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .uninstall(serial, packageName)
+            .then(cb)
+            .catch(e => ecb(e));
+    }
+    clear(serial, packageName, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .clear(serial, packageName)
+            .then(cb)
+            .catch(e => ecb(e));
+    }
+    listDevices(cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .listDevices()
+            .then(cb)
+            .catch(e => ecb(e));
+    }
+    getPackages(serial, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .getPackages(serial)
+            .then(res => cb(res))
+            .catch(e => ecb(e));
+    }
+    shell(serial, command, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .shell(serial, command)
+            .then(adb.util.readAll)
+            .then(res => cb(res.toString()))
+            .catch(e => ecb(e));
+    }
+    readdir(serial, path, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .readdir(serial, path)
+            .then(res =>
+                res.map(r => {
+                    r.__isFile = r.isFile();
+                    return r;
+                })
+            )
+            .then(res => cb(res))
+            .catch(e => ecb(e));
+    }
+    push(serial, path, savePath, cb, scb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client.push(serial, fs.createReadStream(path), savePath).then(transfer => {
+            transfer.on('progress', stats => {
+                scb(stats);
+            });
+            transfer.on('end', () => {
+                cb();
+            });
+            transfer.on('error', e => {
+                ecb(e);
+            });
+        });
+    }
+    pull(serial, path, savePath, cb, scb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client.pull(serial, path).then(transfer => {
+            transfer.on('progress', stats => {
+                scb(stats);
+            });
+            transfer.on('end', () => {
+                cb();
+            });
+            transfer.on('error', e => {
+                ecb(e);
+            });
+            transfer.pipe(fs.createWriteStream(savePath));
+        });
+    }
+    stat(serial, path, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .stat(serial, path)
+            .then(res => cb(res))
+            .catch(e => ecb(e));
+    }
+};

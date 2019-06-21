@@ -36,16 +36,16 @@ export class SetupComponent implements OnInit {
   installLauncher(){
       this.isInstallingLauncher = true;
       this.adbService
-        .installApk(
+        .installAPK(
           'https://cdn.theexpanse.app/SideQuestWrapper.apk'
         )
         .then(() =>
-          this.adbService.installApk(
+          this.adbService.installAPK(
             'https://cdn.theexpanse.app/SideQuestWrapper2.apk'
           )
         )
         .then(() =>
-          this.adbService.installApk(
+          this.adbService.installAPK(
             'https://cdn.theexpanse.app/SideQuestLauncher.apk'
           )
         )
@@ -59,7 +59,7 @@ export class SetupComponent implements OnInit {
   installExpanse(){
     this.isInstallingExpanse = true;
     this.adbService
-      .installApk('https://cdn.theexpanse.app/TheExpanse.apk')
+      .installAPK('https://cdn.theexpanse.app/TheExpanse.apk')
       .then(()=>this.adbService.getPackages())
       .then(() => {
         this.isInstallingExpanse = false;

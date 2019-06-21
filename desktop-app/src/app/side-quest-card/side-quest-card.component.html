@@ -4,7 +4,7 @@
     <div class="activator image image-background" [ngStyle]="{'background-image':'url('+app.icon+')'}"></div>
   </div>
   <div class="card-content">
-    <i class="material-icons left green-text">done</i>
+    <i class="material-icons left green-text" *ngIf="app.__is_installed">done</i>
     <span class="card-title card-title-one activator truncate" [ngClass]="appService.getThemeCssClass('text')">
     <i class="material-icons right white-text cursor" *ngIf="!isAppScreen">more_vert</i>
       {{app.name}}

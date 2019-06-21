@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 let mainWindow, open_url, is_loaded;
+const ADB = require('./adbkit');
 
 function createWindow() {
     // Create the browser window.
@@ -123,3 +124,52 @@ if (!gotTheLock) {
 global.receiveMessage = function(text) {
     mainWindow.webContents.send('info', text);
 };
+
+const { ipcMain } = require('electron');
+const adb = new ADB();
+ipcMain.on('adb-command', (event, arg) => {
+    const success = d => {
+        event.sender.send('adb-command', { command: arg.command, resp: d });
+    };
+    const reject = e => {
+        event.sender.send('adb-command', { command: arg.command, error: e });
+    };
+    const status = d => {
+        event.sender.send('adb-command', { command: arg.command, status: d });
+    };
+    switch (arg.command) {
+        case 'setupAdb':
+            adb.setupAdb(arg.settings.adbPath, success, reject);
+            break;
+        case 'listDevices':
+            adb.listDevices(success, reject);
+            break;
+        case 'getPackages':
+            adb.getPackages(arg.settings.serial, success, reject);
+            break;
+        case 'shell':
+            adb.shell(arg.settings.serial, arg.settings.command, success, reject);
+            break;
+        case 'readdir':
+            adb.readdir(arg.settings.serial, arg.settings.path, success, reject);
+            break;
+        case 'push':
+            adb.push(arg.settings.serial, arg.settings.path, arg.settings.savePath, success, status, reject);
+            break;
+        case 'pull':
+            adb.pull(arg.settings.serial, arg.settings.path, arg.settings.savePath, success, status, reject);
+            break;
+        case 'stat':
+            adb.stat(arg.settings.serial, arg.settings.path, success, reject);
+            break;
+        case 'install':
+            adb.install(arg.settings.serial, arg.settings.path, arg.settings.isLocal, success, status, reject);
+            break;
+        case 'uninstall':
+            adb.uninstall(arg.settings.serial, arg.settings.packageName, success, reject);
+            break;
+        case 'clear':
+            adb.clear(arg.settings.serial, arg.settings.packageName, success, reject);
+            break;
+    }
+});

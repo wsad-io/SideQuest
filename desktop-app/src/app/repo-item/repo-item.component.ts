@@ -55,6 +55,7 @@ export interface JSONApp {
     packageName: string;
     lastUpdated: number;
     __package?: any;
+    __is_installed?:boolean;
 }
 export interface JSONPackage {
     added: number;

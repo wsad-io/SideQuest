@@ -3,6 +3,7 @@ import { AppService, FolderType } from '../app.service';
 import { AdbClientService } from '../adb-client.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
+import { BsaberService } from '../bsaber.service';
 enum FFR{
 OFF,LOW,MEDIUM,HIGH,HIGH_TOP
 }
@@ -43,15 +44,38 @@ export class ToolsComponent implements OnInit {
   SSO = SSO;
   CA = CA;
   GPU = GPU;
-  constructor(public appService:AppService, public adbService:AdbClientService,
+  constructor(public appService:AppService,
+              public adbService:AdbClientService,
               private spinnerService:LoadingSpinnerService,
-              private statusService:StatusBarService) {
+              private statusService:StatusBarService,
+              private bsaberService:BsaberService) {
     this.appService.resetTop();
     appService.webService.isWebviewOpen = false;
+
   }
 
   ngOnInit() {
     this.appService.setTitle("Device Settings & Tools");
+  }
+  backupNewMaster(){
+    this.bsaberService.backupNewMaster();
+  }
+  resetPatchedToBase(){
+    if(this.appService.fs.existsSync(this.appService.path.join(this.appService.appData,'bsaber-base.apk'))){
+      this.bsaberService.resetPatchedToBase();
+      this.statusService.showStatus('Patcher working copy reset to master ok!!');
+    }else{
+      this.statusService.showStatus('There is no master copy! Please "backup new master" or "Select new master"', true);
+    }
+  }
+  selectNewMaster(){
+    this.bsaberService.selectNewMaster();
+  }
+  redownloadPatcher(){
+    this.bsaberService.redownloadPatcher();
+  }
+  resetPacks(){
+    this.bsaberService.resetPacks();
   }
   setFFR(ffr:FFR){
     let value:number = 0;

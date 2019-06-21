@@ -53,31 +53,30 @@ export class FilesComponent implements OnInit {
         })
     }
   }
+  uploadFile(files):Promise<any>{
+    if(!files.length) return Promise.resolve();
+    let f = files.shift();
+    let savePath =  this.appService.path.posix.join(this.currentPath,this.appService.path.basename(f));
+    return this.adbService.adbCommand('push',{serial:this.adbService.deviceSerial,path:f,savePath},stats=>{
+      this.spinnerService.setMessage('File uploading: ' + this.appService.path.basename(f) + ' ' +
+        (Math.round(
+          (stats.bytesTransferred / 1024 / 1024)*100
+        )/100) +
+        'MB');
+    }).then(()=>setTimeout(()=>this.uploadFile(files),500))
+  }
   uploadFilesFromList(files:string[]){
     if (files !== undefined && files.length) {
-      Promise.all(files.map(f=> {
-        return this.adbService.client.push(
-          this.adbService.deviceSerial,
-          f, this.appService.path.posix.join(this.currentPath,this.appService.path.basename(f)))
-          .then(transfer => {
-            return new Promise((resolve, reject) => {
-              transfer.on('progress', stats => {
-                this.statusService.showStatus('File uploading: ' + f + ' ' +
-                  (Math.round(
-                    (stats.bytesTransferred / 1024 / 1024)*100
-                  )/100) +
-                  'MB');
-              });
-              transfer.on('end', () => {
-                return resolve();
-              });
-              transfer.on('error', reject);
-            })
-          })
-      })).then(()=>{
-        this.statusService.showStatus('Files Uploaded!!');
-        this.open(this.currentPath);
-      })
+      this.spinnerService.showLoader();
+      this.uploadFile(files)
+        .then(()=>{
+          this.spinnerService.setMessage('Files Uploaded!!');
+          setTimeout(()=>{
+            this.open(this.currentPath);
+            this.spinnerService.hideLoader();
+            this.statusService.showStatus('Files Uploaded!!');
+          },500);
+        })
         .catch(e=>this.statusService.showStatus(e.toString(),true));
     }
   }
@@ -91,34 +90,18 @@ export class FilesComponent implements OnInit {
     );
   }
   saveFile(){
+    this.filesModal.closeModal();
     let savePath = this.appService.path.join(this.adbService.savePath,this.currentFile.name);
-    this.statusService.showStatus('Saving file: ' + savePath+"...");
-      this.adbService.client.pull(
-        this.adbService.deviceSerial,
-        this.appService.path.posix.join(this.currentPath,this.currentFile.name))
-        .then(
-          transfer =>{
-            //new Promise((resolve, reject) => {
-              console.log(savePath, this.appService.path.posix.join(this.currentPath,this.currentFile.name));
-              transfer.on('progress', stats => {
-                this.statusService.showStatus('File saved: ' + savePath + ' ' +
-                  Math.round(
-                    stats.bytesTransferred / 1024 / 1024
-                  ) +
-                  'MB');
-              });
-              transfer.on('end', () => {
-                // this.statusService.showStatus('File saved successfully!!');
-                // this.spinnerService.hideLoader();
-                //  return resolve();
-                console.log('end');
-              });
-              //transfer.on('error', reject);
-              transfer.pipe(this.appService.fs.createWriteStream(savePath));
-            }//)
-        ).catch(e=>{
-          console.log(e);
-      });
+    let path = this.appService.path.posix.join(this.currentPath,this.currentFile.name);
+    this.spinnerService.showLoader();
+    return this.adbService.adbCommand('pull',{serial:this.adbService.deviceSerial,path,savePath},stats=>{
+      this.spinnerService.setMessage('File downloading: ' + this.appService.path.basename(savePath) + '<br>' +
+        Math.round(stats.bytesTransferred / 1024 / 1024) +'MB');
+    }).then(()=>{
+      this.spinnerService.hideLoader();
+      this.statusService.showStatus('Files Saved to '+savePath+'!!');
+    })
+      .catch(e=>this.statusService.showStatus(e.toString(),true));
   }
   pickLocation(){
     this.appService.electron.remote.dialog.showOpenDialog(
@@ -169,15 +152,15 @@ export class FilesComponent implements OnInit {
     if(!this.isConnected()){
       return Promise.resolve();
     }
-    return this.adbService.client.readdir(this.adbService.deviceSerial, path)
+    return this.adbService.adbCommand('readdir',{serial:this.adbService.deviceSerial,path})
+    //this.adbService.client.readdir(this.adbService.deviceSerial, path)
       .then(files=> {
-
         this.files = files.map(file=> {
           let name = file.name;
           let size = Math.round((file.size/1024/1024)*100)/100;
           let time = file.mtime;
           let icon = 'folder';
-          if(file.isFile()){
+          if(file.__isFile){
             let fileParts = file.name.split('.');
             let extension = (fileParts[fileParts.length-1]||"").toLowerCase();
             switch(extension){
