@@ -11,7 +11,6 @@ import { BsaberService, QuestSaberPatchPack } from '../bsaber.service';
 })
 export class CustomLevelsComponent implements OnInit {
   addPack:QuestSaberPatchPack;
-  defaultImage:string = 'C:\\workspace\\SideQuest\\desktop-app\\src\\assets\\images\\default-pack-cover.png';
   constructor(public spinnerService:LoadingSpinnerService,
               public adbService:AdbClientService,
               public appService:AppService,
@@ -27,12 +26,18 @@ export class CustomLevelsComponent implements OnInit {
     this.addPack = {
       id:'',
       name:'',
-      coverImagePath:this.defaultImage
+      coverImagePath:this.bsaberService.defaultImage
     }
+  }
+  removeSong(id){
+    this.bsaberService.removeSong(id);
+    this.bsaberService.getMySongs()
+      .then(()=>this.bsaberService.saveJson(this.bsaberService.jSon));
   }
   ngOnInit() {
     this.bsaberService.getMySongs()
       .then(()=>this.orderSongs(true))
+    this.bsaberService.hasBackup = this.bsaberService.backupExists();
   }
   deletePack(){
     this.bsaberService.jSon.packs =
@@ -63,7 +68,7 @@ export class CustomLevelsComponent implements OnInit {
       let packIndex = this.bsaberService.jSon.packs.map(p=>p.id).indexOf(this.addPack.id);
       if(packIndex>-1){
         this.bsaberService.jSon.packs[packIndex].name = this.addPack.name;
-        this.bsaberService.jSon.packs[packIndex].coverImagePath = this.addPack.coverImagePath || this.defaultImage;
+        this.bsaberService.jSon.packs[packIndex].coverImagePath = this.addPack.coverImagePath || this.bsaberService.defaultImage;
         if(this.bsaberService.jSon.packs[packIndex].coverImagePath){
           let imageIcon = this.appService.getBase64Image(this.bsaberService.jSon.packs[packIndex].coverImagePath);
           if(imageIcon) this.bsaberService.jSon.packs[packIndex].icon = imageIcon;
@@ -75,7 +80,7 @@ export class CustomLevelsComponent implements OnInit {
     let pack:QuestSaberPatchPack = {
       id: this.bsaberService.jSon.packs.length.toString(),
       name: this.addPack.name,
-      coverImagePath: this.addPack.coverImagePath || this.defaultImage,
+      coverImagePath: this.addPack.coverImagePath || this.bsaberService.defaultImage,
       levelIDs: [],
       isOpen:false,
     };

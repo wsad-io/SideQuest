@@ -227,17 +227,43 @@
     <h4>Run QuestSaberPatch</h4>
   </mz-modal-header>
   <mz-modal-content>
+    <div *ngIf="bsaberService.hasBackup">
+      <br><br>
+      We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
+      <br><br>
+      This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
+      <br />
+    </div>
+    <div *ngIf="!bsaberService.hasBackup">
+      No backup of beat saber made. Please make a backup now!
+    </div>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button *ngIf="bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="patchBeatSaber()">Run Patcher</button>
+    <button *ngIf="!bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="bsaberService.backupNewMaster()">Make Backup</button>
 
-    <br><br>
-    We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
-    <br><br>
-    This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-    <br />
+  </mz-modal-footer>
+</mz-modal>
 
+
+<mz-modal #installAPKModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Patch Completed - Now Install the Custom Song APK</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Below is the results of teh patch process. If it shows that some songs were skipped you may need to investigate why. In some cases we have seen `.ogg` files renamed to `.egg` files and these need to be fixed in the songs to get them to patch.
+    <br><br>
+    Patch Results:
+    <div *ngIf="qspResponse">
+      <div *ngIf="qspResponse.presentLevels.length"> <b>Current Levels</b><br>:{{(qspResponse.presentLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="qspResponse.installedLevels.length"> <b>New Levels</b><br>:{{(qspResponse.installedLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="installSkippedLength()"> <b>Skipped Levels</b><br>:{{getInstallSkipped()}}<br></div>
+    </div>
 
   </mz-modal-content>
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
-    <button mz-button class="pink-button" mz-modal-close (click)="addRepo()">Run Patcher</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="installPatchedAPK()">Install APK</button>
   </mz-modal-footer>
 </mz-modal>

@@ -309,7 +309,7 @@ export class AdbClientService {
             .catch(e => {
                 this.spinnerService.hideLoader();
                 this.isTransferring = false;
-                this.statusService.showStatus(e.toString(), true);
+                this.statusService.showStatus(e.message ? e.message : e.toString(), true);
             });
     }
     installAPK(filePath: string, isLocal?: boolean) {
@@ -334,7 +334,7 @@ export class AdbClientService {
             })
             .catch(e => {
                 this.spinnerService.hideLoader();
-                this.statusService.showStatus(e.message ? e.message : e.toString(), true);
+                this.statusService.showStatus(e.message ? e.message : e.code ? e.code : e.toString(), true);
             });
     }
     uninstallAPK(pkg) {
@@ -347,7 +347,7 @@ export class AdbClientService {
             })
             .catch(e => {
                 this.spinnerService.hideLoader();
-                this.statusService.showStatus(e.toString(), true);
+                this.statusService.showStatus(e.message ? e.message : e.code ? e.code : e.toString(), true);
             });
     }
     makeFolder(files) {

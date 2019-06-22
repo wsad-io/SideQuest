@@ -5,7 +5,7 @@ import { WebviewService } from '../webview.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
 import { RepoService } from '../repo.service';
-import { BsaberService } from '../bsaber.service';
+import { BsaberService, QuestSaberPatchResponseJson } from '../bsaber.service';
 
 @Component({
   selector: 'app-header',
@@ -14,10 +14,13 @@ import { BsaberService } from '../bsaber.service';
 })
 export class HeaderComponent implements OnInit {
   @ViewChild('header',{static:false}) header;
+  @ViewChild('syncSongsModal',{static:false}) syncSongsModal;
+  @ViewChild('installAPKModal',{static:false}) installAPKModal;
   theme = ThemeMode;
   folder = FolderType;
   isMaximized:boolean;
   addrepoUrl:string = '';
+  qspResponse:QuestSaberPatchResponseJson;
   constructor(public adbService:AdbClientService,
               public appService:AppService,
               public bsaberService:BsaberService,
@@ -90,5 +93,32 @@ export class HeaderComponent implements OnInit {
       .then(()=>this.statusService.showStatus('Repo added OK!!'))
       .then(()=>this.repoService.saveRepos())
       .catch(e=>this.statusService.showStatus(e.toString(),true));
+  }
+  patchBeatSaber(){
+    this.syncSongsModal.closeModal();
+    this.spinnerService.showLoader();
+    this.spinnerService.setMessage('Patching Beat Saber...<br>This might take some time.');
+    this.bsaberService.questSaberPatch()
+      .then((json:QuestSaberPatchResponseJson)=>{
+        if(json.error){
+          return new Error(json.error);
+        }
+        this.qspResponse = json;
+        this.spinnerService.hideLoader();
+        this.installAPKModal.openModal();
+      })
+      .catch(e=>{
+        this.spinnerService.hideLoader();
+        this.statusService.showStatus(e.toString(),true);
+      })
+  }
+  installSkippedLength(){
+    return Object.keys(this.qspResponse.installSkipped||{}).length;
+  }
+  getInstallSkipped(){
+    return Object.keys(this.qspResponse.installSkipped||{}).map(k=>k+':'+this.qspResponse.installSkipped[k]).join(', ')
+  }
+  installPatchedAPK(){
+    this.adbService.installAPK(this.appService.path.join(this.appService.appData,'bsaber-base_patched.apk'),true);
   }
 }

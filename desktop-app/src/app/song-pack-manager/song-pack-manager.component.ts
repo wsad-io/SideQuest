@@ -148,5 +148,6 @@ export class SongPackManagerComponent implements OnInit {
   }
   removeSongFromPack(song,pack){
     pack.levelIDs = pack.levelIDs.filter(s=>s!==song);
+    this.saveJson.emit();
   }
 }

@@ -5,7 +5,7 @@
   (editPack)="addPack.name = $event.name;addPack.id = $event.id;addPack.coverImagePath = $event.coverImagePath;addPackModal.openModal()"
   (addPack)="addPackModal.openModal()"
   (saveJson)="bsaberService.saveJson(bsaberService.jSon)"
-  (removeSong)="bsaberService.removeSong($event);this.bsaberService.getMySongs();"
+  (removeSong)="removeSong($event)"
   (orderSongs)="orderSongs($event==='recent')">
 
 </app-song-pack-manager>
