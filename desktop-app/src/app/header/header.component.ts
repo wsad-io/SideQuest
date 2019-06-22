@@ -119,6 +119,6 @@ export class HeaderComponent implements OnInit {
     return Object.keys(this.qspResponse.installSkipped||{}).map(k=>k+':'+this.qspResponse.installSkipped[k]).join(', ')
   }
   installPatchedAPK(){
-    this.adbService.installAPK(this.appService.path.join(this.appService.appData,'bsaber-base_patched.apk'),true);
+    this.adbService.installAPK(this.appService.path.join(this.appService.appData,'bsaber-base_patched.apk'),true, true);
   }
 }

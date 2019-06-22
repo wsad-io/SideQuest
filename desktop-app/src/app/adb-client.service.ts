@@ -312,7 +312,7 @@ export class AdbClientService {
                 this.statusService.showStatus(e.message ? e.message : e.toString(), true);
             });
     }
-    installAPK(filePath: string, isLocal?: boolean) {
+    installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean) {
         if (this.deviceStatus !== ConnectionStatus.CONNECTED) {
             this.statusService.showStatus('Apk install failed: No device connected!', true);
             return Promise.reject();
@@ -333,6 +333,10 @@ export class AdbClientService {
                 this.statusService.showStatus('APK file installed ok!! ' + filePath);
             })
             .catch(e => {
+              if(e.code && shouldUninstall){
+                return this.uninstallAPK('com.beatgames.beatsaber')
+                  .then(()=>this.installAPK(filePath, isLocal))
+              }
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus(e.message ? e.message : e.code ? e.code : e.toString(), true);
             });
