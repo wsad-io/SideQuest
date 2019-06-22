@@ -106,29 +106,29 @@ export class WebviewService {
       this.webView.insertCSS(customCss);
     });
     this.webView.addEventListener('did-navigate-in-page', () => {
-      setTimeout(() => {
-        this.webView.executeJavaScript(customJS);
-        //this.bsaber.getCurrentDeviceSongs();
-      }, 2500);
-      setTimeout(() => {
-        this.webView.executeJavaScript(customJS);
-        ///this.bsaber.getCurrentDeviceSongs();
-      }, 4500);
-      setTimeout(() => {
-        this.webView.executeJavaScript(customJS);
-        //this.bsaber.getCurrentDeviceSongs();
-      }, 6500);
-      setTimeout(() => {
-        this.webView.executeJavaScript(customJS);
-        //this.bsaber.getCurrentDeviceSongs();
-      }, 8500);
+      // setTimeout(() => {
+      //   this.webView.executeJavaScript(customJS);
+      //   //this.bsaber.getCurrentDeviceSongs();
+      // }, 2500);
+      // setTimeout(() => {
+      //   this.webView.executeJavaScript(customJS);
+      //   ///this.bsaber.getCurrentDeviceSongs();
+      // }, 4500);
+      // setTimeout(() => {
+      //   this.webView.executeJavaScript(customJS);
+      //   //this.bsaber.getCurrentDeviceSongs();
+      // }, 6500);
+      // setTimeout(() => {
+      //   this.webView.executeJavaScript(customJS);
+      //   //this.bsaber.getCurrentDeviceSongs();
+      // }, 8500);
     });
     this.webView.addEventListener('did-stop-loading', async e => {
       this.currentAddress = this.webView.getURL();
       this.isWebviewLoading = false;
       this.webView.insertCSS(customCss);
       //if (this.bsaber) {
-        this.webView.executeJavaScript(customJS);
+        //this.webView.executeJavaScript(customJS);
        // this.bsaber.getCurrentDeviceSongs();
       //}
     });
