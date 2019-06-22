@@ -30,6 +30,8 @@ export class AdbClientService {
     deviceIp: string;
     wifiEnabled: boolean;
     wifiHost: string;
+    isBatteryCharging: boolean;
+    batteryLevel: number;
     constructor(
         public appService: AppService,
         private spinnerService: LoadingSpinnerService,
@@ -123,6 +125,7 @@ export class AdbClientService {
                 break;
             case ConnectionStatus.CONNECTED:
                 this.getPackages();
+                this.getBatteryLevel();
                 this.deviceStatusMessage = 'Connected';
                 break;
             case ConnectionStatus.DISCONNECTED:
@@ -618,6 +621,22 @@ export class AdbClientService {
                     }
                 });
             });
+        });
+    }
+    getBatteryLevel() {
+        this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
+            let batteryObject = {};
+            let batteyInfo = data.substring(data.indexOf('\n') + 1);
+            batteyInfo.split('\n ').forEach(element => {
+                let attribute = element.replace(/\s/g, '').split(':');
+                let matcher = /true|false|[0-9].{0,}/g;
+                if (attribute[1].match(matcher)) {
+                    attribute[1] = JSON.parse(attribute[1]);
+                }
+                Object.assign(batteryObject, { [attribute[0]]: attribute[1] });
+            });
+            this.isBatteryCharging = batteryObject['USBpowered'] || batteryObject['ACpowered'];
+            this.batteryLevel = batteryObject['level'];
         });
     }
 }
