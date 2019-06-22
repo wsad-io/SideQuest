@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AdbClientService, ConnectionStatus } from '../adb-client.service';
-import { AppService, ThemeMode } from '../app.service';
+import { AppService, FolderType, ThemeMode } from '../app.service';
 import { WebviewService } from '../webview.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
 import { RepoService } from '../repo.service';
+import { BsaberService } from '../bsaber.service';
 
 @Component({
   selector: 'app-header',
@@ -14,10 +15,12 @@ import { RepoService } from '../repo.service';
 export class HeaderComponent implements OnInit {
   @ViewChild('header',{static:false}) header;
   theme = ThemeMode;
+  folder = FolderType;
   isMaximized:boolean;
   addrepoUrl:string = '';
   constructor(public adbService:AdbClientService,
               public appService:AppService,
+              public bsaberService:BsaberService,
               public webService:WebviewService,
               public spinnerService:LoadingSpinnerService,
               public statusService:StatusBarService,
@@ -25,6 +28,9 @@ export class HeaderComponent implements OnInit {
 
   }
   ngOnInit(){}
+  isConnected(){
+    return this.adbService.deviceStatus === ConnectionStatus.CONNECTED;
+  }
   ngAfterViewInit() {
     this.appService.setTitleEle(this.header.nativeElement)
   }

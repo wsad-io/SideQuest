@@ -3,6 +3,10 @@ import { AdbClientService, ConnectionStatus } from '../adb-client.service';
 import { AppService, FolderType } from '../app.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
+import { RepoService } from '../repo.service';
+import { BsaberService } from '../bsaber.service';
 
 @Component({
   selector: 'app-packages',
@@ -18,13 +22,29 @@ export class PackagesComponent implements OnInit {
   dataBackups:string[];
   isBackingUp:boolean;
   isOpen:boolean;
+  sub:Subscription;
   constructor(public adbService:AdbClientService,
               private appService:AppService,
               public spinnerService:LoadingSpinnerService,
-              public statusService:StatusBarService) {
+              public statusService:StatusBarService,
+              private repoService:RepoService,
+              private bsaberService:BsaberService,
+              router:Router,
+              route:ActivatedRoute) {
     appService.webService.isWebviewOpen = false;
     appService.resetTop();
-    this.appService.setTitle('Installed Apps')
+    this.appService.setTitle('Installed Apps');
+    this.sub = router.events.subscribe((val) => {
+      if(val instanceof NavigationEnd){
+        let currentPackage = route.snapshot.paramMap.get("packageName");
+        if(currentPackage){
+          this.currentPackage.package = currentPackage;
+          if(this.repoService.allApps[currentPackage]){
+            this.currentPackage.repoApp = this.repoService.allApps[currentPackage];
+          }
+        }
+      }
+    });
   }
 
   ngOnInit() {
@@ -34,9 +54,18 @@ export class PackagesComponent implements OnInit {
     let isConnected = this.adbService.deviceStatus === ConnectionStatus.CONNECTED;
     if(isConnected&&!this.isOpen){
       this.isOpen = true;
-      this.adbService.getPackages();
+      this.adbService.getPackages()
+        .then(()=>{
+          if(this.currentPackage.package&&~this.adbService.devicePackages.indexOf(this.currentPackage.package)){
+            this.appSettingsModal.openModal();
+          }else if(this.currentPackage.package){
+            this.statusService.showStatus('App not installed...'+(this.currentPackage.package?this.currentPackage.package:''),true);
+          }
+        });
     }
     return isConnected
+  }
+  ngAfterViewInit(){
   }
   getCurrentInstalledInfo(){
     this.adbService.getPackageInfo(this.currentPackage.package)
@@ -52,6 +81,13 @@ export class PackagesComponent implements OnInit {
     this.appSettingsModal.closeModal();
     let location = await this.adbService.getPackageLocation(this.currentPackage.package);
     this.adbService.backupPackage(location,this.currentPackage.package)
+      .then(savePath=>{
+        if(this.currentPackage.package === this.bsaberService.beatSaberPackage &&
+        !this.bsaberService.backupExists()){
+          this.appService.fs.copyFileSync(savePath,this.appService.path.join(this.appService.appData,'bsaber-base.apk'));
+          this.appService.fs.copyFileSync(savePath,this.appService.path.join(this.appService.appData,'bsaber-base_patched.apk'));
+        }
+      })
   }
   backupData(){
     this.appSettingsModal.closeModal();

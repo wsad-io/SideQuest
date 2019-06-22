@@ -139,7 +139,8 @@
 .add-repo,
 .sync-songs,
 .sync-songs-now,
-.update-available {
+.update-available,
+.beast-saber-buttons{
   position: absolute;
   top: 115px;
   right: 15px;
@@ -149,7 +150,7 @@
   top: 50px;
   right: 190px;
 }
-.sync-songs-now {
+.sync-songs-now,.beast-saber-buttons {
   top: 45px;
 }
 .update-repo,
@@ -161,8 +162,9 @@
   font-size: 14px;
 }
 .browser-loading {
-  margin-bottom: -15px;
-  margin-left: 15px;
+  top: 15px;
+  position: relative;
+  left: 15px;
 }
 .logo {
   background: transparent url('/assets/images/logo.png') center center no-repeat;

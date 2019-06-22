@@ -32,6 +32,7 @@ export class CustomLevelsComponent implements OnInit {
   }
   ngOnInit() {
     this.bsaberService.getMySongs()
+      .then(()=>this.orderSongs(true))
   }
   deletePack(){
     this.bsaberService.jSon.packs =
@@ -84,6 +85,26 @@ export class CustomLevelsComponent implements OnInit {
     }
     this.bsaberService.jSon.packs.push(pack);
     this.resetAddPack();
+    this.bsaberService.saveJson(this.bsaberService.jSon);
+  }
+  orderSongs(isRecent:boolean){
+    if(isRecent){
+      this.bsaberService.songs = this.bsaberService.songs
+        .sort((a, b) => {
+          return a.created < b.created
+            ? -1
+            : a.created > b.created
+              ? 1
+              : 0;
+        })
+        .reverse();
+    }else{
+      this.bsaberService.songs = this.bsaberService.songs.sort((a, b) => {
+        let textA = a.name.toUpperCase();
+        let textB = b.name.toUpperCase();
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
+      });
+    }
     this.bsaberService.saveJson(this.bsaberService.jSon);
   }
 }

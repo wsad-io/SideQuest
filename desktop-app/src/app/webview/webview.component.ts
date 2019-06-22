@@ -13,7 +13,7 @@ export class WebviewComponent implements OnInit {
     appService.resetTop();
     webService.isWebviewOpen = true;
     appService.showBrowserBar = true;
-    appService.setTitle('Beast Saber')
+    appService.setTitle('Browser')
   }
 
   ngOnInit() {

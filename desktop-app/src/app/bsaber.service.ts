@@ -154,6 +154,9 @@ export class BsaberService {
         });
     });
   }
+  backupExists(){
+    return this.appService.fs.existsSync(this.appService.path.join(this.appService.appData,'bsaber-base.apk'));
+  }
   downloadConverterBinary() {
     let url = 'https://github.com/lolPants/songe-converter/releases/download/v0.4.3/songe-converter';
     let name = '.exe';
@@ -320,6 +323,7 @@ export class BsaberService {
     this.getMySongs().then(() => {
       this.jSon = this.getAppJson();
       this.saveJson(this.jSon);
+      this.jSon.packs[0].isOpen = true;
       this.resetPatchedToBase();
       this.statusService.showStatus('Packs reset ok. Please try to sync again. Thanks!');
     });
@@ -515,15 +519,6 @@ export class BsaberService {
             );
             return resolve();
           }
-          // if (
-          //     !~files.indexOf('cover.jpg') &&
-          //     !~files.indexOf('cover.png')
-          // ) {
-          //     fs.copyFileSync(
-          //         path.join(__dirname, 'default-cover.jpg'),
-          //         path.join(fullpath, 'cover.jpg')
-          //     );
-          // }
           try {
             let songData = JSON.parse(
               this.appService.fs.readFileSync(
@@ -567,5 +562,70 @@ export class BsaberService {
   }
   orderSongs(type) {
     this.orderType = type;
+  }
+  removeSong(id) {
+    this.appService.deleteFolderRecursive(this.appService.path.join(this.appService.appData, 'bsaber', id));
+    return Promise.resolve();
+  }
+  downloadSong(downloadUrl) {
+    let parts = downloadUrl.split('/');
+    let zipPath = this.appService.path.join(this.appService.appData, parts[parts.length - 1]);
+    let name = parts[parts.length - 1].split('.')[0];
+    const requestOptions = {
+      timeout: 30000,
+      'User-Agent': this.appService.getUserAgent(),
+    };
+    return new Promise((resolve, reject) => {
+      this.appService.progress(this.appService.request(downloadUrl, requestOptions), { throttle: 300 })
+        .on('error', error => {
+          reject(error);
+        })
+        .on('progress', state => {
+          this.spinnerService.setMessage(
+            'Saving to My Custom Levels... ' +
+            Math.round(state.percent * 100) +
+            '%'
+          );
+        })
+        .on('end', () => {
+          let dir = this.appService.path.join(this.appService.appData, 'bsaber', name);
+          this.appService.fs.mkdir(dir, () => {
+            this.appService.extract(zipPath, { dir: dir }, error => {
+              if (error) {
+                this.appService.deleteFolderRecursive(dir);
+                reject(error);
+              } else {
+                this.appService.fs.unlink(zipPath, err => {
+                  this.convertSongCheck({ dir, name }).then(
+                    () =>
+                      resolve(
+                        parts[parts.length - 1].split(
+                          '.'
+                        )[0]
+                      )
+                  );
+                });
+              }
+            });
+          });
+        })
+        .pipe(this.appService.fs.createWriteStream(zipPath));
+    });
+  }
+
+  convertSongCheck(beatsaber) {
+    return new Promise((resolve, reject) => {
+      this.appService.fs.readdir(beatsaber.dir, async (err, name) => {
+        if (err || !name.length)
+          return reject(
+            err || 'Song directory empty! - ' + beatsaber.dir
+          );
+        let innerDir = this.appService.path.join(beatsaber.dir, name[0]);
+        if (this.appService.fs.existsSync(this.appService.path.join(innerDir, 'info.json'))) {
+          await this.convertSong(innerDir);
+        }
+        resolve();
+      });
+    });
   }
 }

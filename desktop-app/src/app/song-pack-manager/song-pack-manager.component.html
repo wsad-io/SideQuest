@@ -28,7 +28,7 @@
           <div class="pack-song-container-outer">
             <ul class="collection pack-song-container" *ngIf="pack.isOpen"  dragula="SONGS" [(dragulaModel)]="pack.levelIDs">
               <li *ngFor="let song of pack.levelIDs" class="collection-song avatar">
-                <i class="material-icons cursor orange-text drag-indicator right">close</i>
+                <i class="material-icons cursor orange-text drag-indicator right" (click)="removeSongFromPack(song,pack)">close</i>
                 <img [src]="song.cover" alt="" class="circle red" />
                 <i class="material-icons cursor grey-text drag-indicator">drag_indicator</i>
                 <span class="title">{{song.name}}</span>
@@ -45,15 +45,15 @@
     <div class="packs-right">
       <h4>
         <div class="right song-sort">
-          <i mz-tooltip tooltip="Sort by Recent" position="bottom" class="material-icons right cursor">swap_vert</i>
-          <i mz-tooltip tooltip="Sort Alphabetically" position="bottom" class="material-icons right cursor" >sort</i>
+          <i mz-tooltip tooltip="Sort by Recent" position="bottom" class="material-icons right cursor" (click)="orderSongs.emit('recent')">swap_vert</i>
+          <i mz-tooltip tooltip="Sort Alphabetically" position="bottom" class="material-icons right cursor" (click)="orderSongs.emit('name')">sort</i>
           <i mz-tooltip tooltip="Select multiple songs to add to a pack" (click)="checkboxChecked = !checkboxChecked" position="bottom" class="material-icons right cursor">check_box</i>
         </div>
         All My Songs
       </h4>
       <ul class="collection song-container" #song_container  dragula="SONGS" [(dragulaModel)]="songs">
         <li *ngFor="let song of songs;let i = index" class="collection-song avatar">
-          <i class="material-icons cursor orange-text drag-indicator right" >close</i>
+          <i class="material-icons cursor orange-text drag-indicator right" (click)="removeSong.emit(song.id)">close</i>
 
           <mz-checkbox-container class="right checkbox-container" *ngIf="checkboxChecked">
             <input mz-checkbox

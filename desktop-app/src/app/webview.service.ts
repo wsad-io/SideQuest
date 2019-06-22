@@ -7,14 +7,13 @@ import { AppService } from './app.service';
 export class WebviewService {
   webView:any;
   isWebviewOpen:boolean;
-  currentAddress:string = 'https://bsaber.com/';
+  currentAddress:string = 'https://beatsaver.com/browse/latest';
   isWebviewLoading:boolean = false;
   constructor(private appService:AppService) {
     appService.setWebviewService(this);
   }
   setWebView(webView){
     this.webView = webView;
-    console.log(this.webView);
     this.setupWebview();
   }
   setupWebview() {
@@ -101,7 +100,6 @@ export class WebviewService {
     //     this.beatView.loadURL(webaddress.value);
     //   }
     // });
-
     this.webView.addEventListener('did-start-loading', e => {
       this.currentAddress = this.webView.getURL();
       this.isWebviewLoading = true;
@@ -148,5 +146,8 @@ export class WebviewService {
   }
   send(){
     this.webView.loadURL(this.currentAddress);
+  }
+  loadUrl(url:string){
+    this.webView.loadURL(url);
   }
 }

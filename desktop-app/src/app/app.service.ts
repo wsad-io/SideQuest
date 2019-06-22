@@ -46,6 +46,7 @@ export class AppService {
   opn: any;
   spawn: any;
   md5: any;
+  semver:any;
   titleEle: HTMLElement;
   webService: WebviewService;
   currentTheme: ThemeMode = ThemeMode.DARK;
@@ -61,35 +62,12 @@ export class AppService {
     this.opn = (<any>window).require('opn');
     this.md5 = (<any>window).require('md5');
     this.spawn = (<any>window).require('child_process').spawn;
-
-    /*
-const opn = require('opn');
-const remote = require('electron').remote;
-const ipcRenderer = require('electron').ipcRenderer;
-const eApp = require('electron').remote.app;
-const dialog = require('electron').remote.dialog;
-const clipboard = require('electron').clipboard;
-const shell = require('electron').shell;
-const adb = require('adbkit');
-const extract = require('extract-zip');
-const targz = require('targz');
-const os = require('os');
-const fs = require('fs');
-const path = require('path');
-const request = require('request');
-const progress = require('request-progress');
-const md5 = require('md5');
-const Readable = require('stream').Readable;
-const appData = path.join(eApp.getPath('appData'),'SideQuest');
-const semver = require('semver');
-const { spawn } = require('child_process');
-*/
+    this.semver = (<any>window).require('child_process').semver;
     this.electron = (<any>window).require('electron');
     this.remote = this.electron.remote;
     this.nativeApp = this.electron.remote.app;
     this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
     this.makeFolders()
-      .then(()=>this.setupIpcRenderer())
     //.then(()=>this.bsaberService.downloadQSP())
       .then(() => this.spinnerService.hideLoader());
 
@@ -98,16 +76,7 @@ const { spawn } = require('child_process');
       this.currentTheme = ThemeMode.LIGHT;
     }
   }
-  setupIpcRenderer(){
-    //
-    // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
 
-    // this.electron.ipcRenderer.on('asynchronous-reply', (event, arg) => {
-    //   console.log(arg) // prints "pong"
-    // });
-   // setInterval(()=>this.electron.ipcRenderer.send('adb-command', {command:'command',something:[0,'f']}),2000);
-
-  }
   getBase64Image(imagePath:string){
     try{
       return 'data:image/'+(<any>imagePath).split('.').pop()+';base64,'+this.fs.readFileSync(imagePath).toString('base64')
@@ -162,6 +131,9 @@ const { spawn } = require('child_process');
     switch (folder) {
       case FolderType.MAIN:
         this.electron.shell.openItem(this.appData);
+        break;
+      case FolderType.BSABER:
+        this.electron.shell.openItem(this.path.join(this.appData, 'bsaber'));
         break;
       case FolderType.BSABER_BACKUPS:
         this.electron.shell.openItem(this.path.join(this.appData, 'bsaber-backups'));

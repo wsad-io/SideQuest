@@ -2,9 +2,16 @@
   <div class="topper"></div>
   <div class="logo"></div>
   <div class="header-title" #header>SideQuest</div>
-  <div class="apk-install" *ngIf="!appService.showBrowserBar">Drag and drop your APK/OBB files <br>over this window to install!</div>
+  <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions">Drag and drop your APK/OBB files <br>over this window to install!</div>
+  <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
+    <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
+    <app-link url="https://github.com/emulamer/QuestStopgap" text="@emulamer"></app-link>,
+    <app-link url="https://github.com/ATechAdventurer" text="@ATechAdventurer"></app-link><br>
+    and of course
+    <app-link url="https://bsaber.com/members/elliotttate/" text="@elliotttate"></app-link>
+    for beat saber efforts.</div>
   <div class="title-menu-container">
-    <i mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
+    <i mz-tooltip *ngIf="false" (click)="adbService.getIpAddress();wifiModal.openModal()" class="material-icons no-outline" [ngClass]="{'green-text':adbService.wifiEnabled,'white-text':!adbService.wifiEnabled}" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
       wifi
     </i>
     <i routerLink="custom-levels" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Beast Saber Custom Levels">
@@ -72,35 +79,46 @@
        data-url="https://github.com/the-expanse/SideQuest/releases">
     Update Available
   </div>
-  <a *ngIf="appService.showBrowserBar" routerLink="custom-levels" class="waves-effect waves-light btn pink-button sync-songs-now no-outline">
-    <i class="material-icons left">queue_music</i>My Downloads</a>
+  <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
+    <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://bsaber.com')">
+      bsaber.com</a>&nbsp;&nbsp;&nbsp;
+    <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">
+      beatsaver.com</a>&nbsp;&nbsp;&nbsp;
+    <a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">
+      <i class="material-icons left">queue_music</i>My Downloads</a>
+  </div>
+
   <div class="sync-songs" *ngIf="appService.showCustomActions">
     <span class="beat-saber-version"></span>&nbsp;&nbsp;
     <div
-      class="waves-effect waves-light btn refresh-songs-one tooltipped small-button pink-button"
-      data-position="bottom"
-      data-tooltip="Refresh the songs in this list.">
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Refresh the songs in this list." (click)="bsaberService.getMySongs()">
       Refresh Songs
     </div>
     &nbsp;&nbsp;
     <div
-      class="waves-effect waves-light btn open-songs-main-one tooltipped small-button pink-button"
-      data-position="bottom"
-      data-tooltip="Open your custom levels folder.">
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Open your custom levels folder." (click)="appService.openFolder(folder.BSABER)">
       Open Songs Folder
     </div>
     &nbsp;&nbsp;
     <div
-      class="waves-effect waves-light btn modal-trigger restore-backup-button tooltipped small-button pink-button"
-      data-position="bottom"
-      data-tooltip="Manage your APK and Data backups.">
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Manage your APK and Data backups." routerLink="packages/com.beatgames.beatsaber">
       Backups
     </div>
     &nbsp;&nbsp;
     <div
-      class="waves-effect waves-light btn modal-trigger sync-selected-button tooltipped small-button pink-button"
-      data-position="bottom"
-      data-tooltip="Build a new beat saber APK and install these songs.">
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Build a new beat saber APK and install these songs." (click)="syncSongsModal.openModal()">
       Sync Songs
     </div>
   </div>
@@ -112,7 +130,7 @@
       <i class="material-icons">keyboard_arrow_right</i>
     </a>
     <div class="input-field inline browser-input">
-      <input id="web_address" class="input-dark-theme" type="text" [(ngModel)]="webService.currentAddress" placeholder="Address" />
+      <input id="web_address" class="input-dark-theme white-text" type="text" [(ngModel)]="webService.currentAddress" placeholder="Address" />
       <label class="active label-dark-theme" for="web_address">
         Address
       </label>
@@ -120,25 +138,7 @@
     <a class="btn-floating waves-effect waves-light browser-button browser-send-button pink-button" (click)="webService.send()">
       <i class="material-icons">send</i>
     </a>
-    <svg
-      class="browser-loading uil-ring-alt"
-      width="40px"
-      height="40px"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="xMidYMid">
-      <rect x="0" y="0" width="100" height="100" fill="none" class="bk" />
-      <circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round" />
-      <circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round">
-        <animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502" />
-        <animate
-          attributeName="stroke-dasharray"
-          dur="1s"
-          repeatCount="indefinite"
-          values="150.6 100.4;1 250;150.6 100.4"
-        />
-      </circle>
-    </svg>
+    <app-loading-spinner-small *ngIf="webService.isWebviewLoading" class="browser-loading"></app-loading-spinner-small>
   </div>
   <div id="searchFilterContainer" *ngIf="appService.showSearch">
     <div class="search">
@@ -183,3 +183,61 @@
   </mz-modal-footer>
 </mz-modal>
 
+
+
+<mz-modal #wifiModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Wireless Mode</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <div class="center-align">
+      Enable wifi mode to install apps wirelessly.<br>
+      <div class="chip">Experimental</div>
+      <br><br><br>
+      <i mz-tooltip class="material-icons large cursor" [ngClass]="{'green-text':adbService.wifiEnabled}" (click)="adbService.wifiEnabled=!adbService.wifiEnabled;adbService.toggleWifiMode()" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
+        wifi
+      </i>
+      <br /><br>
+      <div class="switch cursor">
+        <label>
+          Off
+          <input type="checkbox" [(ngModel)]="adbService.wifiEnabled" (change)="adbService.toggleWifiMode()" />
+          <span class="lever"></span>
+          On
+        </label>
+      </div>
+      <br>
+      <br>
+      <div>
+        <h5>Device IP:</h5>
+        {{adbService.deviceIp}}<br>
+        <a class="waves-effect waves-dark btn search-button-margin white black-text"  (change)="adbService.connect()">Connect</a>
+      </div>
+    </div>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>
+
+
+
+<mz-modal #syncSongsModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Run QuestSaberPatch</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+
+    <br><br>
+    We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
+    <br><br>
+    This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
+    <br />
+
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="addRepo()">Run Patcher</button>
+  </mz-modal-footer>
+</mz-modal>

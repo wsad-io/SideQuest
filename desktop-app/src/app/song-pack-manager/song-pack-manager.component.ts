@@ -34,6 +34,8 @@ export class SongPackManagerComponent implements OnInit {
   @Output('addPack') addPack = new EventEmitter();
   @Output('editPack') editPack = new EventEmitter();
   @Output('saveJson') saveJson = new EventEmitter();
+  @Output('removeSong') removeSong = new EventEmitter();
+  @Output('orderSongs') orderSongs = new EventEmitter();
   @ViewChild('song_container',{static:false}) song_container;
   @ViewChild('pack_container',{static:false}) pack_container;
   @ViewChild('mirror_holder',{static:false}) mirror_holder;
@@ -143,5 +145,8 @@ export class SongPackManagerComponent implements OnInit {
       });
     }
     this.saveJson.emit();
+  }
+  removeSongFromPack(song,pack){
+    pack.levelIDs = pack.levelIDs.filter(s=>s!==song);
   }
 }

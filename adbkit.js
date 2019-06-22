@@ -40,6 +40,41 @@ module.exports = class ADB {
             .then(cb)
             .catch(e => ecb(e));
     }
+    disconnect(cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .disconnect()
+            .then(cb)
+            .then(() => this.client.kill())
+            .catch(e => ecb(e));
+    }
+    connect(deviceIp, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .connect(deviceIp + ':5555')
+            .then(cb)
+            .catch(e => ecb(e));
+    }
+    tcpip(serial, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .tcpip(serial, 5555)
+            .then(r => {
+                console.log(r);
+                cb(r);
+            })
+            .catch(e => {
+                console.log(serial, e);
+                ecb(e);
+            });
+    }
+    usb(serial, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .usb(serial)
+            .then(cb)
+            .catch(e => ecb(e));
+    }
     listDevices(cb, ecb) {
         if (!this.client) return ecb('Not connected.');
         this.client
