@@ -98,7 +98,7 @@
   height: calc(100% - 75px);
   overflow: auto;
   border: 1px solid #cfcfcf;
-  border-right: 1px solid #cfcfcf!important;
+  border-right: 0px solid #cfcfcf!important;
   border-left: 1px solid #cfcfcf!important;
 }
 .name{

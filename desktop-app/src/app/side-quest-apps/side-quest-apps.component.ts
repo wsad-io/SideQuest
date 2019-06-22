@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { Subscription } from 'rxjs/internal/Subscription';
 import { JSONApp, RepoBody } from '../repo-item/repo-item.component';
 import { AppService } from '../app.service';
+import { AdbClientService } from '../adb-client.service';
 
 @Component({
   selector: 'app-side-quest-apps',
@@ -16,12 +17,17 @@ export class SideQuestAppsComponent implements OnInit {
   apps:JSONApp[];
   currentRepo:number = 0;
 
-  constructor(private route: ActivatedRoute,private repoService:RepoService,private appService:AppService,router:Router) {
+  constructor(private route: ActivatedRoute,
+              private repoService:RepoService,
+              private appService:AppService,
+              router:Router,
+              private adbService:AdbClientService) {
     this.appService.resetTop();
     this.appService.showSearch = true;
     this.sub = router.events.subscribe((val) => {
       if(val instanceof NavigationEnd){
         appService.webService.isWebviewOpen = false;
+        this.apps = null;
         this.currentRepo = parseInt(this.route.snapshot.paramMap.get("index"))||0;
       }
     });
@@ -30,11 +36,20 @@ export class SideQuestAppsComponent implements OnInit {
 
   }
   getApps(){
-    let apps = this.repoService.setCurrent(this.currentRepo);
-    if(apps){
-      this.appService.setTitle(apps.name);
+    if(!this.apps&&this.repoService.repos.length){
+      let apps = this.repoService.setCurrent(this.currentRepo);
+      if(apps){
+        this.adbService.getPackages()
+          .then(()=>{
+            this.apps = apps.body.apps;
+            this.appService.setTitle(apps.name);
+            this.apps.forEach(app=>{
+              app.__is_installed = !!~this.adbService.devicePackages.indexOf(app.packageName);
+            })
+          });
+      }
     }
-    return apps.body.apps;
+    return this.apps;
   }
   ngOnDestroy(){
     if(this.sub)this.sub.unsubscribe();

@@ -17,6 +17,7 @@ export enum FolderType {
   APK_BACKUPS,
   DATA_BACKUPS,
   QUEST_SABER_PATCH,
+  APP_BACKUP
 }
 
 @Injectable({
@@ -60,6 +61,7 @@ export class AppService {
     this.opn = (<any>window).require('opn');
     this.md5 = (<any>window).require('md5');
     this.spawn = (<any>window).require('child_process').spawn;
+
     /*
 const opn = require('opn');
 const remote = require('electron').remote;
@@ -87,6 +89,7 @@ const { spawn } = require('child_process');
     this.nativeApp = this.electron.remote.app;
     this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
     this.makeFolders()
+      .then(()=>this.setupIpcRenderer())
     //.then(()=>this.bsaberService.downloadQSP())
       .then(() => this.spinnerService.hideLoader());
 
@@ -94,6 +97,16 @@ const { spawn } = require('child_process');
     if (theme && theme === 'light') {
       this.currentTheme = ThemeMode.LIGHT;
     }
+  }
+  setupIpcRenderer(){
+    //
+    // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')) // prints "pong"
+
+    // this.electron.ipcRenderer.on('asynchronous-reply', (event, arg) => {
+    //   console.log(arg) // prints "pong"
+    // });
+   // setInterval(()=>this.electron.ipcRenderer.send('adb-command', {command:'command',something:[0,'f']}),2000);
+
   }
   getBase64Image(imagePath:string){
     try{
@@ -145,7 +158,7 @@ const { spawn } = require('child_process');
     }
     return classes;
   }
-  openFolder(folder: FolderType) {
+  openFolder(folder: FolderType, packageName?:string) {
     switch (folder) {
       case FolderType.MAIN:
         this.electron.shell.openItem(this.appData);
@@ -157,7 +170,7 @@ const { spawn } = require('child_process');
         this.electron.shell.openItem(this.path.join(this.appData, 'platform-tools'));
         break;
       case FolderType.APK_BACKUPS:
-        this.electron.shell.openItem(this.path.join(this.appData, 'apk-backups'));
+        this.electron.shell.openItem(this.path.join(this.appData, 'backups'));
         break;
       case FolderType.DATA_BACKUPS:
         this.electron.shell.openItem(this.path.join(this.appData, 'bsaber-data-backups'));
@@ -165,11 +178,14 @@ const { spawn } = require('child_process');
       case FolderType.QUEST_SABER_PATCH:
         this.electron.shell.openItem(this.path.join(this.appData, 'saber-quest-patch', 'questsaberpatch'));
         break;
+      case FolderType.APP_BACKUP:
+        this.electron.shell.openItem(this.path.join(this.appData, 'backups', packageName));
+        break;
     }
   }
   makeFolders() {
     return this.mkdir(this.appData)
-      .then(() => this.mkdir(this.path.join(this.appData, 'apk-backups')))
+      .then(() => this.mkdir(this.path.join(this.appData, 'backups')))
       .then(() => this.mkdir(this.path.join(this.appData, 'bsaber-backups')))
       .then(() => this.mkdir(this.path.join(this.appData, 'tmp')))
       .then(() => this.mkdir(this.path.join(this.appData, 'bsaber-data-backups')))
@@ -178,7 +194,7 @@ const { spawn } = require('child_process');
   }
   async mkdir(path) {
     return new Promise(resolve => {
-      this.fs.mkdir(path, resolve);
+      this.fs.mkdir(path, { recursive: true }, resolve);
     });
   }
   setExecutable(path) {
@@ -229,5 +245,20 @@ const { spawn } = require('child_process');
     const packageString = 'OpenStoreVR';
     const computerString = `Hostname/${this.os.hostname()} Platform/${this.os.platform()} PlatformVersion/${this.os.release()}`;
     return `${packageString} ${nodeString} ${computerString}`;
+  }
+  deleteFolderRecursive(path) {
+    if (this.fs.existsSync(path)) {
+      this.fs.readdirSync(path).forEach(file => {
+        let curPath = path + '/' + file;
+        if (this.fs.lstatSync(curPath).isDirectory()) {
+          // recurse
+          this.deleteFolderRecursive(curPath);
+        } else {
+          // delete file
+          this.fs.unlinkSync(curPath);
+        }
+      });
+      this.fs.rmdirSync(path);
+    }
   }
 }

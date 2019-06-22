@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { AdbClientService } from './adb-client.service';
 import { StatusBarService } from './status-bar.service';
 import { SongItem } from './song-pack-manager/song-pack-manager.component';
+import { LoadingSpinnerService } from './loading-spinner.service';
 declare let __dirname;
 enum OrderType{
   NAME,DATE
@@ -58,7 +59,10 @@ export class BsaberService {
   orderType:OrderType;
   songs:SongItem[] = [];
   jSon:QuestSaberPatchJson;
-  constructor(private appService: AppService, private adbService: AdbClientService, private statusService: StatusBarService) {
+  constructor(private appService: AppService,
+              private adbService: AdbClientService,
+              private statusService: StatusBarService,
+              private spinnerService:LoadingSpinnerService) {
     this.beatBackupPath = appService.path.join(appService.appData, 'bsaber-backups', this.beatSaberPackage);
 
     let bsVersions = localStorage.getItem('beat-saber-version');
@@ -226,6 +230,100 @@ export class BsaberService {
     });
     this.appService.fs.writeFileSync(this.appService.path.join(this.appService.appData, '__json.json'), JSON.stringify(_jSon));
   }
+  selectNewMaster(){
+    this.appService.electron.remote.dialog.showOpenDialog(
+      {
+        properties: ['openFile'],
+        defaultPath: this.appService.appData,
+        filters: [
+          { name: 'Android APK File', extensions: ['apk'] },
+        ],
+      },
+      files => {
+        this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Copying APK...');
+        if (files !== undefined && files.length === 1) {
+          let current_path = this.appService.path.join(
+            this.appService.appData,
+            'bsaber-base.apk'
+          );
+          if (this.appService.doesFileExist(current_path)) {
+            this.appService.fs.copyFileSync(
+              current_path,
+              this.appService.path.join(
+                this.appService.appData,
+                'bsaber-backups',
+                'bsaber-base-old.apk'
+              )
+            );
+          }
+          this.appService.fs.copyFileSync(files[0], current_path);
+          this.appService.fs.copyFileSync(
+            files[0],
+            this.appService.path.join(
+              this.appService.appData,
+              'bsaber-backups',
+              'bsaber-base.apk'
+            )
+          );
+          this.statusService.showStatus(
+            'Master base APK file backed up and replaced!!'
+          );
+        } else if (files !== undefined && files.length !== 1) {
+          this.statusService.showStatus(
+            'One select one APK file!',
+            true
+          );
+        }
+        this.spinnerService.hideLoader();
+      }
+    );
+  }
+  backupNewMaster(){
+    let packageName = 'com.beatgames.beatsaber';
+    return this.adbService.backupPackage(this.adbService.getPackageLocation(packageName),packageName)
+      .then(filePath=>this.appService.fs.copyFileSync(filePath,this.appService.path.join(this.appService.appData,'bsaber-base.apk')))
+      .then(()=>this.resetPatchedToBase())
+      .then(()=>this.statusService.showStatus('Master backup made ok!!'))
+      .catch(()=>{})
+  }
+  resetPatchedToBase(){
+    this.appService.fs.copyFileSync(
+      this.appService.path.join(this.appService.appData,'bsaber-base.apk'),
+      this.appService.path.join(this.appService.appData,'bsaber-base_patched.apk')
+    );
+  }
+  redownloadPatcher(){
+    this.appService.deleteFolderRecursive(
+      this.appService.path.join(this.appService.appData, 'saber-quest-patch')
+    );
+    this.appService.mkdir(this.appService.path.join(this.appService.appData, 'saber-quest-patch'));
+    this.spinnerService.setMessage(
+      'Downloading and Extracting QuestSaberPatch'
+    );
+    this.spinnerService.showLoader();
+    this.downloadQSP()
+      .then(() => {
+        this.spinnerService.hideLoader();
+        // this.resetInstructions.open();
+        this.statusService.showStatus(
+          'Patcher redownloaded. Please try to sync again.'
+        );
+      })
+      .catch(e => {
+        this.spinnerService.hideLoader();
+        this.statusService.showStatus(e.toString(), true);
+      });
+  }
+  resetPacks(){
+    this.appService.fs.unlinkSync(this.appService.path.join(this.appService.appData, '__json.json'));
+    this.getMySongs().then(() => {
+      this.jSon = this.getAppJson();
+      this.saveJson(this.jSon);
+      this.resetPatchedToBase();
+      this.statusService.showStatus('Packs reset ok. Please try to sync again. Thanks!');
+    });
+  }
   getAppJson() {
     let patched_file = this.appService.path.join(this.appService.appData, 'bsaber-base_patched.apk');
     let songKeys = this.songs.map(s => s.id + '_' + s.name);
@@ -245,7 +343,7 @@ export class BsaberService {
           coverImagePath: this.appService.path.join(__dirname, 'default-pack-cover.png'),
           // List of level IDs in the pack in the order you want them displayed.
           // Each levelID can be in multiple packs if you want.
-          levelIDs: [], //this.app.songs,
+          levelIDs: this.songs,
         },
       ],
       exitAfterward: true,
@@ -270,7 +368,6 @@ export class BsaberService {
         let dataString = this.appService.fs.readFileSync(jsonFile, 'utf8');
 
         data = JSON.parse(dataString);
-        console.log(data);
         if (data.ensureInstalled) {
           data.levels = data.ensureInstalled;
           delete data.ensureInstalled;

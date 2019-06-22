@@ -12,7 +12,6 @@ export class StatusBarService {
     this.status = status;
   }
   showStatus(message:string, isWarning?:boolean) {
-    console.warn(message,isWarning);
     this.status.statusMessage = message;
     this.status.isWarning = isWarning;
     this.status.isActive = true;
