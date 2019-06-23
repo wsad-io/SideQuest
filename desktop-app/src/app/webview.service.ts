@@ -148,6 +148,7 @@ export class WebviewService {
     this.webView.loadURL(this.currentAddress);
   }
   loadUrl(url:string){
+    this.currentAddress = url;
     this.webView.loadURL(url);
   }
 }

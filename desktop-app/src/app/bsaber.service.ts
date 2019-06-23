@@ -91,6 +91,7 @@ export class BsaberService {
         }
         this.downloadQSP()
             .then(() => <Promise<void>>this.downloadConverterBinary())
+            .then(() => this.getMySongs())
             .then(() => (this.jSon = this.getAppJson()));
     }
     async getBSandQSPVersions() {
@@ -224,7 +225,7 @@ export class BsaberService {
         });
     }
     saveJson(jSon) {
-        if (!this.hasJson) return;
+        if (!this.hasJson||!jSon) return;
         let _jSon = {
             apkPath: jSon.apkPath,
             sign: true,
@@ -403,7 +404,6 @@ export class BsaberService {
         if (this.appService.fs.existsSync(jsonFile)) {
             try {
                 let dataString = this.appService.fs.readFileSync(jsonFile, 'utf8');
-
                 data = JSON.parse(dataString);
                 if (data.ensureInstalled) {
                     data.levels = data.ensureInstalled;
@@ -436,7 +436,6 @@ export class BsaberService {
                         .filter(l => l);
                 });
             } catch (e) {
-                console.log(e);
                 this.statusService.showStatus('Error Loading JSON file; __json.json', true);
             }
         } else {
