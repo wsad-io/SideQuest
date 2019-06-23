@@ -13,6 +13,7 @@ export class RepoService {
     indexUrl: string = 'https://the-expanse.github.io/SideQuestRepos/';
     constructor(private appService: AppService, private spinnerService: LoadingSpinnerService, private appRef: ApplicationRef) {
         this.getAppIndex();
+        this.appService.seedSources();
         this.getRepos();
     }
     getAppIndex() {
@@ -49,7 +50,12 @@ export class RepoService {
             if (!err) {
                 this.repos.length = 0;
                 this.spinnerService.showLoader();
-                Promise.all(data.split('\n').map((url, i) => this.addRepo(url, i)))
+                Promise.all(
+                    data
+                        .split('\n')
+                        .filter(d => d)
+                        .map((url, i) => this.addRepo(url, i))
+                )
                     .then(() => this.repos.sort((a, b) => a.order - b.order))
                     .then(() => setTimeout(() => this.appRef.tick()))
                     .then(() => {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { WebviewService } from './webview.service';
 import { FilesComponent } from './files/files.component';
+declare let __dirname, process;
 export enum ThemeMode {
     LIGHT,
     DARK,
@@ -153,6 +154,15 @@ export class AppService {
                 break;
         }
     }
+    seedSources() {
+        if (!this.fs.existsSync(this.path.join(this.appData, 'sources.txt'))) {
+            let sourcesPath = this.path.join(__dirname, 'assets', 'sources.txt');
+            if (!this.fs.existsSync(sourcesPath)) {
+                sourcesPath = this.path.join(process.cwd(), 'desktop-app', 'src', 'assets', 'sources.txt');
+            }
+            this.fs.createReadStream(sourcesPath).pipe(this.fs.createWriteStream(this.path.join(this.appData, 'sources.txt')));
+        }
+    }
     makeFolders() {
         return this.mkdir(this.appData)
             .then(() => this.mkdir(this.path.join(this.appData, 'backups')))
@@ -160,7 +170,8 @@ export class AppService {
             .then(() => this.mkdir(this.path.join(this.appData, 'tmp')))
             .then(() => this.mkdir(this.path.join(this.appData, 'bsaber-data-backups')))
             .then(() => this.mkdir(this.path.join(this.appData, 'bsaber')))
-            .then(() => this.mkdir(this.path.join(this.appData, 'saber-quest-patch')));
+            .then(() => this.mkdir(this.path.join(this.appData, 'saber-quest-patch')))
+            .then(() => {});
     }
     async mkdir(path) {
         return new Promise(resolve => {

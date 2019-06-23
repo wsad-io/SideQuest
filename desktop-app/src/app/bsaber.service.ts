@@ -4,7 +4,7 @@ import { AdbClientService } from './adb-client.service';
 import { StatusBarService } from './status-bar.service';
 import { SongItem } from './song-pack-manager/song-pack-manager.component';
 import { LoadingSpinnerService } from './loading-spinner.service';
-declare let __dirname,process;
+declare let __dirname, process;
 enum OrderType {
     NAME,
     DATE,
@@ -80,14 +80,20 @@ export class BsaberService {
         private statusService: StatusBarService,
         private spinnerService: LoadingSpinnerService
     ) {
-      let defaultImagePath = this.appService.path.join(__dirname,'assets','images','default-pack-cover.png');
-      if(this.appService.doesFileExist(defaultImagePath)){
-        this.defaultImage = defaultImagePath;
-      }else{
-        this.defaultImage = this.appService.path.join(process.cwd(),'desktop-app','src','assets','images');
-      }
-      console.log(this.defaultImage);
-      this.beatBackupPath = appService.path.join(appService.appData, 'bsaber-backups', this.beatSaberPackage);
+        let defaultImagePath = this.appService.path.join(__dirname, 'assets', 'images', 'default-pack-cover.png');
+        if (this.appService.doesFileExist(defaultImagePath)) {
+            this.defaultImage = defaultImagePath;
+        } else {
+            this.defaultImage = this.appService.path.join(
+                process.cwd(),
+                'desktop-app',
+                'src',
+                'assets',
+                'images',
+                'default-pack-cover.png'
+            );
+        }
+        this.beatBackupPath = appService.path.join(appService.appData, 'bsaber-backups', this.beatSaberPackage);
 
         let bsVersions = localStorage.getItem('beat-saber-version');
         try {
@@ -95,10 +101,6 @@ export class BsaberService {
         } catch (e) {
             localStorage.setItem('beat-saber-version', JSON.stringify(this.supportedBeatSaberVersions));
         }
-        this.downloadQSP()
-            .then(() => <Promise<void>>this.downloadConverterBinary())
-            .then(() => this.getMySongs())
-            .then(() => (this.jSon = this.getAppJson()));
     }
     async getBSandQSPVersions() {
         const jsonUrl = 'https://raw.githubusercontent.com/the-expanse/SideQuest/master/vendor_versions.txt';
@@ -152,6 +154,8 @@ export class BsaberService {
         let downloadPath = this.appService.path.join(this.appService.appData, 'saber-quest-patch', name);
         this.questSaberBinaryPath = downloadPath;
         if (this.appService.doesFileExist(downloadPath)) return Promise.resolve();
+        this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Downloading/Extracting QuestSaberPatch...');
         return new Promise((resolve, reject) => {
             this.appService
                 .downloadFile(url + 'windows.zip', url + 'linux.zip', url + 'osx.zip', downloadUrl => {
@@ -163,6 +167,7 @@ export class BsaberService {
                         if (error) return reject(error);
                         this.appService.fs.unlink(_path, err => {
                             // if(err) return reject(err);
+                            this.spinnerService.hideLoader();
                             if (this.appService.os.platform() === 'darwin' || this.appService.os.platform() === 'linux') {
                                 this.appService.setExecutable(this.questSaberBinaryPath).then(() => resolve());
                             } else {
@@ -202,6 +207,8 @@ export class BsaberService {
             this.converterBinaryPath = downloadPath;
             return Promise.resolve();
         }
+        this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Downloading/Extracting songe-converter...');
         return new Promise((resolve, reject) => {
             this.appService
                 .downloadFile(url + '.exe', url, url + '-mac', downloadUrl => {
@@ -209,6 +216,7 @@ export class BsaberService {
                     return this.appService.path.join(this.appService.appData, urlParts[urlParts.length - 1]);
                 })
                 .then(path => {
+                    this.spinnerService.hideLoader();
                     this.converterBinaryPath = path.toString();
                     if (this.appService.os.platform() === 'darwin' || this.appService.os.platform() === 'linux') {
                         return this.appService.setExecutable(this.converterBinaryPath).then(() => resolve());
@@ -219,7 +227,7 @@ export class BsaberService {
         });
     }
     saveJson(jSon) {
-        if (!this.hasJson||!jSon) return;
+        if (!this.hasJson || !jSon) return;
         let _jSon = {
             apkPath: jSon.apkPath,
             sign: true,

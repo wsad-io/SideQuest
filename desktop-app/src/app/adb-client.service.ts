@@ -41,7 +41,6 @@ export class AdbClientService {
         this.adbResolves = {};
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
-        this.setupAdb().then(() => this.connectedStatus());
     }
     installFile(filepath) {
         this.spinnerService.showLoader();
@@ -211,11 +210,15 @@ export class AdbClientService {
     }
     async downloadTools() {
         let url = 'https://dl.google.com/android/repository/platform-tools-latest-';
+        this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Downloading/Extracting ADB...');
+        console.log('downloading adb');
         return new Promise((resolve, reject) => {
             this.appService
                 .downloadFile(url + 'windows.zip', url + 'linux.zip', url + 'darwin.zip', url => this.adbPath + '.zip')
                 .then(path =>
                     this.appService.extract(path, { dir: this.appService.appData }, error => {
+                        this.spinnerService.hideLoader();
                         if (error) {
                             reject(error);
                         } else {

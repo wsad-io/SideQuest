@@ -14,12 +14,10 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
         },
-        icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png'),
     });
-    console.log(process.env.NODE_ENV);
-    if(process.env.NODE_ENV === 'dev'){
+    if (process.env.NODE_ENV === 'dev') {
         mainWindow.loadURL('http://localhost:4200');
-    }else{
+    } else {
         mainWindow.loadFile('build/app/index.html');
     }
     //mainWindow.webContents.openDevTools();
