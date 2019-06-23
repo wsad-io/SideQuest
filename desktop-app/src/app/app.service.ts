@@ -70,9 +70,8 @@ export class AppService {
         this.nativeApp = this.electron.remote.app;
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
-        this.makeFolders()
-            .then(() => this.spinnerService.hideLoader());
-        console.log(__dirname,process.cwd());
+        this.makeFolders().then(() => this.spinnerService.hideLoader());
+        // console.log(__dirname,process.cwd());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {
             this.currentTheme = ThemeMode.LIGHT;

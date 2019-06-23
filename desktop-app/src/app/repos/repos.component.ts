@@ -5,18 +5,18 @@ import { AppService } from '../app.service';
 import { StatusBarService } from '../status-bar.service';
 
 @Component({
-  selector: 'app-repos',
-  templateUrl: './repos.component.html',
-  styleUrls: ['./repos.component.css']
+    selector: 'app-repos',
+    templateUrl: './repos.component.html',
+    styleUrls: ['./repos.component.css'],
 })
 export class ReposComponent implements OnInit {
-  constructor(public repoService:RepoService,private appService:AppService,private statusService:StatusBarService) {
-    appService.webService.isWebviewOpen = false;
-    this.appService.resetTop();
-    this.appService.showRepo = true;
-  }
+    constructor(public repoService: RepoService, private appService: AppService) {
+        appService.webService.isWebviewOpen = false;
+        this.appService.resetTop();
+        this.appService.showRepo = true;
+    }
 
-  ngOnInit() {
-    this.appService.setTitle("Repositories");
-  }
+    ngOnInit() {
+        this.appService.setTitle('Repositories');
+    }
 }

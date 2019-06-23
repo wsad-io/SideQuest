@@ -2,5 +2,4 @@ node_modules
 .idea
 platform-tools
 dist
-desktop-app/sources/*.json
 tmp

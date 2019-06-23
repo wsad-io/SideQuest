@@ -11,8 +11,20 @@
         "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
         "postinstall": "electron-builder install-app-deps && cd desktop-app && yarn install",
         "pack": "electron-builder --dir",
-        "dist": "electron-builder",
+        "dist": "cd desktop-app && ng build --prod --aot && cd .. && electron-builder",
         "reset": "rm -rf node_modules && rm -rf desktop-app/node_modules && yarn install && cd desktop-app && yarn install"
+    },
+    "build": {
+        "appId": "com.example.cra-electron-boilerplate",
+        "files": [
+            "build/**/*",
+            "node_modules/**/*",
+            "desktop-app/dist/*",
+            "package.json"
+        ],
+        "directories": {
+            "buildResources": "desktop-app/dist/assets"
+        }
     },
     "husky": {
         "hooks": {
@@ -31,7 +43,6 @@
         "trailingComma": "es5"
     },
     "dependencies": {
-        "@types/node": "^12.0.8",
         "adbkit": "^2.11.1",
         "concurrently": "^4.1.0",
         "extract-zip": "^1.6.7",
@@ -41,11 +52,9 @@
         "request-progress": "^3.0.0",
         "semver": "^6.0.0",
         "targz": "^1.0.1",
-        "typescript": "3.4.5",
         "wait-on": "^3.2.0"
     },
     "devDependencies": {
-        "@angular/cli": "^8.0.3",
         "electron": "^4.1.4",
         "electron-builder": "^20.43.0",
         "husky": "^2.3.0",
