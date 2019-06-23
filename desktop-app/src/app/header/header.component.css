@@ -167,7 +167,7 @@
   left: 15px;
 }
 .logo {
-  background: transparent url('/assets/images/logo.png') center center no-repeat;
+  background: transparent url('../../assets/images/logo.png') center center no-repeat;
   background-size: 85.47579298831386px 100px;
   width: 135px;
   height: 130px;

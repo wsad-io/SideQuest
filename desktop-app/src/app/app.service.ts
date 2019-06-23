@@ -1,11 +1,7 @@
 import { Injectable } from '@angular/core';
 import { LoadingSpinnerService } from './loading-spinner.service';
-import { RepoItem } from './repo-item/repo-item.component';
-import { RepoService } from './repo.service';
 import { WebviewService } from './webview.service';
-import { BsaberService } from './bsaber.service';
 import { FilesComponent } from './files/files.component';
-declare let __dirname;
 export enum ThemeMode {
     LIGHT,
     DARK,
@@ -71,7 +67,6 @@ export class AppService {
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
         this.makeFolders().then(() => this.spinnerService.hideLoader());
-        // console.log(__dirname,process.cwd());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {
             this.currentTheme = ThemeMode.LIGHT;

@@ -5,7 +5,6 @@ import { StatusBarService } from './status-bar.service';
 import { WebviewService } from './webview.service';
 import { DragAndDropService } from './drag-and-drop.service';
 import { ElectronService } from './electron.service';
-declare let __dirname;
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',

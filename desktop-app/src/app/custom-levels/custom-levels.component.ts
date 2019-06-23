@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { AdbClientService } from '../adb-client.service';
 import { StatusBarService } from '../status-bar.service';
@@ -15,7 +15,12 @@ export class CustomLevelsComponent implements OnInit {
               public adbService:AdbClientService,
               public appService:AppService,
               public statusService:StatusBarService,
-              public bsaberService:BsaberService) {
+              public bsaberService:BsaberService,
+              private changes:ChangeDetectorRef) {
+    this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage)
+      .then(info=>{
+        console.log(info);
+      })
     this.appService.resetTop();
     appService.webService.isWebviewOpen = false;
     this.appService.setTitle('Beast Saber Custom Levels.');
@@ -36,8 +41,9 @@ export class CustomLevelsComponent implements OnInit {
   }
   ngOnInit() {
     this.bsaberService.getMySongs()
-      .then(()=>this.orderSongs(true))
+      .then(()=>this.orderSongs(true));
     this.bsaberService.hasBackup = this.bsaberService.backupExists();
+    this.changes.detectChanges();
   }
   deletePack(){
     this.bsaberService.jSon.packs =

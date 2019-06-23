@@ -1,9 +1,7 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
-const fs = require('fs');
 let mainWindow, open_url, is_loaded;
 const ADB = require('./adbkit');
-
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -18,9 +16,13 @@ function createWindow() {
         },
         icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png'),
     });
-    mainWindow.loadURL('http://localhost:4200');
-    //mainWindow.loadFile(`file://${__dirname}/index.html`);
-    mainWindow.webContents.openDevTools();
+    console.log(process.env.NODE_ENV);
+    if(process.env.NODE_ENV === 'dev'){
+        mainWindow.loadURL('http://localhost:4200');
+    }else{
+        mainWindow.loadFile('build/app/index.html');
+    }
+    //mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
@@ -38,7 +40,6 @@ function createWindow() {
                 'open-url',
                 'sidequest://bsaber/#https://beatsaver.com/api/download/key/' + request.url.replace('beatsaver://', '')
             );
-            console.log(request.url);
         },
         error => {
             if (error) console.error('Failed to register protocol');

@@ -4,7 +4,7 @@ import { AdbClientService } from './adb-client.service';
 import { StatusBarService } from './status-bar.service';
 import { SongItem } from './song-pack-manager/song-pack-manager.component';
 import { LoadingSpinnerService } from './loading-spinner.service';
-declare let __dirname;
+declare let __dirname,process;
 enum OrderType {
     NAME,
     DATE,
@@ -62,14 +62,13 @@ export interface QuestSaberPatchResponseJson {
 export class BsaberService {
     customLevels: string = '/sdcard/Android/data/com.beatgames.beatsaber/files/CustomLevels/';
     beatSaberPackage: string = 'com.beatgames.beatsaber';
-    defaultImage: string = 'C:\\workspace\\SideQuest\\desktop-app\\src\\assets\\images\\default-pack-cover.png';
+    defaultImage: string;
     beatBackupPath: string;
     supportedBeatSaberVersions: string[] = ['1.1.0', '1.0.2', '1.0.1', '1.0.0'];
     questSaberPatchVersion: string = localStorage.getItem('quest-saber-patch-version') || 'v0.7.0';
     questSaberBinaryPath: string;
     converterBinaryPath: string;
     beatSaberVersion: string;
-    beatSaberVersionMessage: string;
     orderType: OrderType;
     songs: SongItem[] = [];
     jSon: QuestSaberPatchJson;
@@ -81,7 +80,14 @@ export class BsaberService {
         private statusService: StatusBarService,
         private spinnerService: LoadingSpinnerService
     ) {
-        this.beatBackupPath = appService.path.join(appService.appData, 'bsaber-backups', this.beatSaberPackage);
+      let defaultImagePath = this.appService.path.join(__dirname,'assets','images','default-pack-cover.png');
+      if(this.appService.doesFileExist(defaultImagePath)){
+        this.defaultImage = defaultImagePath;
+      }else{
+        this.defaultImage = this.appService.path.join(process.cwd(),'desktop-app','src','assets','images');
+      }
+      console.log(this.defaultImage);
+      this.beatBackupPath = appService.path.join(appService.appData, 'bsaber-backups', this.beatSaberPackage);
 
         let bsVersions = localStorage.getItem('beat-saber-version');
         try {

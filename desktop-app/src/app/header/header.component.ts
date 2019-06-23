@@ -105,6 +105,7 @@ export class HeaderComponent implements OnInit {
         if (this.adbService.deviceStatus !== ConnectionStatus.CONNECTED) {
             return this.statusService.showStatus('No device connected!', true);
         }
+
         if (!~this.bsaberService.supportedBeatSaberVersions.indexOf(this.bsaberService.beatSaberVersion)) {
             return this.statusService.showStatus(
                 'Beat Saber version not supported yet!! ' + this.bsaberService.beatSaberVersion,

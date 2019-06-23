@@ -71,9 +71,6 @@ export class PackagesComponent implements OnInit {
     getCurrentInstalledInfo() {
         this.adbService
             .getPackageInfo(this.currentPackage.package)
-            .then(info => {
-                //console.log(this.currentPackage.package,info);
-            })
             .then(() => this.adbService.getBackups(this.currentPackage.package))
             .then(backups => (this.backups = backups))
             .then(() => this.adbService.getDataBackups(this.currentPackage.package))
@@ -120,7 +117,6 @@ export class PackagesComponent implements OnInit {
                 command: 'am force-stop ' + this.currentPackage.package,
             })
             .then(r => {
-                console.log(r);
                 this.statusService.showStatus('Force Close Sent!!');
             });
     }
