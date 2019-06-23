@@ -16,7 +16,7 @@ Support us on [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hoste
 
 [![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
 
-![Image](https://i.imgur.com/qXeQPpi.png)
+![Image](https://i.imgur.com/vHd3dlR.png)
 
 SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup.
 
