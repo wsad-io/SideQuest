@@ -39,9 +39,10 @@ If you have any problems you can hit the debugger icon to capture any errors - t
 
 ![Image](https://i.imgur.com/mHiKK7l.png)
 
-## Apps
 
-I will be adding more apps to the repos and I will be notifying of repo updates on my [discord server](https://discord.gg/Q2a5BkZ) - you can then manually update the repos in the repos section to get the new app listings.
+## Important
+
+Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
 
 ## App Developers: 
 
@@ -49,19 +50,39 @@ Until we create a Developer portal, you can contact me directly on my [discord s
 
 If you want to distribute via SideQuest, but need to link your users directly to the latest SideQuest releases on your website, here's some [sample code](https://jsfiddle.net/uagx31ps/).
 
-## Browser Extensions
+## Build Steps
 
-[@ATechAdventurer](https://github.com/ATechAdventurer) was kind enough to make some browser extensions:
+Clone the repo. 
 
-My SideQuest Chrome and Firefox extensions as of v0.1.0 support Bsaber.com and Beatsaver.com.
+To install the app dependencies 
+```
+yarn install
+```
 
-Chrome-> https://chrome.google.com/webstore/detail/fmifajifkgfamekjpeanjmjjiimfhbjl/
+To start the dev stack run 
+```
+yarn start
+```
 
-Firefox-> https://addons.mozilla.org/en-US/firefox/addon/sidequest-bsaber-extension/
 
-## Important
+To build the app
+```
+yarn dist
+```
 
-Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. Also some users reported issues with k9 web filter, if you use this then you might need to unblock `http://keepsummersafe.x10host.com/` and `http://showmewhatyougot.x10host.com/` - these are the default repo urls, then only have json index files on them and are totally safe.
+To re-launch electron if you accidentally close it
+```
+yarn electron
+```
+
+To reset things
+```
+yarn reset
+```
+
+## Contribution Guidelines
+
+We are pretty relaxed at this point, in that we will accpet arbitrary PRs but all collaborators must agree on a way forward. We live by the [Contributor Covenant](https://www.contributor-covenant.org/)
 
 ## More Info:
 
