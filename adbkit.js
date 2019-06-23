@@ -18,9 +18,13 @@ module.exports = class ADB {
                 isLocal
                     ? fs.createReadStream(path)
                     : new Readable().wrap(
-                          progress(request(path), { throttle: 60 }).on('progress', state => {
-                              scb(state);
-                          })
+                          progress(request(path), { throttle: 60 })
+                              .on('progress', state => {
+                                  scb(state);
+                              })
+                              .on('end', () => {
+                                  scb({ percent: 1 });
+                              })
                       )
             )
             .then(cb)

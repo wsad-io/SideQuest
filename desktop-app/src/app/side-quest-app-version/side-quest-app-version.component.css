@@ -1,5 +1,6 @@
 .collapsible-header {
   display: block;
+  cursor: initial;
 }
 .margin-top{
   margin-top: -8px;

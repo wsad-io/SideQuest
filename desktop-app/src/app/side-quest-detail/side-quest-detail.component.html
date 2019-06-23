@@ -1,6 +1,6 @@
 <div class="row container">
 <div class="col s6 l5">
-  <app-side-quest-card *ngIf="app" [app]="app" [index]="currentRepo" [is-app-screen]="true"></app-side-quest-card>
+  <app-side-quest-card *ngIf="app" [app]="app" [index]="currentRepo" [is-app-screen]="true" class="normal-cursor"></app-side-quest-card>
   <div class="waves-effect waves-light btn uninstall-apk pink-button" *ngIf="app&&app.__is_installed" [ngClass]="appService.getThemeCssClass('button')">Uninstall</div>
 
 </div>
@@ -10,8 +10,8 @@
 </div>
 <div class="col s12">
   <br>
-  <ul class="collapsible app-versions">
-    <app-side-quest-app-version *ngFor="let apk of package" [apk]="apk"></app-side-quest-app-version>
+  <ul class="app-versions" *ngIf="app">
+    <app-side-quest-app-version *ngFor="let apk of package" [apk]="apk" [isInstalled]="app.__is_installed"></app-side-quest-app-version>
   </ul>
 
   <div class="app-meta">{{getRepo()}}</div>

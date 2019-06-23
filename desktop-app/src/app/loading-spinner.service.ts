@@ -23,4 +23,11 @@ export class LoadingSpinnerService {
   hideLoader() {
     this.spinner.isLoading = this.spinner.isActive = false;
   }
+  setupConfirm(){
+    return new Promise(resolve=>{
+      this.spinner.isConfirm = true;
+      this.spinner.confirmResolve = resolve;
+    });
+  }
+
 }

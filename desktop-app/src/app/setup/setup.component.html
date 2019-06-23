@@ -71,7 +71,7 @@
 <div class="clear-fix"></div>
 <div class="row">
   <div class="col s12">
-    <div class="container">
+    <div class="setup-content" [ngClass]="appService.getThemeCssClass('text')">
       <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">
         Step 5: Install App Launcher
       </div>
@@ -85,7 +85,7 @@
       <div class="waves-effect waves-light btn pink-button"
            *ngIf="!isInstalledLauncher&&!isInstallingLauncher"
            [ngClass]="appService.getThemeCssClass('button')"
-            (click)="installLauncher()">
+           (click)="installLauncher()">
         Install App Launcher
       </div>
       <br><br>

@@ -9,6 +9,7 @@ import { AdbClientService } from '../adb-client.service';
 })
 export class SideQuestAppVersionComponent implements OnInit {
   @Input('apk') apk:JSONPackage;
+  @Input('isInstalled') isInstalled:boolean;
   constructor(private adbService:AdbClientService) { }
 
   ngOnInit() {

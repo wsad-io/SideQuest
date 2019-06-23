@@ -45,7 +45,6 @@ export class SideQuestDetailComponent implements OnInit {
         this.appService.setTitle(this.app.name);
         this.appDescription = "<h4>"+this.app.name+"</h4><br>"+this.getAppSummary(this.app)+"<br><br>"+this.getLongMetaData(this.app);
         this.appRef.detectChanges();
-        console.log(this.package);
       }
     }
   }

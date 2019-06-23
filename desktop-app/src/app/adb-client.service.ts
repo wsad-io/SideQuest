@@ -15,7 +15,6 @@ export enum ConnectionStatus {
 })
 export class AdbClientService {
     ADB: any;
-    client: any;
     adbPath: string;
     devicePackages: string[] = [];
     deviceSerial: string;
@@ -37,7 +36,6 @@ export class AdbClientService {
         private statusService: StatusBarService
     ) {
         this.lastConnectionCheck = performance.now() - 1000; //-this.pollInterval;
-        this.ADB = (<any>window).require('adbkit');
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
 
         this.adbResolves = {};
@@ -47,10 +45,14 @@ export class AdbClientService {
     }
     installFile(filepath) {
         this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Installing...');
         let extention = this.appService.path.extname(filepath);
         switch (extention) {
             case '.apk':
-                return this.installLocalApk(filepath).then(() => this.spinnerService.hideLoader());
+                return this.installAPK(filepath, true).then(() => {
+                    this.spinnerService.hideLoader();
+                    this.statusService.showStatus('APK installed!! ' + filepath);
+                });
             case '.obb':
                 if (this.appService.path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)) {
                     return this.installLocalObb(filepath).then(() => this.spinnerService.hideLoader());
@@ -111,7 +113,7 @@ export class AdbClientService {
         });
     }
     makeDirectory(dir) {
-        return this.client.shell(this.deviceSerial, 'mkdir "' + dir + '"').then(this.ADB.util.readAll);
+        return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + dir + '"' });
     }
     updateConnectedStatus(status: ConnectionStatus) {
         this.deviceStatus = status;
@@ -206,14 +208,6 @@ export class AdbClientService {
             default:
                 return 'adb';
         }
-    }
-    shellCommand(command: string) {
-        return this.client
-            .shell(this.deviceSerial, command)
-            .then(this.ADB.util.readAll)
-            .catch(e => {
-                this.statusService.showStatus(e.toString(), true);
-            });
     }
     async downloadTools() {
         let url = 'https://dl.google.com/android/repository/platform-tools-latest-';
@@ -317,26 +311,24 @@ export class AdbClientService {
             this.statusService.showStatus('Apk install failed: No device connected!', true);
             return Promise.reject();
         }
-        this.spinnerService.setMessage('Installing APK file');
+        this.spinnerService.setMessage('Installing Apk...<br>' + filePath);
         this.spinnerService.showLoader();
         return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
-            if (status.done) {
-                this.spinnerService.setMessage('Installing APK:<br>' + filePath + '<br>Please wait...');
-            } else {
-                this.spinnerService.setMessage(
-                    'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + 'MB'
-                );
-            }
+            console.log(status);
+            this.spinnerService.setMessage(
+                status.percent === 1
+                    ? 'Installing Apk...<br>' + filePath
+                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + 'MB'
+            );
         })
             .then(r => {
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus('APK file installed ok!! ' + filePath);
             })
             .catch(e => {
-              if(e.code && shouldUninstall){
-                return this.uninstallAPK('com.beatgames.beatsaber')
-                  .then(()=>this.installAPK(filePath, isLocal))
-              }
+                if (e.code && shouldUninstall) {
+                    return this.uninstallAPK('com.beatgames.beatsaber').then(() => this.installAPK(filePath, isLocal));
+                }
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus(e.message ? e.message : e.code ? e.code : e.toString(), true);
             });
@@ -452,16 +444,23 @@ export class AdbClientService {
             this.appService.fs.readdir(obbBackupPath, async (err, entries) => {
                 for (let i = 0; i < entries.length; i++) {
                     this.spinnerService.showLoader();
-                    console.log({
-                        serial: this.deviceSerial,
-                        path: this.appService.path.join(obbBackupPath, entries[i]),
-                        savePath: '/sdcard/Android/obb/' + packageName + '/' + entries[i],
-                    });
-                    // await this.adbCommand('push',{
-                    //   serial:this.deviceSerial,
-                    //   path:this.appService.path.join(obbBackupPath,entries[i]),
-                    //   savePath:'/sdcard/Android/obb/'+packageName+'/'+entries[i]
-                    // });
+                    await this.adbCommand(
+                        'push',
+                        {
+                            serial: this.deviceSerial,
+                            path: this.appService.path.join(obbBackupPath, entries[i]),
+                            savePath: '/sdcard/Android/obb/' + packageName + '/' + entries[i],
+                        },
+                        stats => {
+                            this.spinnerService.setMessage(
+                                'File uploading: ' +
+                                    entries[i] +
+                                    ' <br>' +
+                                    Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 +
+                                    'MB'
+                            );
+                        }
+                    );
                     this.spinnerService.hideLoader();
                 }
             });
@@ -535,39 +534,22 @@ export class AdbClientService {
             this.statusService.showStatus(e.toString(), true)
         );
     }
-    installLocalApk(filepath: string, dontCatchError?: boolean) {
-        let p = this.client.install(this.deviceSerial, this.appService.fs.createReadStream(filepath));
-        if (!dontCatchError) {
-            p = p.catch(e => {
-                this.spinnerService.hideLoader();
-                this.statusService.showStatus(e.toString(), true);
-            });
-        }
-        return p;
-    }
     installLocalObb(filepath: string, dontCatchError = false, cb = null) {
         let filename = this.appService.path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
-        let p = this.client
-            .push(this.deviceSerial, this.appService.fs.createReadStream(filepath), `/sdcard/Android/obb/${packageId}/${filename}`)
-            .then(
-                transfer =>
-                    new Promise((resolve, reject) => {
-                        let text = 'Uploading Obb...';
-                        let timer = setInterval(() => {
-                            text = text + '.';
-                            this.spinnerService.setMessage(text + '<br>This will take some time.');
-                        }, 3000);
-                        transfer.on('end', () => {
-                            clearInterval(timer);
-                            resolve();
-                        });
-                        transfer.on('error', () => {
-                            clearInterval(timer);
-                            reject();
-                        });
-                    })
-            );
+        let p = this.adbCommand(
+            'push',
+            {
+                serial: this.deviceSerial,
+                path: filepath,
+                savePath: `/sdcard/Android/obb/${packageId}/${filename}`,
+            },
+            stats => {
+                this.spinnerService.setMessage(
+                    'File uploading: ' + filename + ' <br>' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB'
+                );
+            }
+        );
         if (cb) {
             cb();
         }
@@ -583,7 +565,7 @@ export class AdbClientService {
     installLocalZip(filepath, dontCatchError, cb) {
         const typeBasedActions = {
             '.apk': function(filepath, bind) {
-                this.installLocalApk(filepath);
+                this.installAPK(filepath, true);
             },
             '.obb': function(filepath, bind) {
                 if (this.appService.path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)) {

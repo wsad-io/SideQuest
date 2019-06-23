@@ -166,3 +166,6 @@ body {
   height: 24px!important;
   color: white;
 }
+.no-cursor{
+  cursor: initial!important;
+}

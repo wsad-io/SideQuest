@@ -93,21 +93,30 @@ export class ToolsComponent implements OnInit {
         value = 4;
         break;
     }
-    this.adbService.shellCommand('"setprop debug.oculus.foveation.level '+value+'"')
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:"setprop debug.oculus.foveation.level '+value+'"
+    })
       .then(() => this.statusService.showStatus('FFR set OK!!'));
   }
   setGPU(gpu:GPU){
     let value = gpu===GPU._2?2:4;
 
-    this.adbService.shellCommand('"setprop debug.oculus.cpuLevel ' +
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'"setprop debug.oculus.cpuLevel ' +
       value +
       ' && setprop debug.oculus.gpuLevel ' +
       value +
-      '"')
+      '"'
+    })
       .then(() => this.statusService.showStatus('CPU/GPU level set OK!!'));
   }
   setCa(ca:CA){
-    this.adbService.shellCommand('"setprop debug.oculus.forceChroma '+(ca===CA.ON?1:0)+'"')
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'"setprop debug.oculus.forceChroma '+(ca===CA.ON?1:0)+'"'
+    })
       .then(() => this.statusService.showStatus('Chromatic Aberration set OK!!'));
   }
   setSSO(sso:SSO){
@@ -135,11 +144,15 @@ export class ToolsComponent implements OnInit {
         value = 3072;
         break;
     }
-    this.adbService.shellCommand('"setprop debug.oculus.textureWidth ' +
+
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'"setprop debug.oculus.textureWidth ' +
       value +
       ' && setprop debug.oculus.textureHeight ' +
       value +
-      '"')
+      '"'
+    })
       .then(() => this.statusService.showStatus('Texture Resolution set OK!!'));
   }
   setSVB(svb:SVB){
@@ -155,7 +168,10 @@ export class ToolsComponent implements OnInit {
         value = 25000000;
         break;
     }
-    this.adbService.shellCommand('"setprop debug.oculus.videoBitrate ' + value + '"')
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'"setprop debug.oculus.videoBitrate ' + value + '"'
+    })
       .then(() => this.statusService.showStatus('Video Bitrate set OK!!'));
   }
   setSVR(svr:SVR){
@@ -168,11 +184,18 @@ export class ToolsComponent implements OnInit {
         value = 1536;
         break;
     }
-    this.adbService.shellCommand('"setprop debug.oculus.videoResolution ' + value + '"')
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'"setprop debug.oculus.videoResolution ' + value + '"'
+    })
       .then(() => this.statusService.showStatus('Video Resolution set OK!!'));
   }
   setPavlovPermission(){
-    this.adbService.shellCommand('pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO')
+
+    this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO'
+    })
       .then(() => this.statusService.showStatus('Permission set OK!!'))
   }
   pasteToDevice(){
@@ -193,12 +216,10 @@ export class ToolsComponent implements OnInit {
   }
   inputCharacters(){
     let character = this._textToSend.shift();
-    return this.adbService.client
-      .shell(
-        this.adbService.deviceSerial,
-        'input text "' + character + '"'
-      )
-      .then(this.adbService.ADB.util.readAll)
+    return this.adbService.adbCommand('shell',{
+      serial:this.adbService.deviceSerial,
+      command:'input text "' + character + '"'
+    })
       .then(res => {
         if (this.textToSend.length) {
           return this.inputCharacters();

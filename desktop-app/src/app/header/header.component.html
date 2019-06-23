@@ -80,6 +80,8 @@
     Update Available
   </div>
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
+    <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://apkmirror.com')">
+      apkmirror.com</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://bsaber.com')">
       bsaber.com</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">
@@ -141,7 +143,7 @@
     <app-loading-spinner-small *ngIf="webService.isWebviewLoading" class="browser-loading"></app-loading-spinner-small>
   </div>
   <div id="searchFilterContainer" *ngIf="appService.showSearch">
-    <div class="search">
+    <div class="search" *ngIf="false">
       <div class="input-field inline search-box">
         <input id="searchBox" class="input-dark-theme" type="text" />
         <label for="searchBox" class="active label-dark-theme">

@@ -34,7 +34,6 @@ function createWindow() {
     protocol.registerBufferProtocol(
         'beatsaver',
         (request, callback) => {
-            //https://beatsaver.com/api/download/key/
             mainWindow.webContents.send(
                 'open-url',
                 'sidequest://bsaber/#https://beatsaver.com/api/download/key/' + request.url.replace('beatsaver://', '')
@@ -57,8 +56,12 @@ function createWindow() {
     );
 
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
-        if (~item.getURL().indexOf('https://beatsaver.com/cdn')) {
-            mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + item.getURL());
+        let url = item.getURL();
+        let etx = path.extname(url);
+        if (~url.indexOf('https://beatsaver.com/cdn')) {
+            mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
+        } else if (etx === '.apk') {
+            mainWindow.webContents.send('pre-open-url', url);
         }
         item.cancel();
     });
