@@ -155,7 +155,7 @@ export class HeaderComponent implements OnInit {
                 this.installAPKModal.openModal();
             })
             .catch(e => {
-                this.autoFixModal.showModal();
+                this.autoFixModal.openModal();
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus(e.toString(), true);
             });
