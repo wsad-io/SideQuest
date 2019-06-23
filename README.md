@@ -50,7 +50,7 @@ Until we create a Developer portal, you can contact me directly on my [discord s
 
 If you want to distribute via SideQuest, but need to link your users directly to the latest SideQuest releases on your website, here's some [sample code](https://jsfiddle.net/uagx31ps/).
 
-## Buils Steps
+## Build Steps
 
 Clone the repo. 
 
