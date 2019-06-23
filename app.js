@@ -19,7 +19,7 @@ function createWindow() {
         icon: path.join(__dirname, 'desktop-app/icons/png/64x64.png'),
     });
     mainWindow.loadURL('http://localhost:4200');
-    //mainWindow.loadFile('desktop-app/dist/desktop-app/index.html');
+    //mainWindow.loadFile(`file://${__dirname}/index.html`);
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
@@ -141,7 +141,7 @@ if (!gotTheLock) {
     // Quit when all windows are closed.
     app.on('window-all-closed', function() {
         if (process.platform !== 'darwin') app.quit();
-        adb.client.kill();
+        if (adb.client) adb.client.kill();
     });
 
     app.on('activate', function() {

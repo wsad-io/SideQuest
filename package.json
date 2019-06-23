@@ -8,19 +8,22 @@
     "main": "app.js",
     "scripts": {
         "concurrently": "concurrently",
-        "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
+        "start": "concurrently  \"wait-on http-get://localhost:4200 && electron .\"\"cd desktop-app && ng build --watch\" ",
         "postinstall": "electron-builder install-app-deps && cd desktop-app && yarn install",
         "pack": "electron-builder --dir",
-        "dist": "cd desktop-app && ng build --prod --aot && cd .. && electron-builder",
+        "abuild": "cd desktop-app && ng build --prod --aot",
+        "dist": "electron-builder",
         "reset": "rm -rf node_modules && rm -rf desktop-app/node_modules && yarn install && cd desktop-app && yarn install"
     },
     "build": {
-        "appId": "com.example.cra-electron-boilerplate",
+        "appId": "com.sidequestvr.app",
         "files": [
             "build/**/*",
             "node_modules/**/*",
             "desktop-app/dist/*",
-            "package.json"
+            "package.json",
+            "app.js",
+            "adbkit.js"
         ],
         "directories": {
             "buildResources": "desktop-app/dist/assets"
