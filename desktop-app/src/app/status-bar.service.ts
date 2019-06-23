@@ -23,7 +23,7 @@ export class StatusBarService {
     this.appService.electron.clipboard.writeText(this.status.statusMessage);
     this.status.showDiscord = true;
     this.showStatus(
-      'Copied to your clipboard! Please post this in our discord server in the #general channel:'
+      'Copied to your clipboard! Please post this in our discord server in the #general channel: https://discord.gg/r38T5rR'
     );
   }
 }

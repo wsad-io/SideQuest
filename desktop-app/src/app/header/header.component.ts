@@ -19,6 +19,7 @@ export class HeaderComponent implements OnInit {
     @ViewChild('header', { static: false }) header;
     @ViewChild('syncSongsModal', { static: false }) syncSongsModal;
     @ViewChild('installAPKModal', { static: false }) installAPKModal;
+    @ViewChild('autoFixModal', { static: false }) autoFixModal;
     theme = ThemeMode;
     folder = FolderType;
     isMaximized: boolean;
@@ -143,6 +144,7 @@ export class HeaderComponent implements OnInit {
             .questSaberPatch()
             .then((json: QuestSaberPatchResponseJson) => {
                 if (json.error) {
+                    this.autoFixModal.showModal();
                     return new Error(json.error);
                 }
                 this.qspResponse = json;
@@ -150,6 +152,7 @@ export class HeaderComponent implements OnInit {
                 this.installAPKModal.openModal();
             })
             .catch(e => {
+                this.autoFixModal.showModal();
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus(e.toString(), true);
             });

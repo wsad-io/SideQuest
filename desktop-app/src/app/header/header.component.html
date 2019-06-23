@@ -54,7 +54,7 @@
   <div *ngIf="appService.showRepo" (click)="addRepoModal.openModal()" class="waves-effect waves-light btn add-repo pink-button small-button">
     Add Repo
   </div>
-  <div *ngIf="appService.updateAvailable" class="waves-effect waves-light btn update-available link pink-button"
+  <div *ngIf="appService.updateAvailable" class="waves-effect waves-light btn update-available link pink-button small-button"
        data-url="https://github.com/the-expanse/SideQuest/releases">
     Update Available
   </div>
@@ -291,12 +291,16 @@
 
 <mz-modal #autoFixModal [fixedFooter]="true">
   <mz-modal-header>
-    <h4>Patch Error - Autofix Options</h4>
+    <h4>Patch Error - Let's get you fixed!</h4>
   </mz-modal-header>
   <mz-modal-content>
-
+    It looks like there was an error patching your Beat Saber APK file. This can be frustrating but there are some options to get you going again.
+    We have added a troubleshooting section to the tools screen with information and guided solutions to fix the most common issues.
+    These are quick solutions and only take a few minutes. Feel free to connect with us on <app-link url="https://discord.gg/r38T5rR" [isDark]="true" text="Discord"></app-link> to say hello and get support.
+    <br><br>Thank you!
   </mz-modal-content>
   <mz-modal-footer>
+    <button mz-button class="pink-button" mz-modal-close routerLink="tools">Open Tools</button>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
   </mz-modal-footer>
 </mz-modal>

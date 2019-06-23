@@ -147,8 +147,8 @@
   -webkit-app-region: no-drag;
 }
 .update-available {
-  top: 50px;
-  right: 190px;
+  top: 6px;
+  right: 330px;
 }
 .sync-songs-now,.beast-saber-buttons {
   top: 45px;

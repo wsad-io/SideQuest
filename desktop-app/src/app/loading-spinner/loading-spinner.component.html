@@ -1,7 +1,7 @@
 <div class="spinner text-center" *ngIf="isActive" >
   <div class="well well-lg">
     <div *ngIf="isLoading&&!isConfirm" class="loader-initial"></div>
-    <h5 *ngIf="!isLoading" >Drop file here!</h5>
+    <h5 *ngIf="!isLoading" >Drop file(s) here!</h5>
     <br />
     <span class="spinner-loading-message" [innerHTML]="loadingMessage"></span>
     <div *ngIf="isConfirm">

@@ -8,11 +8,11 @@
     "main": "app.js",
     "scripts": {
         "concurrently": "concurrently",
-        "start": "concurrently  \"wait-on http-get://localhost:4200 && electron .\"\"cd desktop-app && ng build --watch\" ",
+        "start": "concurrently \"wait-on http-get://localhost:4200/ && electron .\" \"cd desktop-app && ng serve\"",
         "postinstall": "electron-builder install-app-deps && cd desktop-app && yarn install",
         "pack": "electron-builder --dir",
-        "abuild": "cd desktop-app && ng build --prod --aot",
         "dist": "electron-builder",
+        "appBuild": "cd desktop-app && ng build --prod --aot",
         "reset": "rm -rf node_modules && rm -rf desktop-app/node_modules && yarn install && cd desktop-app && yarn install"
     },
     "build": {

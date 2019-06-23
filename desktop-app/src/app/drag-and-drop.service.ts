@@ -20,7 +20,9 @@ export class DragAndDropService {
         let dragTimeout;
         document.ondragover = () => {
             clearTimeout(dragTimeout);
-            this.spinnerService.setMessage(this.appService.isFilesOpen ? 'Drop files to upload' : 'Drop the file here to install!');
+            this.spinnerService.setMessage(
+                this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!'
+            );
             this.spinnerService.showDrag();
             return false;
         };
