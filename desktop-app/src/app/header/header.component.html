@@ -42,27 +42,6 @@
       close
     </i>
   </div>
-  <svg
-    id="connection-refresh-loading"
-    style="display:none"
-    class="uil-ring-alt"
-    width="20px"
-    height="20px"
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 100 100"
-    preserveAspectRatio="xMidYMid">
-    <rect x="0" y="0" width="100" height="100" fill="none" class="bk" />
-    <circle cx="50" cy="50" r="40" stroke="rgba(175,175,183,0)" fill="none" stroke-width="10" stroke-linecap="round" />
-    <circle cx="50" cy="50" r="40" stroke="#91cce6" fill="none" stroke-width="6" stroke-linecap="round">
-      <animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" from="0" to="502" />
-      <animate
-        attributeName="stroke-dasharray"
-        dur="1s"
-        repeatCount="indefinite"
-        values="150.6 100.4;1 250;150.6 100.4"
-      />
-    </circle>
-  </svg>
   <div
     id="connection-status"
     class="connection-status-unauthorized"
@@ -80,8 +59,6 @@
     Update Available
   </div>
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
-    <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://apkmirror.com')">
-      apkmirror.com</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://bsaber.com')">
       bsaber.com</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn pink-button no-outline small-button" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">
@@ -120,7 +97,7 @@
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
       position="bottom"
-      tooltip="Build a new beat saber APK and install these songs." (click)="syncSongsModal.openModal()">
+      tooltip="Build a new beat saber APK and install these songs." (click)="getReplaceAndColors();syncSongsModal.openModal()">
       Sync Songs
     </div>
   </div>
@@ -230,11 +207,52 @@
   </mz-modal-header>
   <mz-modal-content>
     <div *ngIf="bsaberService.hasBackup">
-      <br><br>
       We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
       <br><br>
       This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-      <br />
+      <br><br>
+      <h4>Saber Colors</h4>
+      Set the colors of your sabers in game.<br>
+      <div class="btn waves-effect waves-light right" (click)="resetColor(true)">Reset Saber Color A</div>
+      <div class="btn waves-effect waves-light" [(colorPicker)]="colorA" [cpPositionRelativeToArrow]="true"
+           cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="top" [style.backgroundColor]="colorA">Change Saber Color A</div>
+      <br><br>
+      <div class="btn waves-effect waves-light right" (click)="resetColor(false)">Reset Saber Color B</div>
+      <div class="btn waves-effect waves-light" [(colorPicker)]="colorB" [cpPositionRelativeToArrow]="true"
+           cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="top" [style.backgroundColor]="colorB">Change Saber Color B</div>
+      <br><br>
+      <h4>Replace Text In Game</h4>
+      Set some text in game - <app-link url="https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt" text="full list" [isDark]="true"></app-link>.
+      <br><br>
+      <div class="row">
+        <div class="col s4">Key</div>
+        <div class="col s4">Value</div>
+      </div>
+      <div class="row">
+        <div class="col s8"><hr></div>
+      </div>
+      <div class="row" *ngFor="let text of replaceText">
+        <div class="col s4">
+          <input class="input-light-theme" type="text" [(ngModel)]="text.key" placeholder="Key" />
+        </div>
+        <div class="col s4">
+          <input class="input-light-theme" type="text" [(ngModel)]="text.value" placeholder="Value" />
+        </div>
+        <div class="col s4">
+          <div class="btn btn-floating waves-effect waves-light red" (click)="removeText(text)"><i class="material-icons">close</i></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s4">
+          <input class="input-light-theme" type="text" [(ngModel)]="addkey" placeholder="Key" />
+        </div>
+        <div class="col s4">
+          <input class="input-light-theme" type="text" [(ngModel)]="addvalue" placeholder="Value" />
+        </div>
+        <div class="col s4">
+          <div class="btn waves-effect waves-light" (click)="replaceText.push({key:addkey,value:addvalue});addkey='';addvalue='';">Add</div>
+        </div>
+      </div>
     </div>
     <div *ngIf="!bsaberService.hasBackup">
       No backup of beat saber made. Please make a backup now!
@@ -254,7 +272,7 @@
     <h4>Patch Completed - Now Install the Custom Song APK</h4>
   </mz-modal-header>
   <mz-modal-content>
-    Below is the results of teh patch process. If it shows that some songs were skipped you may need to investigate why. In some cases we have seen `.ogg` files renamed to `.egg` files and these need to be fixed in the songs to get them to patch.
+    Below is the results of the patch process. If it shows that some songs were skipped you may need to investigate why. In some cases we have seen `.ogg` files renamed to `.egg` files and these need to be fixed in the songs to get them to patch.
     <br><br>
     Patch Results:
     <div *ngIf="qspResponse">
@@ -267,5 +285,18 @@
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
     <button mz-button class="pink-button" mz-modal-close (click)="installPatchedAPK()">Install APK</button>
+  </mz-modal-footer>
+</mz-modal>
+
+
+<mz-modal #autoFixModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Patch Error - Autofix Options</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
   </mz-modal-footer>
 </mz-modal>

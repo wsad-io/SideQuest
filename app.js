@@ -57,8 +57,7 @@ function createWindow() {
 
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
         let url = item.getURL();
-        let etx = path.extname(url);
-        console.log(url);
+        let etx = path.extname(url.split('?')[0]);
         if (~url.indexOf('https://beatsaver.com/cdn')) {
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
         } else if (etx === '.apk') {
@@ -167,17 +166,17 @@ const { ipcMain } = require('electron');
 const adb = new ADB();
 ipcMain.on('adb-command', (event, arg) => {
     const success = d => {
-        if(!event.sender.isDestroyed()) {
+        if (!event.sender.isDestroyed()) {
             event.sender.send('adb-command', { command: arg.command, resp: d });
         }
     };
     const reject = e => {
-        if(!event.sender.isDestroyed()){
+        if (!event.sender.isDestroyed()) {
             event.sender.send('adb-command', { command: arg.command, error: e });
         }
     };
     const status = d => {
-        if(!event.sender.isDestroyed()) {
+        if (!event.sender.isDestroyed()) {
             event.sender.send('adb-command', { command: arg.command, status: d });
         }
     };

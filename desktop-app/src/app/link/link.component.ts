@@ -8,8 +8,9 @@ import { AppService, ThemeMode } from '../app.service';
 })
 export class LinkComponent implements OnInit {
   theme = ThemeMode;
-  @Input('url') url;
-  @Input('text') text;
+  @Input('url') url:string;
+  @Input('text') text:string;
+  @Input('isDark') isDark:boolean;
   constructor(public appService:AppService) {
 
   }

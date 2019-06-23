@@ -212,18 +212,6 @@ export class BsaberService {
                 });
         });
     }
-    setBeatVersion(skipCheck) {
-        return this.adbService.getPackageInfo(this.beatSaberPackage).then(version => {
-            this.beatSaberVersion = (version || '').trim();
-            if (!~this.supportedBeatSaberVersions.indexOf(this.beatSaberVersion)) {
-                this.beatSaberVersionMessage =
-                    '<span style="background-color:red;color:white">WRONG BEAT SABER VERSION: ' + this.beatSaberVersion + '</span>';
-                if (!skipCheck) throw new Error('Wrong beat saber version installed!');
-            } else {
-                this.beatSaberVersionMessage = 'Beat Saber Version: ' + this.beatSaberVersion;
-            }
-        });
-    }
     saveJson(jSon) {
         if (!this.hasJson||!jSon) return;
         let _jSon = {

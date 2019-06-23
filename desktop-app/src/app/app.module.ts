@@ -31,6 +31,7 @@ import { WebviewDirective } from './webview.directive';
 import { FilesComponent } from './files/files.component';
 import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
 import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.component';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 @NgModule({
     declarations: [
@@ -68,6 +69,7 @@ import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.
         MzModalModule,
         MzButtonModule,
       MzCheckboxModule,
+      ColorPickerModule,
       BrowserAnimationsModule,
     ],
     providers: [],
