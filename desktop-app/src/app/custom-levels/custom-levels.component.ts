@@ -41,7 +41,7 @@ export class CustomLevelsComponent implements OnInit {
         this.bsaberService.hasBackup = this.bsaberService.backupExists();
         this.changes.detectChanges();
         this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(info => {
-            console.log(info);
+          this.bsaberService.beatSaberVersion = info.trim();
         });
     }
     deletePack() {

@@ -280,7 +280,7 @@ export class AdbClientService {
         if (!version) {
             this.spinnerService.hideLoader();
             this.statusService.showStatus('APK not found, is the app installed? ' + packageName, true);
-            return Promise.reject();
+            return Promise.reject('APK not found, is the app installed? ');
         }
         let savePath = this.appService.path.join(
             this.appService.appData,
@@ -312,7 +312,7 @@ export class AdbClientService {
     installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean) {
         if (this.deviceStatus !== ConnectionStatus.CONNECTED) {
             this.statusService.showStatus('Apk install failed: No device connected!', true);
-            return Promise.reject();
+            return Promise.reject('Apk install failed: No device connected!');
         }
         this.spinnerService.setMessage('Installing Apk...<br>' + filePath);
         this.spinnerService.showLoader();

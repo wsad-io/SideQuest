@@ -97,7 +97,7 @@
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
       position="bottom"
-      tooltip="Build a new beat saber APK and install these songs." (click)="getReplaceAndColors();syncSongsModal.openModal()">
+      tooltip="Build a new beat saber APK and install these songs." (click)="openSyncSongs()">
       Sync Songs
     </div>
   </div>
@@ -203,54 +203,61 @@
 
 <mz-modal #syncSongsModal [fixedFooter]="true">
   <mz-modal-header>
-    <h4>Run QuestSaberPatch</h4>
   </mz-modal-header>
   <mz-modal-content>
     <div *ngIf="bsaberService.hasBackup">
-      We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
-      <br><br>
-      This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-      <br><br>
-      <h4>Saber Colors</h4>
-      Set the colors of your sabers in game.<br>
-      <div class="btn waves-effect waves-light right" (click)="resetColor(true)">Reset Saber Color A</div>
-      <div class="btn waves-effect waves-light" [(colorPicker)]="colorA" [cpPositionRelativeToArrow]="true"
-           cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="top" [style.backgroundColor]="colorA">Change Saber Color A</div>
-      <br><br>
-      <div class="btn waves-effect waves-light right" (click)="resetColor(false)">Reset Saber Color B</div>
-      <div class="btn waves-effect waves-light" [(colorPicker)]="colorB" [cpPositionRelativeToArrow]="true"
-           cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="top" [style.backgroundColor]="colorB">Change Saber Color B</div>
-      <br><br>
-      <h4>Replace Text In Game</h4>
-      Set some text in game - <app-link url="https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt" text="full list" [isDark]="true"></app-link>.
-      <br><br>
       <div class="row">
-        <div class="col s4">Key</div>
-        <div class="col s4">Value</div>
-      </div>
-      <div class="row">
-        <div class="col s8"><hr></div>
-      </div>
-      <div class="row" *ngFor="let text of replaceText">
-        <div class="col s4">
-          <input class="input-light-theme" type="text" [(ngModel)]="text.key" placeholder="Key" />
+        <div class="col s6">
+
+          <h4>QuestSaberPatch</h4>
+          We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
+          <br><br>
+          This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
+          <br><br>
         </div>
-        <div class="col s4">
-          <input class="input-light-theme" type="text" [(ngModel)]="text.value" placeholder="Value" />
-        </div>
-        <div class="col s4">
-          <div class="btn btn-floating waves-effect waves-light red" (click)="removeText(text)"><i class="material-icons">close</i></div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col s4">
-          <input class="input-light-theme" type="text" [(ngModel)]="addkey" placeholder="Key" />
-        </div>
-        <div class="col s4">
-          <input class="input-light-theme" type="text" [(ngModel)]="addvalue" placeholder="Value" />
-        </div>
-        <div class="col s4">
-          <div class="btn waves-effect waves-light" (click)="replaceText.push({key:addkey,value:addvalue});addkey='';addvalue='';">Add</div>
+        <div class="col s6">
+          <h4>Saber Colors</h4>
+          Set the colors of your sabers in game.<br>
+          <div class="btn waves-effect waves-light right" (click)="resetColor(true)">Reset A</div>
+          <div class="btn waves-effect waves-light" [(colorPicker)]="colorA" [cpPositionRelativeToArrow]="true"
+               cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorA">Color A</div>
+          <br><br>
+          <div class="btn waves-effect waves-light right" (click)="resetColor(false)">Reset B</div>
+          <div class="btn waves-effect waves-light" [(colorPicker)]="colorB" [cpPositionRelativeToArrow]="true"
+               cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorB">Color B</div>
+          <br><br>
+          <h4>Replace Game Text</h4>
+          Set some text in game - <app-link url="https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt" text="full list" [isDark]="true"></app-link>.
+          <br><br>
+          <div class="row">
+            <div class="col s4">Key</div>
+            <div class="col s4">Value</div>
+          </div>
+          <div class="row">
+            <div class="col s8"><hr></div>
+          </div>
+          <div class="row" *ngFor="let text of replaceText">
+            <div class="col s4">
+              <input class="input-light-theme" type="text" [(ngModel)]="text.key" placeholder="Key" />
+            </div>
+            <div class="col s4">
+              <input class="input-light-theme" type="text" [(ngModel)]="text.value" placeholder="Value" />
+            </div>
+            <div class="col s4">
+              <div class="btn btn-floating waves-effect waves-light red" (click)="removeText(text)"><i class="material-icons">close</i></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s4">
+              <input class="input-light-theme" type="text" [(ngModel)]="addkey" placeholder="Key" />
+            </div>
+            <div class="col s4">
+              <input class="input-light-theme" type="text" [(ngModel)]="addvalue" placeholder="Value" />
+            </div>
+            <div class="col s4">
+              <div class="btn waves-effect waves-light" (click)="replaceText.push({key:addkey,value:addvalue});addkey='';addvalue='';">Add</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -276,9 +283,9 @@
     <br><br>
     Patch Results:
     <div *ngIf="qspResponse">
-      <div *ngIf="qspResponse.presentLevels.length"> <b>Current Levels</b><br>:{{(qspResponse.presentLevels||[]).join(', ')}}<br></div>
-      <div *ngIf="qspResponse.installedLevels.length"> <b>New Levels</b><br>:{{(qspResponse.installedLevels||[]).join(', ')}}<br></div>
-      <div *ngIf="installSkippedLength()"> <b>Skipped Levels</b><br>:{{getInstallSkipped()}}<br></div>
+      <div *ngIf="qspResponse.presentLevels.length"> <b>Current Levels:</b><br>{{(qspResponse.presentLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="qspResponse.installedLevels.length"> <b>New Levels:</b><br>{{(qspResponse.installedLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="installSkippedLength()"> <b>Skipped Levels:</b><br>{{getInstallSkipped()}}<br></div>
     </div>
 
   </mz-modal-content>

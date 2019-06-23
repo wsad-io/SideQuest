@@ -101,10 +101,12 @@ export class HeaderComponent implements OnInit {
             .then(() => this.repoService.saveRepos())
             .catch(e => this.statusService.showStatus(e.toString(), true));
     }
-    patchBeatSaber() {
+    async patchBeatSaber() {
         if (this.adbService.deviceStatus !== ConnectionStatus.CONNECTED) {
             return this.statusService.showStatus('No device connected!', true);
         }
+
+      this.bsaberService.beatSaberVersion = (await this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage)).trim();
 
         if (!~this.bsaberService.supportedBeatSaberVersions.indexOf(this.bsaberService.beatSaberVersion)) {
             return this.statusService.showStatus(
@@ -210,5 +212,10 @@ export class HeaderComponent implements OnInit {
         if (!isColorA) {
             this.colorB = 'rgba(48,158,255,1)';
         }
+    }
+    openSyncSongs(){
+      this.bsaberService.hasBackup = this.bsaberService.backupExists();
+      this.getReplaceAndColors();
+      this.syncSongsModal.openModal();
     }
 }
