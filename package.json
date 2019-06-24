@@ -20,7 +20,8 @@
         "mac": {
             "category": "public.app-category.utilities",
             "target": [
-                "tar.xz"
+                "zip",
+                "dmg"
             ]
         },
         "win": {
