@@ -147,7 +147,7 @@ export class HeaderComponent implements OnInit {
             .questSaberPatch()
             .then((json: QuestSaberPatchResponseJson) => {
                 if (json.error) {
-                    this.autoFixModal.showModal();
+                    this.autoFixModal.openModal();
                     return new Error(json.error);
                 }
                 this.qspResponse = json;
