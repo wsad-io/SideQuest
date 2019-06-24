@@ -190,7 +190,18 @@ export class AdbClientService {
         });
     }
     isAdbDownloaded() {
-        return this.doesFileExist(this.adbPath);
+        let command = 'which adb';
+        if (process.platform == 'win32') {
+            command = 'where adb';
+        }
+        const execSync = require('child_process');
+        let stdout = execSync(command);
+        if (this.doesFileExist(stdout)) {
+            const path = require('path');
+            this.adbPath = path.dirname(stdout);
+            return true;
+        }
+        return this.doesFileExist(this.adbPath + this.getAdbBinary);
     }
 
     doesFileExist(path) {
