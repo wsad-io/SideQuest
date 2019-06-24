@@ -153,12 +153,10 @@ export class HeaderComponent implements OnInit {
 
       .then((json: QuestSaberPatchResponseJson) => {
         if (json.error) {
-          console.log('here 1');
           this.spinnerService.hideLoader();
           this.autoFixModal.openModal();
           this.statusService.showStatus(json.error, true);
         }
-        console.log('here 2');
         this.qspResponse = json;
         this.spinnerService.hideLoader();
         this.installAPKModal.openModal();
