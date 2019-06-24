@@ -99,7 +99,12 @@ export class HeaderComponent implements OnInit {
       .then(() => this.spinnerService.hideLoader())
       .then(() => this.statusService.showStatus('Repo added OK!!'))
       .then(() => this.repoService.saveRepos())
-      .catch(e => this.statusService.showStatus(e.toString(), true));
+      .catch(e => {
+        this.spinnerService.hideLoader()
+        this.statusService.showStatus(e.toString(), true);
+      });
+
+
   }
   async patchBeatSaber() {
     if (this.adbService.deviceStatus !== ConnectionStatus.CONNECTED) {
