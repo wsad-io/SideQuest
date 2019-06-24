@@ -626,10 +626,10 @@ export class AdbClientService {
     getBatteryLevel() {
         this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
             let batteryObject = {};
-            let batteyInfo = data.substring(data.indexOf('\n') + 1);
+            const batteyInfo = data.substring(data.indexOf('\n') + 1);
             batteyInfo.split('\n ').forEach(element => {
                 let attribute = element.replace(/\s/g, '').split(':');
-                let matcher = /true|false|[0-9].{0,}/g;
+                const matcher = /true|false|[0-9].{0,}/g;
                 if (attribute[1].match(matcher)) {
                     attribute[1] = JSON.parse(attribute[1]);
                 }
