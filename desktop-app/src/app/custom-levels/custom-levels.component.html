@@ -45,3 +45,17 @@
   </mz-modal-footer>
 </mz-modal>
 
+
+
+<mz-modal #oldMacOsModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Old MacOS version</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    You're running an old version of macOS. Patching may fail. Feel free to connect with us on <app-link url="https://discord.gg/r38T5rR" [isDark]="true" text="Discord"></app-link> to say hello and get support.
+    <br><br>Thank you!
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>

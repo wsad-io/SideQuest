@@ -31,7 +31,7 @@
                 <i class="material-icons cursor orange-text drag-indicator right" (click)="removeSongFromPack(song,pack)">close</i>
                 <img [src]="song.cover" alt="" class="circle red" />
                 <i class="material-icons cursor grey-text drag-indicator">drag_indicator</i>
-                <span class="title">{{song.name}}</span>
+                <span class="title truncate">{{song.name}}</span>
                 <p class="description"></p>
               </li>
               <li class="add-to-drag">Drop song here to add!</li>
@@ -64,7 +64,7 @@
           </mz-checkbox-container>
           <img [src]="song.cover" alt="" class="circle red" />
           <i class="material-icons cursor grey-text drag-indicator">drag_indicator</i>
-          <span class="title">{{song.name}}</span>
+          <span class="title truncate">{{song.name}}</span>
         </li>
       </ul>
     </div>

@@ -64,6 +64,8 @@
 .collection-song.avatar .title {
   font-size: 16px;
   vertical-align:middle;
+  width: calc(100% - 100px);
+  display: inline-block;
 }
 .drag-indicator{
   font-size: 2rem;

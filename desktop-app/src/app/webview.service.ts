@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 export class WebviewService {
   webView:any;
   isWebviewOpen:boolean;
-  currentAddress:string = 'https://beatsaver.com/browse/latest';
+  currentAddress:string = 'https://bsaber.com';
   isWebviewLoading:boolean = false;
   constructor(private appService:AppService) {
     appService.setWebviewService(this);

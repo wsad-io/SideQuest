@@ -45,7 +45,7 @@
              (click)="setCa(CA.OFF)">Off</div>
       </div>
       <div class="section-title" [ngClass]="appService.getThemeCssClass('text')">Paste Text to your device</div>
-
+      If there is a text input field focussed on your headset you can paste / type text in here to have SideQuest type it out on your headset. Good for long passwords you don't want to have to type on a virtual keyboard.
       <div class="button-section">
         <div class="input-field ">
           <input id="devicePaste" [ngClass]="appService.getThemeCssClass('input')" [type]="isPassword?'password':'text'" [(ngModel)]="textToSend"/>
@@ -140,8 +140,10 @@
       Thankfully there are things you can do! <br><br>
 
       <h5>Scenario 1</h5>
-      Do you see this error? <br><span class="chip">System.ApplicationException: Either the 'levels' or...</span><br><br>
-      Select this option to reset your song packs file.<br>
+      Do you see any of these errors? <br>
+      <span class="chip">System.ApplicationException: Either the 'levels' or...</span><br>
+      <span class="chip">System.IO.FileNotFoundException: Could not find file...</span><br><br>
+      Select this option to reset your song packs file. Also be advised that any special characters in the file path can cause the patcher to fail. If your user folder path has any éíúóá or other special characters in it you may need to use another user account on your PC for SideQuest.<br>
       <div  class="waves-effect waves-light btn margin-bottom margin-right pink-button"
             [ngClass]="appService.getThemeCssClass('button')"
             (click)="resetPacks()">

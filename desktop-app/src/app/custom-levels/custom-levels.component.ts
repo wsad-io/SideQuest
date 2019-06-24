@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { AdbClientService } from '../adb-client.service';
 import { StatusBarService } from '../status-bar.service';
@@ -10,6 +10,7 @@ import { BsaberService, QuestSaberPatchPack } from '../bsaber.service';
     styleUrls: ['./custom-levels.component.css'],
 })
 export class CustomLevelsComponent implements OnInit {
+  @ViewChild('oldMacOsModal',{static:false}) oldMacOsModal;
     addPack: QuestSaberPatchPack;
     constructor(
         public spinnerService: LoadingSpinnerService,
@@ -43,6 +44,9 @@ export class CustomLevelsComponent implements OnInit {
         this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(info => {
           this.bsaberService.beatSaberVersion = info.trim();
         });
+        if(this.appService.os.platform() === 'darwin' && +this.appService.os.release().split('.')[0] < 16){
+          this.oldMacOsModal.openModal();
+        }
     }
     deletePack() {
         this.bsaberService.jSon.packs = this.bsaberService.jSon.packs.filter(p => p.id !== this.addPack.id);
