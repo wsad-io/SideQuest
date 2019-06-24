@@ -282,8 +282,8 @@
     <br><br>
     Patch Results:
     <div *ngIf="qspResponse">
-      <div *ngIf="qspResponse.presentLevels.length"> <b>Current Levels:</b><br>{{(qspResponse.presentLevels||[]).join(', ')}}<br></div>
-      <div *ngIf="qspResponse.installedLevels.length"> <b>New Levels:</b><br>{{(qspResponse.installedLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="qspResponse.presentLevels&&qspResponse.presentLevels.length"> <b>Current Levels:</b><br>{{(qspResponse.presentLevels||[]).join(', ')}}<br></div>
+      <div *ngIf="qspResponse.installedLevels&&qspResponse.installedLevels.length"> <b>New Levels:</b><br>{{(qspResponse.installedLevels||[]).join(', ')}}<br></div>
       <div *ngIf="installSkippedLength()"> <b>Skipped Levels:</b><br>{{getInstallSkipped()}}<br></div>
     </div>
 
