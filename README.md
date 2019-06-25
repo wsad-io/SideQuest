@@ -21,8 +21,6 @@ The quest doesnt show 2D apps normally anywhere in the UI. Thankfully though Sid
 VR apps dont work when launched from the app launcher currently, only 2d apps. The workaround is to launch the VR apps from the unknown sources list instead - they are usually listed there!
 
 
-It is important to follow the instructions in the setup screen before you start - particularily installing the SideQuest Launcher app to be able to find 2D apps on your device once they are installed.
-
 ## SideQuest Features
 
 -   Automatic download of ADB platform-tools for your platform - win/mac/linux.
