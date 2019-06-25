@@ -24,11 +24,17 @@ VR apps dont work when launched from the app launcher currently, only 2d apps. T
 ## SideQuest Features
 
 -   Automatic download of ADB platform-tools for your platform - win/mac/linux.
+-   Automatic download of QuestSaberPatch for your platform - win/mac/linux.
+-   Automatic download of songe-converter for your platform - win/mac/linux.
 -   Setup instructions for enabling developer mode on your device.
--   On device launcher app to be able to open the apps once installed.
--   Drag and drop support for installing arbitrary apps.
--   Repository seeding via sources.txt file to preload your own repos for distribution.
--   Add custom fdroid based repositories to get more apps.
+-   AppStarter based app launcher in both Oculus Home and Oculus TV for launching and using 2D apps
+-   Drag and drop support for installing arbitrary apk/obb files.
+-   File manager with drag and drop support ( thanks Mitch ) 
+-   Dark mode
+-   New installed apps manager with a backup system.
+-   Beat Saber song manager for patching songs onto the Oculus Quest - sorting, multi select, remove duplicates and drag and drop
+-   Auto downloading via the in-app browser - now works with beatsaver.com, bsaber.com and also any APK downloads too!
+
 
 ## Setup
 
