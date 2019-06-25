@@ -3,10 +3,6 @@
 
 [Latest Download](https://github.com/the-expanse/SideQuest/releases) | [Discord](https://discord.gg/pqUz9F7) | [Patreon](https://www.patreon.com/TheExpanseVR) | [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)
 
-Catch us on ! - 
-
-Support us on ! - 
-
 ![Image](https://i.imgur.com/3Rcv2DC.png)
 
 SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get set up.
@@ -35,10 +31,7 @@ VR apps dont work when launched from the app launcher currently, only 2d apps. T
 
 When you first launch SideQuest it will download the repositories and also download the ADB tools. Once this is done you should go to the Setup menu option and follow through the one time setup to get your device ready to install apps.
 
-If you have any problems you can hit the debugger icon to capture any errors - these will really help to find and fix bugs.
-
-![Image](https://i.imgur.com/mHiKK7l.png)
-
+If you have any problems you can hit the bug icon on the top right and open the console tab in that section to capture any errors - these will really help to find and fix bugs.
 
 ## Important
 
