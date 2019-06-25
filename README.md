@@ -31,7 +31,7 @@ VR apps dont work when launched from the app launcher currently, only 2d apps. T
 
 When you first launch SideQuest it will download the repositories and also download the ADB tools. Once this is done you should go to the Setup menu option and follow through the one time setup to get your device ready to install apps.
 
-If you have any problems you can hit the bug icon on the top right and open the console tab in that section to capture any errors - these will really help to find and fix bugs.
+If you have any problems you can hit the bug icon on the top right and then open the console tab in that section to capture any errors - these will really help to find and fix bugs.
 
 ## Important
 
