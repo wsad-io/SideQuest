@@ -92,7 +92,7 @@ yarn reset
 
 ## Contribution Guidelines
 
-We are pretty relaxed at this point, in that we will accpet arbitrary PRs but all collaborators must agree on a way forward. We live by the [Contributor Covenant](https://www.contributor-covenant.org/)
+We are pretty relaxed at this point, in that we will accept arbitrary PRs, but all collaborators must agree on a way forward. We live by the [Contributor Covenant](https://www.contributor-covenant.org/)
 
 ## More Info:
 
