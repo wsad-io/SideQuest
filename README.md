@@ -18,9 +18,14 @@ Support us on [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hoste
 
 ![Image](https://i.imgur.com/3Rcv2DC.png)
 
-SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get setup.
+SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get set up.
 
-It is important to follow the instructions in the setup screen before you start - particularily installing the OpenStore Launcher app to be able to find the apps on your device once they are installed.
+The quest doesnt show 2D apps normally anywhere in the UI. Thankfully though SideQuest has a launcher ( install on the setup screen - scroll down to the bottom ) which appears in the unknown sources list and lets you open 2d apps. You can pick "SideQuest - Home" or "SideQuest - TV" to use the 2D app in the Oculus Home or Oculus TV environments. 
+
+VR apps dont work when launched from the app launcher currently, only 2d apps. The workaround is to launch the VR apps from the unknown sources list instead - they are usually listed there!
+
+
+It is important to follow the instructions in the setup screen before you start - particularily installing the SideQuest Launcher app to be able to find 2D apps on your device once they are installed.
 
 ## SideQuest Features
 
