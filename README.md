@@ -12,10 +12,6 @@ Catch us on [Patreon](https://www.patreon.com/TheExpanseVR)! -
 
 Support us on [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)! - 
 
-## Video Tutorial
-
-[![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
-
 ![Image](https://i.imgur.com/3Rcv2DC.png)
 
 SideQuest is designed to simplify sideloading apps onto your standalone android based headset. It should include everything you need to get started. When you first open the app it is best to open the setup screen and follow the instructions on screen to get set up.
@@ -48,6 +44,11 @@ If you have any problems you can hit the debugger icon to capture any errors - t
 ## Important
 
 Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
+
+
+## Video Tutorial
+
+[![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
 
 ## App Developers: 
 
