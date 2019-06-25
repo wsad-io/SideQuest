@@ -62,8 +62,20 @@ To start the dev stack run
 yarn start
 ```
 
+To build the angular app only
+```
+yarn app-build
+```
 
-To build the app
+
+To build the electron app only
+```
+yarn build
+yarn build --mac
+yarn build --wlm
+```
+
+To build the app & angular app
 ```
 yarn dist
 ```
