@@ -80,7 +80,9 @@ export class BsaberService {
         private statusService: StatusBarService,
         private spinnerService: LoadingSpinnerService
     ) {
-        let defaultImagePath = this.appService.path.join(__dirname, 'assets', 'images', 'default-pack-cover.png');
+        let defaultImagePath = this.appService.path
+            .join(__dirname, 'assets', 'images', 'default-pack-cover.png')
+            .replace('app.asar', 'app.asar.unpacked');
         if (this.appService.doesFileExist(defaultImagePath)) {
             this.defaultImage = defaultImagePath;
         } else {
