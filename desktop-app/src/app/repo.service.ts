@@ -92,6 +92,7 @@ export class RepoService {
             this.appService.fs.unlinkSync(cachePath);
         }
         this.repos.splice(index, 1);
+        this.saveRepos();
     }
     migrateRepos(url:string):string{
       switch(url.trim()){

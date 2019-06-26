@@ -311,6 +311,7 @@ export class AdbClientService {
     }
     installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean) {
         if (this.deviceStatus !== ConnectionStatus.CONNECTED) {
+
             this.statusService.showStatus('Apk install failed: No device connected!', true);
             return Promise.reject('Apk install failed: No device connected!');
         }
@@ -321,7 +322,7 @@ export class AdbClientService {
             this.spinnerService.setMessage(
                 status.percent === 1
                     ? 'Installing Apk...<br>' + filePath
-                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + 'MB'
+                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + '%'
             );
         })
             .then(r => {

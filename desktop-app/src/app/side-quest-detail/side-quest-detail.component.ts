@@ -4,6 +4,7 @@ import { RepoService } from '../repo.service';
 import { JSONApp, JSONPackage, RepoItem } from '../repo-item/repo-item.component';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppService } from '../app.service';
+import { AdbClientService } from '../adb-client.service';
 
 @Component({
   selector: 'app-side-quest-detail',
@@ -19,7 +20,12 @@ export class SideQuestDetailComponent implements OnInit {
   appDescription:string;
   currentRepo:number = 0;
 
-  constructor(private route: ActivatedRoute,private repoService:RepoService,public appService:AppService,router:Router,private appRef:ChangeDetectorRef) {
+  constructor(private route: ActivatedRoute,
+              private repoService:RepoService,
+              public appService:AppService,
+              public adbService:AdbClientService,
+              router:Router,
+              private appRef:ChangeDetectorRef) {
     this.sub = router.events.subscribe((val) => {
       if (val instanceof NavigationEnd) {
         this.currentApp = this.route.snapshot.paramMap.get("package");
@@ -122,5 +128,11 @@ export class SideQuestDetailComponent implements OnInit {
       }
     });
     return output;
+  }
+  uninstallApk(){
+    this.adbService.uninstallAPK(this.app.packageName).then(()=>{
+        this.app = null;
+        this.getRepo();
+    })
   }
 }
