@@ -44,10 +44,10 @@ function createWindow() {
         }
     );
 
-    protocol.registerBufferProtocol(
+    protocol.registerStringProtocol(
         'sidequest',
         (request, callback) => {
-            console.log(request.url);
+            mainWindow.webContents.send('open-url', request.url);
         },
         error => {
             if (error) console.error('Failed to register protocol');

@@ -5,6 +5,7 @@ import { BsaberService } from './bsaber.service';
 import { StatusBarService } from './status-bar.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { AdbClientService } from './adb-client.service';
+import { WebviewService } from './webview.service';
 
 @Injectable({
     providedIn: 'root',
@@ -16,14 +17,15 @@ export class ElectronService {
         private bsaberService: BsaberService,
         private statusService: StatusBarService,
         private spinnerService: LoadingSpinnerService,
-        private adbService: AdbClientService
+        private adbService: AdbClientService,
+        private webviewService: WebviewService
     ) {
         this.setupIPC();
     }
 
     setupIPC() {
         this.appService.electron.ipcRenderer.on('pre-open-url', (event, data) => {
-          this.spinnerService.showLoader();
+            this.spinnerService.showLoader();
             this.spinnerService.setMessage('Do you want to install this file?<br><br>' + data);
             this.spinnerService.setupConfirm().then(() => this.adbService.installAPK(data));
         });
@@ -41,6 +43,34 @@ export class ElectronService {
                             this.spinnerService.hideLoader();
                             this.statusService.showStatus('APK installed!! ' + url[1]);
                         });
+                        break;
+                    case 'sidequest://api/':
+                        // grab and parse a url like this - sidequest://api/#adbService:installAPK:<url_of_apk>:true
+                        let parts = url[1].split(':');
+                        let service = parts.unshift();
+                        let method = parts.unshift();
+                        if (
+                            service &&
+                            this[service] &&
+                            method &&
+                            this[service][method] &&
+                            typeof this[service][method] === 'function'
+                        ) {
+                            parts = parts.map(p => {
+                                switch (p) {
+                                    case 'null':
+                                        return null;
+                                    case 'true':
+                                        return true;
+                                    case 'false':
+                                        return false;
+                                    default:
+                                        return p.trim();
+                                }
+                            });
+                            console.log(parts, service, method);
+                            this[service][method].call.apply(parts);
+                        }
                         break;
                     case 'sidequest://bsaber/':
                         this.spinnerService.showLoader();
