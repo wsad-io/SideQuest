@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
-
+declare const process;
 export enum ConnectionStatus {
     CONNECTED,
     OFFLINE,
@@ -193,16 +193,18 @@ export class AdbClientService {
         });
     }
     isAdbDownloaded() {
-        let command = 'which adb';
-        if (process.platform == 'win32') {
-            command = 'where adb';
-        }
-        let stdout = this.appService.execSync(command);
-        if (this.doesFileExist(stdout)) {
-            const path = require('path');
-            this.adbPath = path.dirname(stdout);
-            return true;
-        }
+        // let command = 'which adb';
+        // if (process.platform == 'win32') {
+        //     command = 'where adb';
+        // }
+        // try{
+        //
+        //   let stdout = this.appService.execSync(command);
+        //   if (this.doesFileExist(stdout)) {
+        //     this.adbPath = this.appService.path.dirname(stdout);
+        //     return true;
+        //   }
+        // }catch(e){}
         return this.doesFileExist(this.adbPath);
     }
 
