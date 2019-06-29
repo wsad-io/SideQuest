@@ -141,3 +141,8 @@
   border: 0px solid white;
   height: 0px;
 }
+.description{
+  margin-top: -10px;
+  font-size: 0.8rem;
+  font-style: italic;
+}

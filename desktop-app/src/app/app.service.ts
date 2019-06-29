@@ -12,6 +12,7 @@ export enum FolderType {
     DATA_BACKUPS,
     QUEST_SABER_PATCH,
     APP_BACKUP,
+    SONG_FOLDER,
 }
 
 @Injectable({
@@ -150,6 +151,9 @@ export class AppService {
                 break;
             case FolderType.APP_BACKUP:
                 this.electron.shell.openItem(this.path.join(this.appData, 'backups', packageName));
+                break;
+            case FolderType.SONG_FOLDER:
+                this.electron.shell.openItem(this.path.join(this.appData, 'bsaber', packageName));
                 break;
         }
     }

@@ -108,10 +108,15 @@ export class AdbClientService {
         return this.adbCommand('shell', {
             serial: this.deviceSerial,
             command: 'dumpsys package ' + packageName + ' | grep versionName',
-        }).then(res => {
-            let versionParts = res.split('=');
-            return versionParts.length ? versionParts[1] : '0.0.0.0';
-        });
+        })
+            .then(res => {
+                console.log(res);
+                let versionParts = res.split('=');
+                return versionParts.length ? versionParts[1] : '0.0.0.0';
+            })
+            .catch(e => {
+                this.statusService.showStatus(e.message ? e.message : e.toString(), true);
+            });
     }
     makeDirectory(dir) {
         return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + dir + '"' });

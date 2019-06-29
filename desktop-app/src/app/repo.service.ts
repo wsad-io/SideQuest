@@ -12,7 +12,7 @@ export class RepoService {
     allApps: any = {};
     indexUrl: string = 'https://the-expanse.github.io/SideQuestRepos/';
     constructor(private appService: AppService, private spinnerService: LoadingSpinnerService, private appRef: ApplicationRef) {
-      this.appService.seedSources();
+        this.appService.seedSources();
         this.getAppIndex();
         this.getRepos();
     }
@@ -58,7 +58,7 @@ export class RepoService {
                 )
                     .then(() => this.repos.sort((a, b) => a.order - b.order))
                     .then(() => setTimeout(() => this.appRef.tick()))
-                    .then(()=>this.saveRepos())
+                    .then(() => this.saveRepos())
                     .then(() => {
                         this.repos
                             .reduce((a, repo) => {
@@ -95,21 +95,21 @@ export class RepoService {
         this.repos.splice(index, 1);
         this.saveRepos();
     }
-    migrateRepos(url:string):string{
-      switch(url.trim()){
-        case "http://showmewhatyougot.x10host.com/vr-games/":
-          return "https://the-expanse.github.io/SideQuestRepos/vr-games/";
-        case "http://showmewhatyougot.x10host.com/vr-apps/":
-          return "https://the-expanse.github.io/SideQuestRepos/vr-apps/";
-        case "http://keepsummersafe.x10host.com/android-games/":
-          return "https://the-expanse.github.io/SideQuestRepos/android-games/";
-        case "http://keepsummersafe.x10host.com/android-apps/":
-          return "https://the-expanse.github.io/SideQuestRepos/android-apps/";
-        case "http://showmewhatyougot.x10host.com/nsfw/":
-          return "https://the-expanse.github.io/SideQuestRepos/nsfw/";
-        default:
-          return url;
-      }
+    migrateRepos(url: string): string {
+        switch (url.trim()) {
+            case 'http://showmewhatyougot.x10host.com/vr-games/':
+                return 'https://the-expanse.github.io/SideQuestRepos/vr-games/';
+            case 'http://showmewhatyougot.x10host.com/vr-apps/':
+                return 'https://the-expanse.github.io/SideQuestRepos/vr-apps/';
+            case 'http://keepsummersafe.x10host.com/android-games/':
+                return 'https://the-expanse.github.io/SideQuestRepos/android-games/';
+            case 'http://keepsummersafe.x10host.com/android-apps/':
+                return 'https://the-expanse.github.io/SideQuestRepos/android-apps/';
+            case 'http://showmewhatyougot.x10host.com/nsfw/':
+                return 'https://the-expanse.github.io/SideQuestRepos/nsfw/';
+            default:
+                return url;
+        }
     }
     addRepo(url: string, i?: number) {
         url = this.migrateRepos(url);
@@ -151,7 +151,9 @@ export class RepoService {
                 body: repo,
                 categories: repo.apps
                     .reduce((a, b) => {
-                        b.icon = url + 'icons/' + b.icon;
+                        if (b.icon.substr(0, 7) !== 'http://' && b.icon.substr(0, 8) !== 'https://') {
+                            b.icon = url + 'icons/' + b.icon;
+                        }
                         return a.concat(b.categories);
                     }, [])
                     .filter((v, i, self) => self.indexOf(v) === i),
