@@ -42,11 +42,12 @@ export class AppService {
     md5: any;
     semver: any;
     exec: any;
+    execSync: any;
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
     versionName: string = '0.4.2';
-    showBack:boolean  = false;
+    showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
         this.fs = (<any>window).require('fs');
@@ -64,6 +65,7 @@ export class AppService {
         this.nativeApp = this.electron.remote.app;
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
+        this.execSync = (<any>window).require('child_process').execSync;
         this.makeFolders().then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {

@@ -197,14 +197,13 @@ export class AdbClientService {
         if (process.platform == 'win32') {
             command = 'where adb';
         }
-        const execSync = require('child_process');
-        let stdout = execSync(command);
+        let stdout = this.appService.execSync(command);
         if (this.doesFileExist(stdout)) {
             const path = require('path');
             this.adbPath = path.dirname(stdout);
             return true;
         }
-        return this.doesFileExist(this.adbPath + this.getAdbBinary);
+        return this.doesFileExist(this.adbPath);
     }
 
     doesFileExist(path) {
@@ -226,7 +225,6 @@ export class AdbClientService {
         let url = 'https://dl.google.com/android/repository/platform-tools-latest-';
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Downloading/Extracting ADB...');
-        console.log('downloading adb');
         return new Promise((resolve, reject) => {
             this.appService
                 .downloadFile(url + 'windows.zip', url + 'linux.zip', url + 'darwin.zip', url => this.adbPath + '.zip')
@@ -325,7 +323,6 @@ export class AdbClientService {
     }
     installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean) {
         if (this.deviceStatus !== ConnectionStatus.CONNECTED) {
-
             this.statusService.showStatus('Apk install failed: No device connected!', true);
             return Promise.reject('Apk install failed: No device connected!');
         }
