@@ -19,9 +19,15 @@
       <h4 [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">No files here...</h4>
 
     </div>
-    <div *ngFor="let file of files" class="vertical-align cursor" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}" (click)="openFile(file)">
-      <div class="right"><span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}</div>
-      <i class="material-icons medium vertical-align" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">{{file.icon}}</i>{{file.name}}
+    <div *ngFor="let file of files" class="vertical-align cursor" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">
+      <div class="right">
+        <span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}
+
+        <i *ngIf="file.icon !== 'folder'" class="material-icons cursor orange-text drag-indicator right" (click)="deleteFile(file)">close</i>
+      </div>
+      <div (click)="openFile(file)">
+        <i class="material-icons medium vertical-align" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">{{file.icon}}</i>{{file.name}}
+      </div>
     </div>
   </div>
   <br><br>

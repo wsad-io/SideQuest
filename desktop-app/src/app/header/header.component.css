@@ -152,6 +152,9 @@
   top: 6px;
   right: 330px;
 }
+.sync-songs{
+  right: 15px;
+}
 .sync-songs-now,.beast-saber-buttons {
   top: 45px;
 }

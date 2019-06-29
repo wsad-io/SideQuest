@@ -131,7 +131,6 @@ export class RepoService {
                 } else {
                     try {
                         let repo_body: RepoBody = JSON.parse(body);
-                        console.log(repo_body);
                         if (!this.isValidRepo(repo_body)) {
                             reject('Repo not valid or unsupported version!');
                         } else {
@@ -143,6 +142,9 @@ export class RepoService {
                 }
             });
         }).then((repo: RepoBody) => {
+            if (repo.repo.icon.substr(0, 7) !== 'http://' && repo.repo.icon.substr(0, 8) !== 'https://') {
+                repo.repo.icon = url + 'icons/' + repo.repo.icon;
+            }
             this.repos.push({
                 name: repo.repo.name,
                 icon: repo.repo.icon,

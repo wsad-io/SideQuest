@@ -7815,6 +7815,7 @@
                         (e[(e.DATA_BACKUPS = 5)] = 'DATA_BACKUPS'),
                         (e[(e.QUEST_SABER_PATCH = 6)] = 'QUEST_SABER_PATCH'),
                         (e[(e.APP_BACKUP = 7)] = 'APP_BACKUP'),
+                        (e[(e.SONG_FOLDER = 8)] = 'SONG_FOLDER'),
                         e
                     );
                 })({}),
@@ -7823,7 +7824,7 @@
                         var t = this;
                         (this.spinnerService = e),
                             (this.currentTheme = 'dark'),
-                            (this.versionName = '0.4.2'),
+                            (this.versionName = '0.4.1'),
                             (this.showBack = !1),
                             (this.path = window.require('path')),
                             (this.fs = window.require('fs')),
@@ -7922,6 +7923,9 @@
                                     break;
                                 case Ku.APP_BACKUP:
                                     this.electron.shell.openItem(this.path.join(this.appData, 'backups', t));
+                                    break;
+                                case Ku.SONG_FOLDER:
+                                    this.electron.shell.openItem(this.path.join(this.appData, 'bsaber', t));
                             }
                         }),
                         (e.prototype.seedSources = function() {
@@ -8091,7 +8095,7 @@
                 Qu = (function() {
                     function e(e) {
                         (this.appService = e),
-                            (this.currentAddress = 'http://sidequestvr.com'),
+                            (this.currentAddress = 'https://sidequestvr.com'),
                             (this.isWebviewLoading = !1),
                             e.setWebviewService(this);
                     }
@@ -8468,13 +8472,19 @@
                                   });
                         }),
                         (e.prototype.getPackageInfo = function(e) {
+                            var t = this;
                             return this.adbCommand('shell', {
                                 serial: this.deviceSerial,
                                 command: 'dumpsys package ' + e + ' | grep versionName',
-                            }).then(function(e) {
-                                var t = e.split('=');
-                                return t.length ? t[1] : '0.0.0.0';
-                            });
+                            })
+                                .then(function(e) {
+                                    console.log(e);
+                                    var t = e.split('=');
+                                    return t.length ? t[1] : '0.0.0.0';
+                                })
+                                .catch(function(e) {
+                                    t.statusService.showStatus(e.message ? e.message : e.toString(), !0);
+                                });
                         }),
                         (e.prototype.makeDirectory = function(e) {
                             return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + e + '"' });
@@ -9417,7 +9427,8 @@
                                                       ? '.apk' === t.appService.path.extname(n)
                                                           ? t.adbService.installAPK(n, !0)
                                                           : t.adbService.installLocalObb(n)
-                                                      : t.statusService.showStatus('Unrecognised File: ' + n, !0);
+                                                      : (t.spinnerService.hideLoader(),
+                                                        t.statusService.showStatus('Unrecognised File: ' + n, !0));
                                               }),
                                               !1)
                                     );
@@ -9666,8 +9677,7 @@
                                                     if (e) return r(e);
                                                     try {
                                                         var o = JSON.parse(i);
-                                                        console.log(o),
-                                                            n.isValidRepo(o) ? t(o) : r('Repo not valid or unsupported version!');
+                                                        n.isValidRepo(o) ? t(o) : r('Repo not valid or unsupported version!');
                                                     } catch (u) {
                                                         return r('JSON parse Error');
                                                     }
@@ -9703,20 +9713,28 @@
                                 );
                                 var l, i, o;
                             }).then(function(t) {
-                                n.repos.push({
-                                    name: t.repo.name,
-                                    icon: t.repo.icon,
-                                    url: e,
-                                    order: r,
-                                    body: t,
-                                    categories: t.apps
-                                        .reduce(function(t, n) {
-                                            return (n.icon = e + 'icons/' + n.icon), t.concat(n.categories);
-                                        }, [])
-                                        .filter(function(e, t, n) {
-                                            return n.indexOf(e) === t;
-                                        }),
-                                });
+                                'http://' !== t.repo.icon.substr(0, 7) &&
+                                    'https://' !== t.repo.icon.substr(0, 8) &&
+                                    (t.repo.icon = e + 'icons/' + t.repo.icon),
+                                    n.repos.push({
+                                        name: t.repo.name,
+                                        icon: t.repo.icon,
+                                        url: e,
+                                        order: r,
+                                        body: t,
+                                        categories: t.apps
+                                            .reduce(function(t, n) {
+                                                return (
+                                                    'http://' !== n.icon.substr(0, 7) &&
+                                                        'https://' !== n.icon.substr(0, 8) &&
+                                                        (n.icon = e + 'icons/' + n.icon),
+                                                    t.concat(n.categories)
+                                                );
+                                            }, [])
+                                            .filter(function(e, t, n) {
+                                                return n.indexOf(e) === t;
+                                            }),
+                                    });
                             });
                         }),
                         (e.prototype.isValidRepo = function(e) {
@@ -24021,7 +24039,11 @@
                         (this.repoService = e), (this.appService = t), (this.statusService = n);
                     }
                     return (
-                        (e.prototype.ngOnInit = function() {}),
+                        (e.prototype.ngOnInit = function() {
+                            'http://' !== this.repo.icon.substr(0, 7) &&
+                                'https://' !== this.repo.icon.substr(0, 8) &&
+                                (this.repo.icon = this.repo.url + 'icons/' + this.repo.icon);
+                        }),
                         (e.prototype.deleteRepo = function() {
                             this.repoService.deleteRepo(this.i), this.statusService.showStatus('Repo deleted OK!');
                         }),
@@ -24063,7 +24085,7 @@
                     null,
                     function(e, t) {
                         var n = t.component;
-                        e(t, 6, 0, el(2, '', n.repo.url, 'icons/', n.repo.icon, '')), e(t, 8, 0, n.repo.name, n.repo.url);
+                        e(t, 6, 0, el(1, '', n.repo.icon, '')), e(t, 8, 0, n.repo.name, n.repo.url);
                     }
                 );
             }
@@ -24948,17 +24970,18 @@
                     return (e[(e._2 = 0)] = '_2'), (e[(e._4 = 1)] = '_4'), e;
                 })({}),
                 wm = (function(e) {
-                    return (e[(e.OFF = 0)] = 'OFF'), (e[(e.ON = 1)] = 'ON'), e;
+                    return (e[(e.APP = 0)] = 'APP'), (e[(e.OFF = 1)] = 'OFF'), (e[(e.ON = 2)] = 'ON'), e;
                 })({}),
                 Sm = (function(e) {
                     return (
                         (e[(e._512 = 0)] = '_512'),
                         (e[(e._768 = 1)] = '_768'),
-                        (e[(e._1280 = 2)] = '_1280'),
-                        (e[(e._1536 = 3)] = '_1536'),
-                        (e[(e._2048 = 4)] = '_2048'),
-                        (e[(e._2560 = 5)] = '_2560'),
-                        (e[(e._3072 = 6)] = '_3072'),
+                        (e[(e._1024 = 2)] = '_1024'),
+                        (e[(e._1280 = 3)] = '_1280'),
+                        (e[(e._1536 = 4)] = '_1536'),
+                        (e[(e._2048 = 5)] = '_2048'),
+                        (e[(e._2560 = 6)] = '_2560'),
+                        (e[(e._3072 = 7)] = '_3072'),
                         e
                     );
                 })({}),
@@ -25011,37 +25034,57 @@
                             this.bsaberService.resetPacks();
                         }),
                         (e.prototype.setFFR = function(e) {
-                            var t = this;
+                            var t = this,
+                                n = 0;
+                            switch (e) {
+                                case ym.LOW:
+                                    n = 1;
+                                    break;
+                                case ym.MEDIUM:
+                                    n = 2;
+                                    break;
+                                case ym.HIGH:
+                                    n = 3;
+                                    break;
+                                case ym.HIGH_TOP:
+                                    n = 4;
+                            }
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command: "setprop debug.oculus.foveation.level '+value+'",
+                                    command: 'debug.oculus.foveation.level ' + n,
                                 })
-                                .then(function() {
-                                    return t.statusService.showStatus('FFR set OK!!');
+                                .then(function(e) {
+                                    t.statusService.showStatus('FFR set OK!!');
                                 });
                         }),
                         (e.prototype.setGPU = function(e) {
                             var t = this,
                                 n = e === bm._2 ? 2 : 4;
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command: '"setprop debug.oculus.cpuLevel ' + n + ' && setprop debug.oculus.gpuLevel ' + n + '"',
+                                    command: 'setprop debug.oculus.cpuLevel ' + n,
                                 })
                                 .then(function() {
-                                    return t.statusService.showStatus('CPU/GPU level set OK!!');
+                                    return t.adbService.adbCommand('setProperties', {
+                                        serial: t.adbService.deviceSerial,
+                                        command: 'setprop debug.oculus.gpuLevel ' + n,
+                                    });
+                                })
+                                .then(function(e) {
+                                    console.log(e), t.statusService.showStatus('CPU/GPU level set OK!!');
                                 });
                         }),
                         (e.prototype.setCa = function(e) {
                             var t = this;
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command: '"setprop debug.oculus.forceChroma ' + (e === wm.ON ? 1 : 0) + '"',
+                                    command: 'setprop debug.oculus.forceChroma ' + (e === wm.ON ? 1 : e === wm.APP ? -1 : 0),
                                 })
-                                .then(function() {
-                                    return t.statusService.showStatus('Chromatic Aberration set OK!!');
+                                .then(function(e) {
+                                    console.log(e), t.statusService.showStatus('Chromatic Aberration set OK!!');
                                 });
                         }),
                         (e.prototype.setSSO = function(e) {
@@ -25053,6 +25096,9 @@
                                     break;
                                 case Sm._768:
                                     n = 768;
+                                    break;
+                                case Sm._1024:
+                                    n = 1024;
                                     break;
                                 case Sm._1280:
                                     n = 1280;
@@ -25070,17 +25116,18 @@
                                     n = 3072;
                             }
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command:
-                                        '"setprop debug.oculus.textureWidth ' +
-                                        n +
-                                        ' && setprop debug.oculus.textureHeight ' +
-                                        n +
-                                        '"',
+                                    command: 'setprop debug.oculus.textureWidth ' + n,
                                 })
                                 .then(function() {
-                                    return t.statusService.showStatus('Texture Resolution set OK!!');
+                                    return t.adbService.adbCommand('setProperties', {
+                                        serial: t.adbService.deviceSerial,
+                                        command: 'setprop debug.oculus.textureHeight ' + n,
+                                    });
+                                })
+                                .then(function(e) {
+                                    console.log(e), t.statusService.showStatus('Texture Resolution set OK!!');
                                 });
                         }),
                         (e.prototype.setSVB = function(e) {
@@ -25097,12 +25144,12 @@
                                     n = 25e6;
                             }
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command: '"setprop debug.oculus.videoBitrate ' + n + '"',
+                                    command: 'setprop debug.oculus.videoBitrate ' + n,
                                 })
-                                .then(function() {
-                                    return t.statusService.showStatus('Video Bitrate set OK!!');
+                                .then(function(e) {
+                                    console.log(e), t.statusService.showStatus('Video Bitrate set OK!!');
                                 });
                         }),
                         (e.prototype.setSVR = function(e) {
@@ -25116,12 +25163,12 @@
                                     n = 1536;
                             }
                             this.adbService
-                                .adbCommand('shell', {
+                                .adbCommand('setProperties', {
                                     serial: this.adbService.deviceSerial,
-                                    command: '"setprop debug.oculus.videoResolution ' + n + '"',
+                                    command: 'setprop debug.oculus.videoResolution ' + n,
                                 })
-                                .then(function() {
-                                    return t.statusService.showStatus('Video Resolution set OK!!');
+                                .then(function(e) {
+                                    console.log(e), t.statusService.showStatus('Video Resolution set OK!!');
                                 });
                         }),
                         (e.prototype.setPavlovPermission = function() {
@@ -25131,8 +25178,8 @@
                                     serial: this.adbService.deviceSerial,
                                     command: 'pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO',
                                 })
-                                .then(function() {
-                                    return e.statusService.showStatus('Permission set OK!!');
+                                .then(function(t) {
+                                    console.log(t), e.statusService.showStatus('Permission set OK!!');
                                 });
                         }),
                         (e.prototype.pasteToDevice = function() {
@@ -25174,14 +25221,14 @@
                 return Ro(
                     0,
                     [
-                        (e()(), go(0, 0, null, null, 365, 'div', [['class', 'container']], null, null, null, null, null)),
+                        (e()(), go(0, 0, null, null, 405, 'div', [['class', 'container']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
                         Bl(2, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
                         To(3, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), go(4, 0, null, null, 1, 'div', [['class', 'side-quest-version']], null, null, null, null, null)),
                         (e()(), Io(5, null, [' SideQuest Version: ', ' '])),
-                        (e()(), go(6, 0, null, null, 359, 'div', [['class', 'row']], null, null, null, null, null)),
-                        (e()(), go(7, 0, null, null, 220, 'div', [['class', 'col s12 m6']], null, null, null, null, null)),
+                        (e()(), go(6, 0, null, null, 399, 'div', [['class', 'row']], null, null, null, null, null)),
+                        (e()(), go(7, 0, null, null, 260, 'div', [['class', 'col s12 m6']], null, null, null, null, null)),
                         (e()(), go(8, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
                         Bl(10, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
@@ -25292,10 +25339,56 @@
                         To(44, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Chromatic Aberration'])),
                         (e()(), Io(-1, null, [' This will enable/disable chromatic aberration. '])),
-                        (e()(), go(47, 0, null, null, 10, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(47, 0, null, null, 20, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
                             48,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setCa(l.CA.APP) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(50, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(51, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Default'])),
+                        (e()(),
+                        go(
+                            53,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setCa(l.CA.APP) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(55, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(56, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['App Selected'])),
+                        (e()(),
+                        go(
+                            58,
                             0,
                             null,
                             null,
@@ -25313,12 +25406,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(50, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(51, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(60, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(61, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['On'])),
                         (e()(),
                         go(
-                            53,
+                            63,
                             0,
                             null,
                             null,
@@ -25336,23 +25429,23 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(55, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(56, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(65, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(66, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['Off'])),
-                        (e()(), go(58, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(68, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(60, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(61, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(70, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(71, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Paste Text to your device'])),
                         (e()(),
                         Io(-1, null, [
                             " If there is a text input field focussed on your headset you can paste / type text in here to have SideQuest type it out on your headset. Good for long passwords you don't want to have to type on a virtual keyboard. ",
                         ])),
-                        (e()(), go(64, 0, null, null, 31, 'div', [['class', 'button-section']], null, null, null, null, null)),
-                        (e()(), go(65, 0, null, null, 14, 'div', [['class', 'input-field ']], null, null, null, null, null)),
+                        (e()(), go(74, 0, null, null, 31, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(75, 0, null, null, 14, 'div', [['class', 'input-field ']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            66,
+                            76,
                             0,
                             null,
                             null,
@@ -25380,10 +25473,10 @@
                                 var r = !0,
                                     l = e.component;
                                 return (
-                                    'input' === t && (r = !1 !== Al(e, 70)._handleInput(n.target.value) && r),
-                                    'blur' === t && (r = !1 !== Al(e, 70).onTouched() && r),
-                                    'compositionstart' === t && (r = !1 !== Al(e, 70)._compositionStart() && r),
-                                    'compositionend' === t && (r = !1 !== Al(e, 70)._compositionEnd(n.target.value) && r),
+                                    'input' === t && (r = !1 !== Al(e, 80)._handleInput(n.target.value) && r),
+                                    'blur' === t && (r = !1 !== Al(e, 80).onTouched() && r),
+                                    'compositionstart' === t && (r = !1 !== Al(e, 80)._compositionStart() && r),
+                                    'compositionend' === t && (r = !1 !== Al(e, 80)._compositionEnd(n.target.value) && r),
                                     'ngModelChange' === t && (r = !1 !== (l.textToSend = n) && r),
                                     r
                                 );
@@ -25392,9 +25485,9 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(68, 278528, null, 0, $a, [Ja], { ngClass: [0, 'ngClass'] }, null),
-                        To(69, { 'input-dark-theme': 0, 'input-light-theme': 1 }),
-                        Bl(70, 16384, null, 0, bv, [Bn, Nn, [2, yv]], null, null),
+                        Bl(78, 278528, null, 0, $a, [Ja], { ngClass: [0, 'ngClass'] }, null),
+                        To(79, { 'input-dark-theme': 0, 'input-light-theme': 1 }),
+                        Bl(80, 16384, null, 0, bv, [Bn, Nn, [2, yv]], null, null),
                         Ul(
                             1024,
                             null,
@@ -25405,7 +25498,7 @@
                             [bv]
                         ),
                         Bl(
-                            72,
+                            82,
                             671744,
                             null,
                             0,
@@ -25415,18 +25508,18 @@
                             { update: 'ngModelChange' }
                         ),
                         Ul(2048, null, _v, null, [dg]),
-                        Bl(74, 16384, null, 0, Cv, [[4, _v]], null, null),
-                        (e()(), go(75, 0, null, null, 4, 'label', [['for', 'devicePaste']], null, null, null, null, null)),
+                        Bl(84, 16384, null, 0, Cv, [[4, _v]], null, null),
+                        (e()(), go(85, 0, null, null, 4, 'label', [['for', 'devicePaste']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(77, 278528, null, 0, $a, [Ja], { ngClass: [0, 'ngClass'] }, null),
-                        To(78, { 'label-dark-theme': 0, 'label-light-theme': 1 }),
+                        Bl(87, 278528, null, 0, $a, [Ja], { ngClass: [0, 'ngClass'] }, null),
+                        To(88, { 'label-dark-theme': 0, 'label-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Text to Paste'])),
-                        (e()(), go(80, 0, null, null, 10, 'div', [['class', 'switch']], null, null, null, null, null)),
-                        (e()(), go(81, 0, null, null, 9, 'label', [], null, null, null, null, null)),
+                        (e()(), go(90, 0, null, null, 10, 'div', [['class', 'switch']], null, null, null, null, null)),
+                        (e()(), go(91, 0, null, null, 9, 'label', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Text '])),
                         (e()(),
                         go(
-                            83,
+                            93,
                             0,
                             null,
                             null,
@@ -25447,8 +25540,8 @@
                                 var r = !0,
                                     l = e.component;
                                 return (
-                                    'change' === t && (r = !1 !== Al(e, 84).onChange(n.target.checked) && r),
-                                    'blur' === t && (r = !1 !== Al(e, 84).onTouched() && r),
+                                    'change' === t && (r = !1 !== Al(e, 94).onChange(n.target.checked) && r),
+                                    'blur' === t && (r = !1 !== Al(e, 94).onTouched() && r),
                                     'ngModelChange' === t && (r = !1 !== (l.isPassword = n) && r),
                                     r
                                 );
@@ -25456,7 +25549,7 @@
                             null,
                             null
                         )),
-                        Bl(84, 16384, null, 0, mv, [Bn, Nn], null, null),
+                        Bl(94, 16384, null, 0, mv, [Bn, Nn], null, null),
                         Ul(
                             1024,
                             null,
@@ -25467,7 +25560,7 @@
                             [mv]
                         ),
                         Bl(
-                            86,
+                            96,
                             671744,
                             null,
                             0,
@@ -25477,12 +25570,12 @@
                             { update: 'ngModelChange' }
                         ),
                         Ul(2048, null, _v, null, [dg]),
-                        Bl(88, 16384, null, 0, Cv, [[4, _v]], null, null),
-                        (e()(), go(89, 0, null, null, 0, 'span', [['class', 'lever']], null, null, null, null, null)),
+                        Bl(98, 16384, null, 0, Cv, [[4, _v]], null, null),
+                        (e()(), go(99, 0, null, null, 0, 'span', [['class', 'lever']], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Password '])),
                         (e()(),
                         go(
-                            91,
+                            101,
                             0,
                             null,
                             null,
@@ -25499,67 +25592,21 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(93, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(94, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(103, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(104, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['Send'])),
-                        (e()(), go(96, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(97, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(98, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(106, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(107, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(108, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(100, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(101, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(110, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(111, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, [' Set FFR ( Fixed Foveated Rendering ) level '])),
                         (e()(),
                         Io(-1, null, [
                             ' This will change how the view is rendered in the outer edges of the viewscreen for each eye. Higher is better performance, lower is better quality. ',
                         ])),
-                        (e()(), go(104, 0, null, null, 25, 'div', [['class', 'button-section']], null, null, null, null, null)),
-                        (e()(),
-                        go(
-                            105,
-                            0,
-                            null,
-                            null,
-                            4,
-                            'div',
-                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
-                            null,
-                            [[null, 'click']],
-                            function(e, t, n) {
-                                var r = !0,
-                                    l = e.component;
-                                return 'click' === t && (r = !1 !== l.setFFR(l.FFR.OFF) && r), r;
-                            },
-                            null,
-                            null
-                        )),
-                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(107, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(108, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
-                        (e()(), Io(-1, null, ['Off'])),
-                        (e()(),
-                        go(
-                            110,
-                            0,
-                            null,
-                            null,
-                            4,
-                            'div',
-                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
-                            null,
-                            [[null, 'click']],
-                            function(e, t, n) {
-                                var r = !0,
-                                    l = e.component;
-                                return 'click' === t && (r = !1 !== l.setFFR(l.FFR.LOW) && r), r;
-                            },
-                            null,
-                            null
-                        )),
-                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(112, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(113, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
-                        (e()(), Io(-1, null, ['Low'])),
+                        (e()(), go(114, 0, null, null, 30, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
                             115,
@@ -25582,10 +25629,79 @@
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
                         Bl(117, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
                         To(118, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
-                        (e()(), Io(-1, null, ['Medium'])),
+                        (e()(), Io(-1, null, ['Default'])),
                         (e()(),
                         go(
                             120,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setFFR(l.FFR.OFF) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(122, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(123, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Off'])),
+                        (e()(),
+                        go(
+                            125,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setFFR(l.FFR.LOW) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(127, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(128, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Low'])),
+                        (e()(),
+                        go(
+                            130,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setFFR(l.FFR.MEDIUM) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(132, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(133, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Medium'])),
+                        (e()(),
+                        go(
+                            135,
                             0,
                             null,
                             null,
@@ -25603,12 +25719,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(122, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(123, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(137, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(138, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['High'])),
                         (e()(),
                         go(
-                            125,
+                            140,
                             0,
                             null,
                             null,
@@ -25626,19 +25742,19 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(127, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(128, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(142, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(143, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['High Top'])),
-                        (e()(), go(130, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(145, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(132, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(133, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(147, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(148, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Set CPU and GPU level'])),
                         (e()(), Io(-1, null, [' This can improve performance for 2D apps & games. '])),
-                        (e()(), go(136, 0, null, null, 10, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(151, 0, null, null, 15, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            137,
+                            152,
                             0,
                             null,
                             null,
@@ -25656,12 +25772,35 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(139, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(140, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(154, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(155, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Default'])),
+                        (e()(),
+                        go(
+                            157,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setGPU(l.GPU._2) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(159, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(160, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['Level 2'])),
                         (e()(),
                         go(
-                            142,
+                            162,
                             0,
                             null,
                             null,
@@ -25679,20 +25818,43 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(144, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(145, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(164, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(165, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['Level 4'])),
-                        (e()(), go(147, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(167, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(149, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(150, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(169, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(170, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Default Texture Size'])),
                         (e()(),
                         Io(-1, null, [' This will change how high quality some of the in game textures are rendered at. '])),
-                        (e()(), go(153, 0, null, null, 35, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(173, 0, null, null, 45, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            154,
+                            174,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setSSO(l.SSO._1024) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(176, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(177, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Default'])),
+                        (e()(),
+                        go(
+                            179,
                             0,
                             null,
                             null,
@@ -25710,12 +25872,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(156, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(157, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(181, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(182, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['512'])),
                         (e()(),
                         go(
-                            159,
+                            184,
                             0,
                             null,
                             null,
@@ -25733,12 +25895,35 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(161, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(162, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(186, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(187, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['768'])),
                         (e()(),
                         go(
-                            164,
+                            189,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setSSO(l.SSO._1024) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(191, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(192, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['1024'])),
+                        (e()(),
+                        go(
+                            194,
                             0,
                             null,
                             null,
@@ -25756,12 +25941,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(166, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(167, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(196, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(197, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['1280'])),
                         (e()(),
                         go(
-                            169,
+                            199,
                             0,
                             null,
                             null,
@@ -25779,12 +25964,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(171, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(172, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(201, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(202, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['1536'])),
                         (e()(),
                         go(
-                            174,
+                            204,
                             0,
                             null,
                             null,
@@ -25802,12 +25987,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(176, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(177, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(206, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(207, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['2048'])),
                         (e()(),
                         go(
-                            179,
+                            209,
                             0,
                             null,
                             null,
@@ -25825,12 +26010,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(181, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(182, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(211, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(212, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['2560'])),
                         (e()(),
                         go(
-                            184,
+                            214,
                             0,
                             null,
                             null,
@@ -25848,19 +26033,19 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(186, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(187, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(216, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(217, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['3072'])),
-                        (e()(), go(189, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(219, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(191, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(192, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(221, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(222, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Capture Video Bitrate'])),
                         (e()(), Io(-1, null, [' This will increase the quality of captured videos. '])),
-                        (e()(), go(195, 0, null, null, 15, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(225, 0, null, null, 20, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            196,
+                            226,
                             0,
                             null,
                             null,
@@ -25878,12 +26063,35 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(198, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(199, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(228, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(229, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Default'])),
+                        (e()(),
+                        go(
+                            231,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setSVB(l.SVB._5Mbps) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(233, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(234, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['5Mbps'])),
                         (e()(),
                         go(
-                            201,
+                            236,
                             0,
                             null,
                             null,
@@ -25901,12 +26109,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(203, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(204, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(238, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(239, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['15Mbps'])),
                         (e()(),
                         go(
-                            206,
+                            241,
                             0,
                             null,
                             null,
@@ -25924,19 +26132,19 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(208, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(209, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(243, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(244, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['25Mbps'])),
-                        (e()(), go(211, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(246, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(213, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(214, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(248, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(249, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Video Recording Resolution'])),
                         (e()(), Io(-1, null, [' This will increase the resolution of captured videos. '])),
-                        (e()(), go(217, 0, null, null, 10, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(252, 0, null, null, 15, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            218,
+                            253,
                             0,
                             null,
                             null,
@@ -25954,12 +26162,35 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(220, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(221, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(255, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(256, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        (e()(), Io(-1, null, ['Default'])),
+                        (e()(),
+                        go(
+                            258,
+                            0,
+                            null,
+                            null,
+                            4,
+                            'div',
+                            [['class', 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0,
+                                    l = e.component;
+                                return 'click' === t && (r = !1 !== l.setSVR(l.SVR._1024) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(260, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(261, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['1024'])),
                         (e()(),
                         go(
-                            223,
+                            263,
                             0,
                             null,
                             null,
@@ -25977,40 +26208,40 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(225, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(226, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(265, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(266, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, ['1536'])),
-                        (e()(), go(228, 0, null, null, 137, 'div', [['class', 'col s12 m6']], null, null, null, null, null)),
-                        (e()(), go(229, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
+                        (e()(), go(268, 0, null, null, 137, 'div', [['class', 'col s12 m6']], null, null, null, null, null)),
+                        (e()(), go(269, 0, null, null, 4, 'div', [['class', 'section-title']], null, null, null, null, null)),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(231, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(232, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        Bl(271, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(272, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
                         (e()(), Io(-1, null, ['Beat Saber Troubleshooting'])),
                         (e()(),
                         Io(-1, null, [
                             " Having trouble with patching Beat Saber? Don't worry you are not alone. The patching process is quite involved and things can go wrong. Thankfully there are things you can do! ",
                         ])),
-                        (e()(), go(235, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(236, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(237, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(275, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(276, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(277, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Scenario 1'])),
                         (e()(), Io(-1, null, [' Do you see any of these errors? '])),
-                        (e()(), go(240, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(241, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(280, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(281, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ["System.ApplicationException: Either the 'levels' or..."])),
-                        (e()(), go(243, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(244, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(283, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(284, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['System.IO.FileNotFoundException: Could not find file...'])),
-                        (e()(), go(246, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(247, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(286, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(287, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         Io(-1, null, [
                             ' Select this option to reset your song packs file. Also be advised that any special characters in the file path can cause the patcher to fail. If your user folder path has any \xe9\xed\xfa\xf3\xe1 or other special characters in it you may need to use another user account on your PC for SideQuest.',
                         ])),
-                        (e()(), go(249, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(289, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            250,
+                            290,
                             0,
                             null,
                             null,
@@ -26027,39 +26258,39 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(252, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(253, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(292, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(293, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Reset Packs '])),
-                        (e()(), go(255, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(256, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(257, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(295, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(296, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(297, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Scenario 2'])),
                         (e()(), Io(-1, null, [' Do you see any of these errors? '])),
-                        (e()(), go(260, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(261, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(300, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(301, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Error: Command failed:...'])),
-                        (e()(), go(263, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(264, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(303, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(304, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['System.ApplicationException: Could not find...'])),
-                        (e()(), go(266, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(267, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(306, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(307, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['LibSaberPatch.SerializedAssets+ParseException:...'])),
-                        (e()(), go(269, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(270, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
+                        (e()(), go(309, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(310, 0, null, null, 1, 'span', [['class', 'chip']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Ionic.Zip.ZipException: Cannot read that as a...'])),
-                        (e()(), go(272, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(273, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(312, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(313, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         Io(-1, null, [
                             ' You can fix any of these errors with the following steps. They are ordered from easiest to hardest. Try to sync songs between each solution. ',
                         ])),
-                        (e()(), go(275, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(315, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' - Solution 1'])),
                         (e()(), Io(-1, null, [' Reset your working draft APK to the clean master backup.'])),
-                        (e()(), go(278, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(318, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            279,
+                            319,
                             0,
                             null,
                             null,
@@ -26076,24 +26307,24 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(281, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(282, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(321, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(322, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Reset Patched To Master '])),
-                        (e()(), go(284, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(285, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(286, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(324, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(325, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(326, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' - Solution 2'])),
                         (e()(),
                         Io(-1, null, [
                             ' Backup a new master copy ( this requires a clean copy of beat saber on your headset. If you are not sure skip to - Solution 3. )',
                         ])),
-                        (e()(), go(289, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(290, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(329, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(330, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' First:'])),
-                        (e()(), go(292, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(332, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            293,
+                            333,
                             0,
                             null,
                             null,
@@ -26110,15 +26341,15 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(295, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(296, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(335, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(336, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Backup New Master '])),
-                        (e()(), go(298, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(338, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Then:'])),
-                        (e()(), go(300, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(340, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            301,
+                            341,
                             0,
                             null,
                             null,
@@ -26135,34 +26366,34 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(303, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(304, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(343, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(344, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Reset Patched To Master '])),
-                        (e()(), go(306, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(307, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(308, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(346, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(347, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(348, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' - Solution 3'])),
                         (e()(), Io(-1, null, [' This is similar to the above but includes some extra steps. '])),
-                        (e()(), go(311, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(312, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(351, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(352, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' First:'])),
-                        (e()(), go(314, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(354, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Uninstall Beat Saber ( using the apps icon above '])),
-                        (e()(), go(316, 0, null, null, 1, 'i', [['class', 'material-icons']], null, null, null, null, null)),
+                        (e()(), go(356, 0, null, null, 1, 'i', [['class', 'material-icons']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['apps'])),
                         (e()(), Io(-1, null, [' ). '])),
-                        (e()(), go(319, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(320, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(359, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(360, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Then:'])),
-                        (e()(), go(322, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(362, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Put on your headset and reinstall it from the Oculus Store '])),
-                        (e()(), go(324, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(325, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(364, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(365, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Then:'])),
-                        (e()(), go(327, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(367, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            328,
+                            368,
                             0,
                             null,
                             null,
@@ -26179,15 +26410,15 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(330, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(331, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(370, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(371, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Backup New Master '])),
-                        (e()(), go(333, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(373, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Then:'])),
-                        (e()(), go(335, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(375, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
                         go(
-                            336,
+                            376,
                             0,
                             null,
                             null,
@@ -26204,17 +26435,17 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(338, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(339, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(378, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(379, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Reset Patched To Master '])),
-                        (e()(), go(341, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(342, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), go(343, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
+                        (e()(), go(381, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(382, 0, null, null, 0, 'br', [], null, null, null, null, null)),
+                        (e()(), go(383, 0, null, null, 1, 'h5', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Other Beat Saber Actions'])),
-                        (e()(), go(345, 0, null, null, 20, 'div', [['class', 'button-section']], null, null, null, null, null)),
+                        (e()(), go(385, 0, null, null, 20, 'div', [['class', 'button-section']], null, null, null, null, null)),
                         (e()(),
                         go(
-                            346,
+                            386,
                             0,
                             null,
                             null,
@@ -26231,12 +26462,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(348, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(349, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(388, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(389, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Select New Master '])),
                         (e()(),
                         go(
-                            351,
+                            391,
                             0,
                             null,
                             null,
@@ -26253,12 +26484,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(353, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(354, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(393, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(394, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Redownload patcher '])),
                         (e()(),
                         go(
-                            356,
+                            396,
                             0,
                             null,
                             null,
@@ -26276,12 +26507,12 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(358, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(359, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(398, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(399, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Open Songs Folder '])),
                         (e()(),
                         go(
-                            361,
+                            401,
                             0,
                             null,
                             null,
@@ -26299,8 +26530,8 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(363, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(364, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
+                        Bl(403, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(404, { 'button-dark-theme': 0, 'button-light-theme': 1, 'waves-dark': 2, 'waves-light': 3 }),
                         (e()(), Io(-1, null, [' Open QSP Folder '])),
                     ],
                     function(e, t) {
@@ -26325,112 +26556,128 @@
                         e(t, 50, 0, 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button', p);
                         var h = e(t, 56, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 55, 0, 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button', h);
-                        var d = e(t, 61, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 60, 0, 'section-title', d);
-                        var f = e(t, 69, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 68, 0, f), e(t, 72, 0, n.textToSend);
-                        var v = e(t, 78, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 77, 0, v), e(t, 86, 0, n.isPassword);
-                        var g = e(t, 94, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 93, 0, 'waves-effect waves-light btn paste-text-button right pink-button', g);
-                        var m = e(t, 101, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 100, 0, 'section-title', m);
-                        var y = e(t, 108, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 107, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', y);
-                        var b = e(t, 113, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 112, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', b);
+                        var d = e(t, 61, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 60, 0, 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button', d);
+                        var f = e(t, 66, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 65, 0, 'waves-effect waves-light btn set-ca margin-bottom margin-right pink-button', f);
+                        var v = e(t, 71, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 70, 0, 'section-title', v);
+                        var g = e(t, 79, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 78, 0, g), e(t, 82, 0, n.textToSend);
+                        var m = e(t, 88, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 87, 0, m), e(t, 96, 0, n.isPassword);
+                        var y = e(t, 104, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 103, 0, 'waves-effect waves-light btn paste-text-button right pink-button', y);
+                        var b = e(t, 111, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 110, 0, 'section-title', b);
                         var w = e(t, 118, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 117, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', w);
                         var S = e(t, 123, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 122, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', S);
                         var k = e(t, 128, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 127, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', k);
-                        var _ = e(t, 133, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 132, 0, 'section-title', _);
-                        var C = e(t, 140, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 139, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', C);
-                        var x = e(t, 145, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 144, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', x);
-                        var E = e(t, 150, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 149, 0, 'section-title', E);
-                        var A = e(t, 157, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 156, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', A);
-                        var P = e(t, 162, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 161, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', P);
-                        var T = e(t, 167, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 166, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', T);
-                        var O = e(t, 172, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 171, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', O);
+                        var _ = e(t, 133, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 132, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', _);
+                        var C = e(t, 138, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 137, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', C);
+                        var x = e(t, 143, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 142, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', x);
+                        var E = e(t, 148, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 147, 0, 'section-title', E);
+                        var A = e(t, 155, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 154, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', A);
+                        var P = e(t, 160, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 159, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', P);
+                        var T = e(t, 165, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 164, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', T);
+                        var O = e(t, 170, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 169, 0, 'section-title', O);
                         var I = e(t, 177, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 176, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', I);
                         var M = e(t, 182, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 181, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', M);
                         var D = e(t, 187, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
                         e(t, 186, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', D);
-                        var R = e(t, 192, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 191, 0, 'section-title', R);
-                        var N = e(t, 199, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 198, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', N);
-                        var F = e(t, 204, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 203, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', F);
-                        var V = e(t, 209, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 208, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', V);
-                        var j = e(t, 214, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 213, 0, 'section-title', j);
-                        var L = e(t, 221, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 220, 0, 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button', L);
-                        var B = e(t, 226, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 225, 0, 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button', B);
-                        var z = e(t, 232, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 231, 0, 'section-title', z);
-                        var U = e(t, 253, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 252, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', U);
-                        var q = e(t, 282, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 281, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', q);
-                        var H = e(t, 296, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 295, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', H);
-                        var K = e(t, 304, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 303, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', K);
-                        var G = e(t, 331, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 330, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', G);
-                        var W = e(t, 339, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 338, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', W);
-                        var Q = e(t, 349, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 348, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', Q);
-                        var Z = e(t, 354, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 353, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', Z);
-                        var Y = e(t, 359, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 358, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', Y);
-                        var J = e(t, 364, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
-                        e(t, 363, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', J);
+                        var R = e(t, 192, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 191, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', R);
+                        var N = e(t, 197, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 196, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', N);
+                        var F = e(t, 202, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 201, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', F);
+                        var V = e(t, 207, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 206, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', V);
+                        var j = e(t, 212, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 211, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', j);
+                        var L = e(t, 217, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 216, 0, 'waves-effect waves-light btn set-sso margin-bottom margin-right pink-button', L);
+                        var B = e(t, 222, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 221, 0, 'section-title', B);
+                        var z = e(t, 229, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 228, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', z);
+                        var U = e(t, 234, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 233, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', U);
+                        var q = e(t, 239, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 238, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', q);
+                        var H = e(t, 244, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 243, 0, 'waves-effect waves-light btn set-svb margin-bottom margin-right pink-button', H);
+                        var K = e(t, 249, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 248, 0, 'section-title', K);
+                        var G = e(t, 256, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 255, 0, 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button', G);
+                        var W = e(t, 261, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 260, 0, 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button', W);
+                        var Q = e(t, 266, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 265, 0, 'waves-effect waves-light btn set-svr margin-bottom margin-right pink-button', Q);
+                        var Z = e(t, 272, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 271, 0, 'section-title', Z);
+                        var Y = e(t, 293, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 292, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', Y);
+                        var J = e(t, 322, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 321, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', J);
+                        var X = e(t, 336, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 335, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', X);
+                        var $ = e(t, 344, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 343, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', $);
+                        var ee = e(t, 371, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 370, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', ee);
+                        var te = e(t, 379, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 378, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', te);
+                        var ne = e(t, 389, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 388, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', ne);
+                        var re = e(t, 394, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 393, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', re);
+                        var le = e(t, 399, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 398, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', le);
+                        var ie = e(t, 404, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme, !0, !1);
+                        e(t, 403, 0, 'waves-effect waves-light btn margin-bottom margin-right pink-button', ie);
                     },
                     function(e, t) {
                         var n = t.component;
                         e(t, 5, 0, n.appService.versionName),
                             e(
                                 t,
-                                66,
+                                76,
                                 0,
                                 n.isPassword ? 'password' : 'text',
-                                Al(t, 74).ngClassUntouched,
-                                Al(t, 74).ngClassTouched,
-                                Al(t, 74).ngClassPristine,
-                                Al(t, 74).ngClassDirty,
-                                Al(t, 74).ngClassValid,
-                                Al(t, 74).ngClassInvalid,
-                                Al(t, 74).ngClassPending
+                                Al(t, 84).ngClassUntouched,
+                                Al(t, 84).ngClassTouched,
+                                Al(t, 84).ngClassPristine,
+                                Al(t, 84).ngClassDirty,
+                                Al(t, 84).ngClassValid,
+                                Al(t, 84).ngClassInvalid,
+                                Al(t, 84).ngClassPending
                             ),
                             e(
                                 t,
-                                83,
+                                93,
                                 0,
-                                Al(t, 88).ngClassUntouched,
-                                Al(t, 88).ngClassTouched,
-                                Al(t, 88).ngClassPristine,
-                                Al(t, 88).ngClassDirty,
-                                Al(t, 88).ngClassValid,
-                                Al(t, 88).ngClassInvalid,
-                                Al(t, 88).ngClassPending
+                                Al(t, 98).ngClassUntouched,
+                                Al(t, 98).ngClassTouched,
+                                Al(t, 98).ngClassPristine,
+                                Al(t, 98).ngClassDirty,
+                                Al(t, 98).ngClassValid,
+                                Al(t, 98).ngClassInvalid,
+                                Al(t, 98).ngClassPending
                             );
                     }
                 );
@@ -27169,6 +27416,15 @@
                                 }
                             );
                         }),
+                        (e.prototype.deleteFile = function(e) {
+                            var t = this,
+                                n = this.appService.path.posix.join(this.currentPath, e.name);
+                            this.adbService
+                                .adbCommand('shell', { serial: this.adbService.deviceSerial, command: 'rm ' + n })
+                                .then(function() {
+                                    t.open(t.currentPath), t.statusService.showStatus('File Deleted!! ' + n);
+                                });
+                        }),
                         (e.prototype.saveFile = function() {
                             var e = this;
                             this.filesModal.closeModal();
@@ -27305,7 +27561,11 @@
                 })(),
                 uy = Ar({
                     encapsulation: 0,
-                    styles: [['.breadcrumb-wrapper[_ngcontent-%COMP%]{position:fixed;top:160px}']],
+                    styles: [
+                        [
+                            '.breadcrumb-wrapper[_ngcontent-%COMP%]{position:fixed;top:160px}.drag-indicator[_ngcontent-%COMP%]{font-size:2rem;line-height:3rem;vertical-align:middle}',
+                        ],
+                    ],
                     data: {},
                 });
             function ay(e) {
@@ -27432,9 +27692,49 @@
                             0,
                             null,
                             null,
-                            14,
+                            1,
+                            'i',
+                            [['class', 'material-icons cursor orange-text drag-indicator right']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0;
+                                return 'click' === t && (r = !1 !== e.component.deleteFile(e.parent.context.$implicit) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        (e()(), Io(-1, null, ['close'])),
+                    ],
+                    null,
+                    null
+                );
+            }
+            function fy(e) {
+                return Ro(
+                    0,
+                    [
+                        (e()(),
+                        go(0, 0, null, null, 17, 'div', [['class', 'vertical-align cursor']], null, null, null, null, null)),
+                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
+                        Bl(2, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(3, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        (e()(), go(4, 0, null, null, 6, 'div', [['class', 'right']], null, null, null, null, null)),
+                        (e()(), vo(16777216, null, null, 1, null, hy)),
+                        Bl(6, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), Io(7, null, ['', ' '])),
+                        Po(8, 2),
+                        (e()(), vo(16777216, null, null, 1, null, dy)),
+                        Bl(10, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(),
+                        go(
+                            11,
+                            0,
+                            null,
+                            null,
+                            6,
                             'div',
-                            [['class', 'vertical-align cursor']],
+                            [],
                             null,
                             [[null, 'click']],
                             function(e, t, n) {
@@ -27444,17 +27744,9 @@
                             null,
                             null
                         )),
-                        Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(2, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(3, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
-                        (e()(), go(4, 0, null, null, 4, 'div', [['class', 'right']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, hy)),
-                        Bl(6, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
-                        (e()(), Io(7, null, ['', ''])),
-                        Po(8, 2),
                         (e()(),
                         go(
-                            9,
+                            12,
                             0,
                             null,
                             null,
@@ -27468,32 +27760,34 @@
                             null
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
-                        Bl(11, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
-                        To(12, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
-                        (e()(), Io(13, null, ['', ''])),
-                        (e()(), Io(14, null, ['', ' '])),
+                        Bl(14, 278528, null, 0, $a, [Ja], { klass: [0, 'klass'], ngClass: [1, 'ngClass'] }, null),
+                        To(15, { 'text-dark-theme': 0, 'text-light-theme': 1 }),
+                        (e()(), Io(16, null, ['', ''])),
+                        (e()(), Io(17, null, ['', ' '])),
                     ],
                     function(e, t) {
                         var n = t.component,
                             r = e(t, 3, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 2, 0, 'vertical-align cursor', r), e(t, 6, 0, 'folder' !== t.context.$implicit.icon);
-                        var l = e(t, 12, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
-                        e(t, 11, 0, 'material-icons medium vertical-align', l);
+                        e(t, 2, 0, 'vertical-align cursor', r),
+                            e(t, 6, 0, 'folder' !== t.context.$implicit.icon),
+                            e(t, 10, 0, 'folder' !== t.context.$implicit.icon);
+                        var l = e(t, 15, 0, 'dark' === n.appService.currentTheme, 'light' === n.appService.currentTheme);
+                        e(t, 14, 0, 'material-icons medium vertical-align', l);
                     },
                     function(e, t) {
                         var n = Cr(t, 7, 0, e(t, 8, 0, Al(t.parent.parent, 1), t.context.$implicit.time, 'short'));
-                        e(t, 7, 0, n), e(t, 13, 0, t.context.$implicit.icon), e(t, 14, 0, t.context.$implicit.name);
+                        e(t, 7, 0, n), e(t, 16, 0, t.context.$implicit.icon), e(t, 17, 0, t.context.$implicit.name);
                     }
                 );
             }
-            function fy(e) {
+            function vy(e) {
                 return Ro(
                     0,
                     [
                         (e()(), go(0, 0, null, null, 4, 'div', [], null, null, null, null, null)),
                         (e()(), vo(16777216, null, null, 1, null, py)),
                         Bl(2, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
-                        (e()(), vo(16777216, null, null, 1, null, dy)),
+                        (e()(), vo(16777216, null, null, 1, null, fy)),
                         Bl(4, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                     ],
                     function(e, t) {
@@ -27503,7 +27797,7 @@
                     null
                 );
             }
-            function vy(e) {
+            function gy(e) {
                 return Ro(
                     0,
                     [
@@ -27599,7 +27893,7 @@
                     null
                 );
             }
-            function gy(e) {
+            function my(e) {
                 return Ro(
                     0,
                     [
@@ -27615,11 +27909,11 @@
                         (e()(), go(9, 0, null, null, 6, 'div', [['class', 'container']], null, null, null, null, null)),
                         (e()(), vo(16777216, null, null, 1, null, cy)),
                         Bl(11, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
-                        (e()(), vo(16777216, null, null, 1, null, fy)),
+                        (e()(), vo(16777216, null, null, 1, null, vy)),
                         Bl(13, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(14, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), go(15, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, vy)),
+                        (e()(), vo(16777216, null, null, 1, null, gy)),
                         Bl(17, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(18, 0, null, null, 27, 'mz-modal', [], null, null, null, om, im)),
                         Bl(19, 4833280, [['mkDirModal', 4]], 0, Cg, [Vn], { fixedFooter: [0, 'fixedFooter'] }, null),
@@ -27861,11 +28155,11 @@
                     }
                 );
             }
-            function my(e) {
+            function yy(e) {
                 return Ro(
                     0,
                     [
-                        (e()(), go(0, 0, null, null, 1, 'app-files', [], null, null, null, gy, uy)),
+                        (e()(), go(0, 0, null, null, 1, 'app-files', [], null, null, null, my, uy)),
                         Bl(1, 114688, null, 0, oy, [Uu, Xu, Gu, Wu], null, null),
                     ],
                     function(e, t) {
@@ -27874,15 +28168,15 @@
                     null
                 );
             }
-            var yy = gl('app-files', oy, my, {}, {}, []),
-                by = n('YS7c'),
-                wy = n.n(by),
-                Sy = (function() {
+            var by = gl('app-files', oy, yy, {}, {}, []),
+                wy = n('YS7c'),
+                Sy = n.n(wy),
+                ky = (function() {
                     return function(e, t, n) {
                         (this.name = e), (this.drake = t), (this.options = n), (this.initEvents = !1);
                     };
                 })(),
-                ky = {
+                _y = {
                     Cancel: 'cancel',
                     Cloned: 'cloned',
                     Drag: 'drag',
@@ -27895,16 +28189,16 @@
                     DropModel: 'dropModel',
                     RemoveModel: 'removeModel',
                 },
-                _y = Object.keys(ky).map(function(e) {
-                    return ky[e];
+                Cy = Object.keys(_y).map(function(e) {
+                    return _y[e];
                 }),
-                Cy = wy.a || by,
-                xy = (function() {
+                xy = Sy.a || wy,
+                Ey = (function() {
                     return function(e) {
-                        void 0 === e && (e = Cy), (this.build = e);
+                        void 0 === e && (e = xy), (this.build = e);
                     };
                 })(),
-                Ey = function(e, t, n) {
+                Ay = function(e, t, n) {
                     return function(r) {
                         return r.pipe(
                             Ps(function(n) {
@@ -27916,11 +28210,11 @@
                         );
                     };
                 },
-                Ay = function(e, t) {
+                Py = function(e, t) {
                     var n = s(t, 3);
                     return { name: e, el: n[0], container: n[1], source: n[2] };
                 },
-                Py = (function() {
+                Ty = (function() {
                     function e(e) {
                         void 0 === e && (e = null);
                         var t = this;
@@ -27928,7 +28222,7 @@
                             (this.dispatch$ = new F()),
                             (this.drag = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.Drag, e, function(e, t) {
+                                    Ay(_y.Drag, e, function(e, t) {
                                         var n = s(t, 2);
                                         return { name: e, el: n[0], source: n[1] };
                                     })
@@ -27936,14 +28230,14 @@
                             }),
                             (this.dragend = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.DragEnd, e, function(e, t) {
+                                    Ay(_y.DragEnd, e, function(e, t) {
                                         return { name: e, el: s(t, 1)[0] };
                                     })
                                 );
                             }),
                             (this.drop = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.Drop, e, function(e, t) {
+                                    Ay(_y.Drop, e, function(e, t) {
                                         var n = s(t, 4);
                                         return { name: e, el: n[0], target: n[1], source: n[2], sibling: n[3] };
                                     })
@@ -27951,17 +28245,17 @@
                             }),
                             (this.elContainerSource = function(e) {
                                 return function(n) {
-                                    return t.dispatch$.pipe(Ey(e, n, Ay));
+                                    return t.dispatch$.pipe(Ay(e, n, Py));
                                 };
                             }),
-                            (this.cancel = this.elContainerSource(ky.Cancel)),
-                            (this.remove = this.elContainerSource(ky.Remove)),
-                            (this.shadow = this.elContainerSource(ky.Shadow)),
-                            (this.over = this.elContainerSource(ky.Over)),
-                            (this.out = this.elContainerSource(ky.Out)),
+                            (this.cancel = this.elContainerSource(_y.Cancel)),
+                            (this.remove = this.elContainerSource(_y.Remove)),
+                            (this.shadow = this.elContainerSource(_y.Shadow)),
+                            (this.over = this.elContainerSource(_y.Over)),
+                            (this.out = this.elContainerSource(_y.Out)),
                             (this.cloned = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.Cloned, e, function(e, t) {
+                                    Ay(_y.Cloned, e, function(e, t) {
                                         var n = s(t, 3);
                                         return { name: e, clone: n[0], original: n[1], cloneType: n[2] };
                                     })
@@ -27969,7 +28263,7 @@
                             }),
                             (this.dropModel = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.DropModel, e, function(e, t) {
+                                    Ay(_y.DropModel, e, function(e, t) {
                                         var n = s(t, 9);
                                         return {
                                             name: e,
@@ -27988,7 +28282,7 @@
                             }),
                             (this.removeModel = function(e) {
                                 return t.dispatch$.pipe(
-                                    Ey(ky.RemoveModel, e, function(e, t) {
+                                    Ay(_y.RemoveModel, e, function(e, t) {
                                         var n = s(t, 6);
                                         return {
                                             name: e,
@@ -28003,7 +28297,7 @@
                                 );
                             }),
                             (this.groups = {}),
-                            null === this.drakeFactory && (this.drakeFactory = new xy());
+                            null === this.drakeFactory && (this.drakeFactory = new Ey());
                     }
                     return (
                         (e.prototype.add = function(e) {
@@ -28018,7 +28312,7 @@
                             t && (t.drake && t.drake.destroy(), delete this.groups[e]);
                         }),
                         (e.prototype.createGroup = function(e, t) {
-                            return this.add(new Sy(e, this.drakeFactory.build([], t), t));
+                            return this.add(new ky(e, this.drakeFactory.build([], t), t));
                         }),
                         (e.prototype.handleModels = function(e) {
                             var t,
@@ -28032,7 +28326,7 @@
                                 if (o.models) {
                                     var u = o.models[o.containers.indexOf(r)],
                                         a = (u = u.slice(0)).splice(n, 1)[0];
-                                    l.dispatch$.next({ event: ky.RemoveModel, name: i, args: [e, t, r, a, u, n] });
+                                    l.dispatch$.next({ event: _y.RemoveModel, name: i, args: [e, t, r, a, u, n] });
                                 }
                             }),
                                 o.on('drag', function(e, r) {
@@ -28059,7 +28353,7 @@
                                                     a.removeChild(e);
                                                 } catch (v) {}
                                         }
-                                        l.dispatch$.next({ event: ky.DropModel, name: i, args: [e, a, s, c, p, h, d, n, r] });
+                                        l.dispatch$.next({ event: _y.DropModel, name: i, args: [e, a, s, c, p, h, d, n, r] });
                                     }
                                 });
                         }),
@@ -28068,7 +28362,7 @@
                             if (!e.initEvents) {
                                 e.initEvents = !0;
                                 var n = e.name;
-                                _y.forEach(function(r) {
+                                Cy.forEach(function(r) {
                                     e.drake.on(r, function() {
                                         for (var e = [], l = 0; l < arguments.length; l++) e[l] = arguments[l];
                                         t.dispatch$.next({ event: r, name: n, args: e });
@@ -28082,7 +28376,7 @@
                         e
                     );
                 })(),
-                Ty = (function() {
+                Oy = (function() {
                     function e(e, t) {
                         (this.el = e), (this.dragulaService = t), (this.dragulaModelChange = new li());
                     }
@@ -28160,17 +28454,17 @@
                         e
                     );
                 })(),
-                Oy = (function() {
+                Iy = (function() {
                     function e() {}
                     return (
                         (e.forRoot = function() {
-                            return { ngModule: e, providers: [Py] };
+                            return { ngModule: e, providers: [Ty] };
                         }),
                         e
                     );
                 })(),
-                Iy = function() {
-                    return (Iy =
+                My = function() {
+                    return (My =
                         Object.assign ||
                         function(e) {
                             for (var t, n = 1, r = arguments.length; n < r; n++)
@@ -28178,7 +28472,7 @@
                             return e;
                         }).apply(this, arguments);
                 },
-                My = (function() {
+                Dy = (function() {
                     function e(e, t, n) {
                         var r = this;
                         (this.dragulaService = e),
@@ -28189,6 +28483,7 @@
                             (this.saveJson = new li()),
                             (this.removeSong = new li()),
                             (this.orderSongs = new li()),
+                            (this.openSong = new li()),
                             (this.BAG = 'SONGS'),
                             (this.subs = new g()),
                             this.dragulaService.createGroup(this.BAG, {
@@ -28208,7 +28503,7 @@
                                     return !~e.className.indexOf('add-to-drag');
                                 },
                                 copyItem: function(e) {
-                                    return Iy({}, e);
+                                    return My({}, e);
                                 },
                             }),
                             this.subs.add(
@@ -28271,7 +28566,8 @@
                                           r = t.name.toUpperCase();
                                       return n < r ? -1 : n > r ? 1 : 0;
                                   })),
-                                this.saveJson.emit();
+                                this.saveJson.emit(),
+                                console.log(this.bsaberService.songs);
                         }),
                         (e.prototype.removeSongFromPack = function(e, t) {
                             (t.levelIDs = t.levelIDs.filter(function(t) {
@@ -28288,16 +28584,16 @@
                         e
                     );
                 })(),
-                Dy = Ar({
+                Ry = Ar({
                     encapsulation: 0,
                     styles: [
                         [
-                            '.packs-left[_ngcontent-%COMP%], .packs-right[_ngcontent-%COMP%]{display:inline-block;float:left;width:100%;height:100%}.packs-right[_ngcontent-%COMP%]{width:100%}.left-col[_ngcontent-%COMP%], .right-col[_ngcontent-%COMP%]{width:calc(50% - 15px);display:inline-block;height:100%;margin-left:10px;margin-right:5px}.right-col[_ngcontent-%COMP%]{margin-left:5px;margin-right:10px}.outer-container[_ngcontent-%COMP%]{height:calc(100% - 10px);overflow:hidden;margin-top:-15px}.collection-song.avatar[_ngcontent-%COMP%]{height:65px;padding-left:72px;position:relative}.collection-song[_ngcontent-%COMP%]{line-height:1rem;padding:10px;margin:0;border-bottom:1px solid #e0e0e0}.pack-song-container[_ngcontent-%COMP%]   .collection-song[_ngcontent-%COMP%]   .checkbox-container[_ngcontent-%COMP%]{display:none}.collection-song[_ngcontent-%COMP%]:last-child{border-bottom:initial}.song-container[_ngcontent-%COMP%]   .collection-song[_ngcontent-%COMP%]:last-child{border-bottom:1px solid #e0e0e0}.collection-song.avatar[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:not(.circle-clipper) > .circle[_ngcontent-%COMP%], .collection-song.avatar[_ngcontent-%COMP%]:not(.circle-clipper) > .circle[_ngcontent-%COMP%]{position:absolute;width:42px;height:42px;overflow:hidden;left:15px;display:inline-block;vertical-align:middle}.pack-image[_ngcontent-%COMP%]{width:45px;height:45px;overflow:hidden;display:inline-block;float:left;margin-left:5px;margin-top:-10px}.collection-song.avatar[_ngcontent-%COMP%]   .title[_ngcontent-%COMP%]{font-size:16px;vertical-align:middle;display:inline-block}.drag-indicator[_ngcontent-%COMP%]{font-size:2rem;line-height:3rem;vertical-align:middle}.add-to-drag[_ngcontent-%COMP%]{width:100%;padding:1em;border:2px dashed #3f3f3f;text-align:center}.side-packs[_ngcontent-%COMP%]{height:100%}.side-packs-fixed[_ngcontent-%COMP%]{position:fixed;width:40%;height:100%}.delete-pack[_ngcontent-%COMP%]{display:none}.sort-songs[_ngcontent-%COMP%]{float:right}.no-margin-top[_ngcontent-%COMP%]{margin-top:0}.pack-container[_ngcontent-%COMP%], .song-container[_ngcontent-%COMP%]{height:calc(100% - 75px);overflow:auto;border:1px solid #cfcfcf;border-right:0 solid #cfcfcf!important;border-left:1px solid #cfcfcf!important}.name[_ngcontent-%COMP%]{padding-left:1em!important}.song-container[_ngcontent-%COMP%]{height:calc(100% - 75px)}.pack-container[_ngcontent-%COMP%]{background:rgba(255,255,255,.2)}.pack-song-container-outer[_ngcontent-%COMP%]{border-top:1px solid #e0e0e0;margin-left:5px;margin-right:5px}.add-to-pack[_ngcontent-%COMP%]{padding:1em;width:100%;border:3px dashed #a9a9a9;text-align:center}.show-pack[_ngcontent-%COMP%]{margin-right:.5em;font-size:2rem}.pack-song-container[_ngcontent-%COMP%]{padding-left:10px;padding-right:10px}.song-sort[_ngcontent-%COMP%]{margin-top:15px;margin-right:20px;vertical-align:middle}.hide-this[_ngcontent-%COMP%]{padding:0;margin:0;border:0 solid #fff;height:0}',
+                            '.packs-left[_ngcontent-%COMP%], .packs-right[_ngcontent-%COMP%]{display:inline-block;float:left;width:100%;height:100%}.packs-right[_ngcontent-%COMP%]{width:100%}.left-col[_ngcontent-%COMP%], .right-col[_ngcontent-%COMP%]{width:calc(50% - 15px);display:inline-block;height:100%;margin-left:10px;margin-right:5px}.right-col[_ngcontent-%COMP%]{margin-left:5px;margin-right:10px}.outer-container[_ngcontent-%COMP%]{height:calc(100% - 10px);overflow:hidden;margin-top:-15px}.collection-song.avatar[_ngcontent-%COMP%]{height:65px;padding-left:72px;position:relative}.collection-song[_ngcontent-%COMP%]{line-height:1rem;padding:10px;margin:0;border-bottom:1px solid #e0e0e0}.pack-song-container[_ngcontent-%COMP%]   .collection-song[_ngcontent-%COMP%]   .checkbox-container[_ngcontent-%COMP%]{display:none}.collection-song[_ngcontent-%COMP%]:last-child{border-bottom:initial}.song-container[_ngcontent-%COMP%]   .collection-song[_ngcontent-%COMP%]:last-child{border-bottom:1px solid #e0e0e0}.collection-song.avatar[_ngcontent-%COMP%]   [_ngcontent-%COMP%]:not(.circle-clipper) > .circle[_ngcontent-%COMP%], .collection-song.avatar[_ngcontent-%COMP%]:not(.circle-clipper) > .circle[_ngcontent-%COMP%]{position:absolute;width:42px;height:42px;overflow:hidden;left:15px;display:inline-block;vertical-align:middle}.pack-image[_ngcontent-%COMP%]{width:45px;height:45px;overflow:hidden;display:inline-block;float:left;margin-left:5px;margin-top:-10px}.collection-song.avatar[_ngcontent-%COMP%]   .title[_ngcontent-%COMP%]{font-size:16px;vertical-align:middle;display:inline-block}.drag-indicator[_ngcontent-%COMP%]{font-size:2rem;line-height:3rem;vertical-align:middle}.add-to-drag[_ngcontent-%COMP%]{width:100%;padding:1em;border:2px dashed #3f3f3f;text-align:center}.side-packs[_ngcontent-%COMP%]{height:100%}.side-packs-fixed[_ngcontent-%COMP%]{position:fixed;width:40%;height:100%}.delete-pack[_ngcontent-%COMP%]{display:none}.sort-songs[_ngcontent-%COMP%]{float:right}.no-margin-top[_ngcontent-%COMP%]{margin-top:0}.pack-container[_ngcontent-%COMP%], .song-container[_ngcontent-%COMP%]{height:calc(100% - 75px);overflow:auto;border:1px solid #cfcfcf;border-right:0 solid #cfcfcf!important;border-left:1px solid #cfcfcf!important}.name[_ngcontent-%COMP%]{padding-left:1em!important}.song-container[_ngcontent-%COMP%]{height:calc(100% - 75px)}.pack-container[_ngcontent-%COMP%]{background:rgba(255,255,255,.2)}.pack-song-container-outer[_ngcontent-%COMP%]{border-top:1px solid #e0e0e0;margin-left:5px;margin-right:5px}.add-to-pack[_ngcontent-%COMP%]{padding:1em;width:100%;border:3px dashed #a9a9a9;text-align:center}.show-pack[_ngcontent-%COMP%]{margin-right:.5em;font-size:2rem}.pack-song-container[_ngcontent-%COMP%]{padding-left:10px;padding-right:10px}.song-sort[_ngcontent-%COMP%]{margin-top:15px;margin-right:20px;vertical-align:middle}.hide-this[_ngcontent-%COMP%]{padding:0;margin:0;border:0 solid #fff;height:0}.description[_ngcontent-%COMP%]{margin-top:-10px;font-size:.8rem;font-style:italic}',
                         ],
                     ],
                     data: {},
                 });
-            function Ry(e) {
+            function Ny(e) {
                 return Ro(
                     0,
                     [
@@ -28333,7 +28629,7 @@
                     null
                 );
             }
-            function Ny(e) {
+            function Fy(e) {
                 return Ro(
                     0,
                     [(e()(), go(0, 0, null, null, 0, 'img', [['class', 'pack-image']], [[8, 'src', 4]], null, null, null, null))],
@@ -28343,11 +28639,12 @@
                     }
                 );
             }
-            function Fy(e) {
+            function Vy(e) {
                 return Ro(
                     0,
                     [
-                        (e()(), go(0, 0, null, null, 8, 'li', [['class', 'collection-song avatar']], null, null, null, null, null)),
+                        (e()(),
+                        go(0, 0, null, null, 17, 'li', [['class', 'collection-song avatar']], null, null, null, null, null)),
                         (e()(),
                         go(
                             1,
@@ -28382,6 +28679,25 @@
                             0,
                             null,
                             null,
+                            1,
+                            'i',
+                            [['class', 'material-icons cursor drag-indicator right']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0;
+                                return 'click' === t && (r = !1 !== e.component.openSong.emit(e.context.$implicit.id) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        (e()(), Io(-1, null, ['folder_open'])),
+                        (e()(),
+                        go(
+                            5,
+                            0,
+                            null,
+                            null,
                             0,
                             'img',
                             [['alt', ''], ['class', 'circle red']],
@@ -28393,7 +28709,7 @@
                         )),
                         (e()(),
                         go(
-                            4,
+                            6,
                             0,
                             null,
                             null,
@@ -28407,17 +28723,39 @@
                             null
                         )),
                         (e()(), Io(-1, null, ['drag_indicator'])),
-                        (e()(), go(6, 0, null, null, 1, 'span', [['class', 'title truncate']], null, null, null, null, null)),
-                        (e()(), Io(7, null, ['', ''])),
-                        (e()(), go(8, 0, null, null, 0, 'p', [['class', 'description']], null, null, null, null, null)),
+                        (e()(), go(8, 0, null, null, 4, 'span', [['class', 'title truncate']], null, null, null, null, null)),
+                        Ul(512, null, os, us, [Nn, er, Bn]),
+                        Bl(10, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
+                        To(11, { width: 0 }),
+                        (e()(), Io(12, null, ['', ''])),
+                        (e()(), go(13, 0, null, null, 4, 'p', [['class', 'description truncate']], null, null, null, null, null)),
+                        Ul(512, null, os, us, [Nn, er, Bn]),
+                        Bl(15, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
+                        To(16, { width: 0 }),
+                        (e()(), Io(17, null, ['', '', '', ''])),
                     ],
-                    null,
                     function(e, t) {
-                        e(t, 3, 0, t.context.$implicit.cover), e(t, 7, 0, t.context.$implicit.name);
+                        var n = t.component,
+                            r = e(t, 11, 0, n.checkboxChecked ? 'calc(100% - 250px)' : 'calc(100% - 150px)');
+                        e(t, 10, 0, r);
+                        var l = e(t, 16, 0, n.checkboxChecked ? 'calc(100% - 250px)' : 'calc(100% - 150px)');
+                        e(t, 15, 0, l);
+                    },
+                    function(e, t) {
+                        e(t, 5, 0, t.context.$implicit.cover),
+                            e(t, 12, 0, t.context.$implicit.name),
+                            e(
+                                t,
+                                17,
+                                0,
+                                t.context.$implicit._levelAuthorName ? 'Level Author: ' + t.context.$implicit._levelAuthorName : '',
+                                t.context.$implicit._songAuthorName ? ' - Song Author: ' + t.context.$implicit._songAuthorName : '',
+                                t.context.$implicit._beatsPerMinute ? ' - BPM: ' + t.context.$implicit._beatsPerMinute : ''
+                            );
                     }
                 );
             }
-            function Vy(e) {
+            function jy(e) {
                 return Ro(
                     0,
                     [
@@ -28444,12 +28782,12 @@
                             671744,
                             null,
                             0,
-                            Ty,
-                            [Nn, Py],
+                            Oy,
+                            [Nn, Ty],
                             { dragula: [0, 'dragula'], dragulaModel: [1, 'dragulaModel'] },
                             { dragulaModelChange: 'dragulaModelChange' }
                         ),
-                        (e()(), vo(16777216, null, null, 1, null, Fy)),
+                        (e()(), vo(16777216, null, null, 1, null, Vy)),
                         Bl(3, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                         (e()(), go(4, 0, null, null, 1, 'li', [['class', 'add-to-drag']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['Drop song here to add!'])),
@@ -28460,7 +28798,7 @@
                     null
                 );
             }
-            function jy(e) {
+            function Ly(e) {
                 return Ro(
                     0,
                     [
@@ -28592,15 +28930,15 @@
                         )),
                         Bl(14, 4931584, null, 0, Ig, [Nn, Vn], { position: [0, 'position'], tooltip: [1, 'tooltip'] }, null),
                         (e()(), Io(-1, null, ['edit'])),
-                        (e()(), vo(16777216, null, null, 1, null, Ry)),
-                        Bl(17, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, Ny)),
+                        Bl(17, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, Fy)),
                         Bl(19, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(20, 0, null, null, 1, 'h5', [['class', 'name truncate']], null, null, null, null, null)),
                         (e()(), Io(21, null, ['', ''])),
                         (e()(),
                         go(22, 0, null, null, 2, 'div', [['class', 'pack-song-container-outer']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, Vy)),
+                        (e()(), vo(16777216, null, null, 1, null, jy)),
                         Bl(24, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -28620,7 +28958,7 @@
                     }
                 );
             }
-            function Ly(e) {
+            function By(e) {
                 return Ro(
                     0,
                     [
@@ -28717,12 +29055,12 @@
                     }
                 );
             }
-            function By(e) {
+            function zy(e) {
                 return Ro(
                     0,
                     [
                         (e()(),
-                        go(0, 0, null, null, 12, 'li', [['class', 'collection-song avatar']], null, null, null, null, null)),
+                        go(0, 0, null, null, 19, 'li', [['class', 'collection-song avatar']], null, null, null, null, null)),
                         (e()(),
                         go(
                             1,
@@ -28742,11 +29080,30 @@
                             null
                         )),
                         (e()(), Io(-1, null, ['close'])),
-                        (e()(), vo(16777216, null, null, 1, null, Ly)),
-                        Bl(4, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(
-                            5,
+                            3,
+                            0,
+                            null,
+                            null,
+                            1,
+                            'i',
+                            [['class', 'material-icons cursor drag-indicator right']],
+                            null,
+                            [[null, 'click']],
+                            function(e, t, n) {
+                                var r = !0;
+                                return 'click' === t && (r = !1 !== e.component.openSong.emit(e.context.$implicit.id) && r), r;
+                            },
+                            null,
+                            null
+                        )),
+                        (e()(), Io(-1, null, ['folder_open'])),
+                        (e()(), vo(16777216, null, null, 1, null, By)),
+                        Bl(6, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(),
+                        go(
+                            7,
                             0,
                             null,
                             null,
@@ -28761,7 +29118,7 @@
                         )),
                         (e()(),
                         go(
-                            6,
+                            8,
                             0,
                             null,
                             null,
@@ -28775,24 +29132,40 @@
                             null
                         )),
                         (e()(), Io(-1, null, ['drag_indicator'])),
-                        (e()(), go(8, 0, null, null, 4, 'span', [['class', 'title truncate']], null, null, null, null, null)),
+                        (e()(), go(10, 0, null, null, 4, 'span', [['class', 'title truncate']], null, null, null, null, null)),
                         Ul(512, null, os, us, [Nn, er, Bn]),
-                        Bl(10, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
-                        To(11, { width: 0 }),
-                        (e()(), Io(12, null, ['', ''])),
+                        Bl(12, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
+                        To(13, { width: 0 }),
+                        (e()(), Io(14, null, ['', ''])),
+                        (e()(), go(15, 0, null, null, 4, 'p', [['class', 'description truncate']], null, null, null, null, null)),
+                        Ul(512, null, os, us, [Nn, er, Bn]),
+                        Bl(17, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
+                        To(18, { width: 0 }),
+                        (e()(), Io(19, null, ['', '', '', ''])),
                     ],
                     function(e, t) {
                         var n = t.component;
-                        e(t, 4, 0, n.checkboxChecked);
-                        var r = e(t, 11, 0, n.checkboxChecked ? 'calc(100% - 200px)' : 'calc(100% - 100px)');
-                        e(t, 10, 0, r);
+                        e(t, 6, 0, n.checkboxChecked);
+                        var r = e(t, 13, 0, n.checkboxChecked ? 'calc(100% - 250px)' : 'calc(100% - 150px)');
+                        e(t, 12, 0, r);
+                        var l = e(t, 18, 0, n.checkboxChecked ? 'calc(100% - 250px)' : 'calc(100% - 150px)');
+                        e(t, 17, 0, l);
                     },
                     function(e, t) {
-                        e(t, 5, 0, t.context.$implicit.cover), e(t, 12, 0, t.context.$implicit.name);
+                        e(t, 7, 0, t.context.$implicit.cover),
+                            e(t, 14, 0, t.context.$implicit.name),
+                            e(
+                                t,
+                                19,
+                                0,
+                                t.context.$implicit._levelAuthorName ? 'Level Author: ' + t.context.$implicit._levelAuthorName : '',
+                                t.context.$implicit._songAuthorName ? ' - Song Author: ' + t.context.$implicit._songAuthorName : '',
+                                t.context.$implicit._beatsPerMinute ? ' - BPM: ' + t.context.$implicit._beatsPerMinute : ''
+                            );
                     }
                 );
             }
-            function zy(e) {
+            function Uy(e) {
                 return Ro(
                     0,
                     [
@@ -28852,12 +29225,12 @@
                             671744,
                             null,
                             0,
-                            Ty,
-                            [Nn, Py],
+                            Oy,
+                            [Nn, Ty],
                             { dragula: [0, 'dragula'], dragulaModel: [1, 'dragulaModel'] },
                             { dragulaModelChange: 'dragulaModelChange' }
                         ),
-                        (e()(), vo(16777216, null, null, 1, null, jy)),
+                        (e()(), vo(16777216, null, null, 1, null, Ly)),
                         Bl(14, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                         (e()(), go(15, 0, null, null, 20, 'div', [['class', 'right-col']], null, null, null, null, null)),
                         (e()(), go(16, 0, null, null, 19, 'div', [['class', 'packs-right']], null, null, null, null, null)),
@@ -28988,12 +29361,12 @@
                             671744,
                             null,
                             0,
-                            Ty,
-                            [Nn, Py],
+                            Oy,
+                            [Nn, Ty],
                             { dragula: [0, 'dragula'], dragulaModel: [1, 'dragulaModel'] },
                             { dragulaModelChange: 'dragulaModelChange' }
                         ),
-                        (e()(), vo(16777216, null, null, 1, null, By)),
+                        (e()(), vo(16777216, null, null, 1, null, zy)),
                         Bl(35, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                         (e()(),
                         go(
@@ -29026,7 +29399,7 @@
                     null
                 );
             }
-            var Uy = (function() {
+            var qy = (function() {
                     function e(e, t, n, r, l, i) {
                         (this.spinnerService = e),
                             (this.adbService = t),
@@ -29044,11 +29417,20 @@
                         (e.prototype.resetAddPack = function() {
                             this.addPack = { id: '', name: '', coverImagePath: this.bsaberService.defaultImage };
                         }),
+                        (e.prototype.openSongFolder = function(e) {
+                            var t = this.appService.path.join(this.appService.appData, 'bsaber', e);
+                            this.appService.fs.existsSync(t) && this.appService.openFolder(Ku.SONG_FOLDER, e);
+                        }),
                         (e.prototype.removeSong = function(e) {
                             var t = this;
                             this.bsaberService.removeSong(e),
                                 this.bsaberService.getMySongs().then(function() {
                                     return t.bsaberService.saveJson(t.bsaberService.jSon);
+                                }),
+                                this.bsaberService.jSon.packs.forEach(function(t) {
+                                    t.levelIDs = t.levelIDs.filter(function(t) {
+                                        return t.id !== e;
+                                    });
                                 });
                         }),
                         (e.prototype.ngOnInit = function() {
@@ -29056,7 +29438,6 @@
                             this.bsaberService.getMySongs().then(function() {
                                 return e.orderSongs(!0);
                             }),
-                                (this.bsaberService.hasBackup = this.bsaberService.backupExists()),
                                 this.changes.detectChanges(),
                                 this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(function(t) {
                                     e.bsaberService.beatSaberVersion = t.trim();
@@ -29135,8 +29516,8 @@
                         e
                     );
                 })(),
-                qy = Ar({ encapsulation: 0, styles: [['.nav-wrapper[_ngcontent-%COMP%]{margin-top:-15px}']], data: {} });
-            function Hy(e) {
+                Hy = Ar({ encapsulation: 0, styles: [['.nav-wrapper[_ngcontent-%COMP%]{margin-top:-15px}']], data: {} });
+            function Ky(e) {
                 return Ro(
                     0,
                     [
@@ -29174,7 +29555,7 @@
                     null
                 );
             }
-            function Ky(e) {
+            function Gy(e) {
                 return Ro(
                     0,
                     [
@@ -29185,7 +29566,7 @@
                     null
                 );
             }
-            function Gy(e) {
+            function Wy(e) {
                 return Ro(
                     0,
                     [
@@ -29200,7 +29581,14 @@
                             'app-song-pack-manager',
                             [],
                             null,
-                            [[null, 'addPack'], [null, 'editPack'], [null, 'saveJson'], [null, 'removeSong'], [null, 'orderSongs']],
+                            [
+                                [null, 'addPack'],
+                                [null, 'editPack'],
+                                [null, 'saveJson'],
+                                [null, 'removeSong'],
+                                [null, 'openSong'],
+                                [null, 'orderSongs'],
+                            ],
                             function(e, t, n) {
                                 var r = !0,
                                     l = e.component;
@@ -29214,12 +29602,13 @@
                                     'addPack' === t && (r = !1 !== Al(e, 7).openModal() && r),
                                     'saveJson' === t && (r = !1 !== l.bsaberService.saveJson(l.bsaberService.jSon) && r),
                                     'removeSong' === t && (r = !1 !== l.removeSong(n) && r),
+                                    'openSong' === t && (r = !1 !== l.openSongFolder(n) && r),
                                     'orderSongs' === t && (r = !1 !== l.orderSongs('recent' === n) && r),
                                     r
                                 );
                             },
-                            zy,
-                            Dy
+                            Uy,
+                            Ry
                         )),
                         Ul(512, null, Ja, Xa, [$n, er, Nn, Bn]),
                         Bl(3, 278528, null, 0, $a, [Ja], { ngClass: [0, 'ngClass'] }, null),
@@ -29229,8 +29618,8 @@
                             4440064,
                             null,
                             0,
-                            My,
-                            [Py, ra, Gu],
+                            Dy,
+                            [Ty, ra, Gu],
                             { packs: [0, 'packs'], songs: [1, 'songs'] },
                             {
                                 addPack: 'addPack',
@@ -29238,6 +29627,7 @@
                                 saveJson: 'saveJson',
                                 removeSong: 'removeSong',
                                 orderSongs: 'orderSongs',
+                                openSong: 'openSong',
                             }
                         ),
                         (e()(), go(6, 0, null, null, 44, 'mz-modal', [], null, null, null, om, im)),
@@ -29348,10 +29738,10 @@
                         (e()(), Io(33, null, ['', ''])),
                         (e()(), go(34, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), go(35, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, Hy)),
+                        (e()(), vo(16777216, null, null, 1, null, Ky)),
                         Bl(37, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(38, 0, null, null, 0, 'br', [], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, Ky)),
+                        (e()(), vo(16777216, null, null, 1, null, Gy)),
                         Bl(40, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(41, 0, null, 2, 9, 'mz-modal-footer', [], null, null, null, null, null)),
                         Bl(42, 16384, null, 0, Ag, [], null, null),
@@ -29497,12 +29887,12 @@
                     }
                 );
             }
-            function Wy(e) {
+            function Qy(e) {
                 return Ro(
                     0,
                     [
-                        (e()(), go(0, 0, null, null, 1, 'app-custom-levels', [], null, null, null, Gy, qy)),
-                        Bl(1, 114688, null, 0, Uy, [Uu, Xu, Gu, Wu, ra, tr], null, null),
+                        (e()(), go(0, 0, null, null, 1, 'app-custom-levels', [], null, null, null, Wy, Hy)),
+                        Bl(1, 114688, null, 0, qy, [Uu, Xu, Gu, Wu, ra, tr], null, null),
                     ],
                     function(e, t) {
                         e(t, 1, 0);
@@ -29510,8 +29900,8 @@
                     null
                 );
             }
-            var Qy = gl('app-custom-levels', Uy, Wy, {}, {}, []),
-                Zy = (function() {
+            var Zy = gl('app-custom-levels', qy, Qy, {}, {}, []),
+                Yy = (function() {
                     function e(e, t, n, r, l, i, o) {
                         (this.adbService = e),
                             (this.appService = t),
@@ -29700,72 +30090,87 @@
                                                       [4, this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage)]);
                                             case 1:
                                                 return (
-                                                    (e.beatSaberVersion = l.sent().trim()),
-                                                    ~this.bsaberService.supportedBeatSaberVersions.indexOf(
-                                                        this.bsaberService.beatSaberVersion
-                                                    )
-                                                        ? (this.syncSongsModal.closeModal(),
-                                                          this.spinnerService.showLoader(),
-                                                          this.spinnerService.setMessage(
-                                                              'Patching Beat Saber...<br>This might take some time.'
-                                                          ),
-                                                          this.replaceText.forEach(function(e) {
-                                                              r.bsaberService.jSon.replaceText[e.key] = e.value;
-                                                          }),
-                                                          this.colorA &&
-                                                              ((t = this.colorA.substr(5, this.colorA.length - 6)),
-                                                              (n = t.split(',')),
-                                                              this.bsaberService.jSon.colors.colorA ||
-                                                                  (this.bsaberService.jSon.colors.colorA = {
-                                                                      r: 1,
-                                                                      g: 0,
-                                                                      b: 0,
-                                                                      a: 1,
-                                                                  }),
-                                                              (this.bsaberService.jSon.colors.colorA.r = n[0] / 255),
-                                                              (this.bsaberService.jSon.colors.colorA.g = n[1] / 255),
-                                                              (this.bsaberService.jSon.colors.colorA.b = n[2] / 255),
-                                                              (this.bsaberService.jSon.colors.colorA.a = 1)),
-                                                          this.colorB &&
-                                                              ((t = this.colorB.substr(5, this.colorB.length - 6)),
-                                                              (n = t.split(',')),
-                                                              this.bsaberService.jSon.colors.colorB ||
-                                                                  (this.bsaberService.jSon.colors.colorB = {
-                                                                      r: 0,
-                                                                      g: 0,
-                                                                      b: 1,
-                                                                      a: 1,
-                                                                  }),
-                                                              (this.bsaberService.jSon.colors.colorB.r = n[0] / 255),
-                                                              (this.bsaberService.jSon.colors.colorB.g = n[1] / 255),
-                                                              (this.bsaberService.jSon.colors.colorB.b = n[2] / 255),
-                                                              (this.bsaberService.jSon.colors.colorB.a = 1)),
-                                                          this.bsaberService.saveJson(this.bsaberService.jSon),
-                                                          this.bsaberService
-                                                              .questSaberPatch()
-                                                              .then(function(e) {
-                                                                  e.error &&
-                                                                      (r.spinnerService.hideLoader(),
-                                                                      r.autoFixModal.openModal(),
-                                                                      r.statusService.showStatus(e.error, !0)),
-                                                                      (r.qspResponse = e),
-                                                                      r.spinnerService.hideLoader(),
-                                                                      r.installAPKModal.openModal();
-                                                              })
-                                                              .catch(function(e) {
-                                                                  r.autoFixModal.openModal(),
-                                                                      r.spinnerService.hideLoader(),
-                                                                      r.statusService.showStatus(e.toString(), !0);
-                                                              }),
-                                                          [2])
-                                                        : [
-                                                              2,
-                                                              this.statusService.showStatus(
-                                                                  'Beat Saber version not supported yet!! ' +
-                                                                      this.bsaberService.beatSaberVersion,
-                                                                  !0
+                                                    (e.beatSaberVersion = (l.sent() || '').trim()),
+                                                    this.bsaberService.beatSaberVersion
+                                                        ? ~this.bsaberService.supportedBeatSaberVersions.indexOf(
+                                                              this.bsaberService.beatSaberVersion
+                                                          )
+                                                            ? (this.syncSongsModal.closeModal(),
+                                                              this.spinnerService.showLoader(),
+                                                              this.spinnerService.setMessage(
+                                                                  'Patching Beat Saber...<br>This might take some time.'
                                                               ),
-                                                          ]
+                                                              this.replaceText.forEach(function(e) {
+                                                                  r.bsaberService.jSon.replaceText[e.key] = e.value;
+                                                              }),
+                                                              this.colorA &&
+                                                                  ((t = this.colorA
+                                                                      .replace('rgba(', '')
+                                                                      .replace('rgb(', '')
+                                                                      .replace(')', '')),
+                                                                  (n = t.trim().split(',')),
+                                                                  this.bsaberService.jSon.colors.colorA ||
+                                                                      (this.bsaberService.jSon.colors.colorA = {
+                                                                          r: 1,
+                                                                          g: 0,
+                                                                          b: 0,
+                                                                          a: 1,
+                                                                      }),
+                                                                  (this.bsaberService.jSon.colors.colorA.r =
+                                                                      Number(n[0].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorA.g =
+                                                                      Number(n[1].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorA.b =
+                                                                      Number(n[2].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorA.a = 1)),
+                                                              this.colorB &&
+                                                                  ((t = this.colorB
+                                                                      .replace('rgba(', '')
+                                                                      .replace('rgb(', '')
+                                                                      .replace(')', '')),
+                                                                  (n = t.trim().split(',')),
+                                                                  this.bsaberService.jSon.colors.colorB ||
+                                                                      (this.bsaberService.jSon.colors.colorB = {
+                                                                          r: 0,
+                                                                          g: 0,
+                                                                          b: 1,
+                                                                          a: 1,
+                                                                      }),
+                                                                  (this.bsaberService.jSon.colors.colorB.r =
+                                                                      Number(n[0].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorB.g =
+                                                                      Number(n[1].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorB.b =
+                                                                      Number(n[2].trim()) / 255),
+                                                                  (this.bsaberService.jSon.colors.colorB.a = 1)),
+                                                              this.bsaberService.saveJson(this.bsaberService.jSon),
+                                                              (this.bsaberService.jSon = this.bsaberService.getAppJson()),
+                                                              this.bsaberService
+                                                                  .questSaberPatch()
+                                                                  .then(function(e) {
+                                                                      e.error &&
+                                                                          (r.spinnerService.hideLoader(),
+                                                                          r.autoFixModal.openModal(),
+                                                                          r.statusService.showStatus(e.error, !0)),
+                                                                          (r.qspResponse = e),
+                                                                          r.spinnerService.hideLoader(),
+                                                                          r.installAPKModal.openModal();
+                                                                  })
+                                                                  .catch(function(e) {
+                                                                      r.autoFixModal.openModal(),
+                                                                          r.spinnerService.hideLoader(),
+                                                                          r.statusService.showStatus(e.toString(), !0);
+                                                                  }),
+                                                              [2])
+                                                            : [
+                                                                  2,
+                                                                  this.statusService.showStatus(
+                                                                      'Beat Saber version not supported yet!! ' +
+                                                                          this.bsaberService.beatSaberVersion,
+                                                                      !0
+                                                                  ),
+                                                              ]
+                                                        : [2, this.statusService.showStatus('Beat Saber version not found!! ', !0)]
                                                 );
                                         }
                                     });
@@ -29857,16 +30262,16 @@
                         e
                     );
                 })(),
-                Yy = Ar({
+                Jy = Ar({
                     encapsulation: 0,
                     styles: [
                         [
-                            "#connection-refresh[_ngcontent-%COMP%], #connection-refresh-loading[_ngcontent-%COMP%]{display:none}.title-menu-container[_ngcontent-%COMP%]{position:absolute;right:5px;top:5px;-webkit-app-region:no-drag;z-index:999}.title-menu-container[_ngcontent-%COMP%]   i[_ngcontent-%COMP%]{margin-right:10px;cursor:pointer}#device-settings[_ngcontent-%COMP%]{font-size:1.2rem;vertical-align:top;margin-top:4px}.browser-input[_ngcontent-%COMP%]{width:calc(100% - 200px);display:inline-block;margin-right:13px;margin-left:13px}#browser-bar[_ngcontent-%COMP%]{position:absolute;top:65px;left:400px;width:calc(100% - 450px);-webkit-app-region:no-drag}.topper[_ngcontent-%COMP%]{background:#202225;height:35px;width:100%}.header[_ngcontent-%COMP%]{height:160px;background:url(bg-header.296b3c6bb7d256316b7b.png) left bottom no-repeat #312249;position:relative;-webkit-user-select:none;border-top-right-radius:12px;border-top-left-radius:12px;overflow:hidden;-webkit-app-region:drag}.header-title[_ngcontent-%COMP%]{position:absolute;top:40px;left:115px;font-size:2.5rem;margin-top:.4em;margin-left:1em;color:#fff;font-family:'PT Sans',sans-serif}.apk-install[_ngcontent-%COMP%]{font-size:.9rem;position:absolute;top:105px;left:155px;color:#fff;font-family:'PT Sans',sans-serif;-webkit-app-region:no-drag}.filter[_ngcontent-%COMP%]{width:200px}.filters[_ngcontent-%COMP%]{position:absolute;top:60px;left:60px;-webkit-app-region:no-drag}.search[_ngcontent-%COMP%]{position:absolute;top:60px;right:-10px;-webkit-app-region:no-drag}.search-box[_ngcontent-%COMP%]{width:400px}.search-button-margin[_ngcontent-%COMP%]{margin-right:2em;margin-left:1em}.content-section[_ngcontent-%COMP%]{border:1px solid #dde1e2;background:#fff}.content-section-header[_ngcontent-%COMP%]{border-bottom:1px solid #dde1e2;padding:1em 2em;font-size:1.2em;font-weight:700;text-transform:capitalize;height:60px}.content-section-inner[_ngcontent-%COMP%]{padding:1em}.content-padding[_ngcontent-%COMP%]{padding:2em}#connection-status-message[_ngcontent-%COMP%]{text-align:left;white-space:nowrap;float:left;margin-left:30px;margin-top:-2px;color:#fff}#connection-status[_ngcontent-%COMP%]{width:20px;height:20px;border-radius:10px;position:absolute;left:10px;top:8px;-webkit-app-region:no-drag}.connection-status-connected[_ngcontent-%COMP%]{background-color:#4caf50}.connection-status-unauthorized[_ngcontent-%COMP%]{background-color:#ff9800}.connection-status-disconnected[_ngcontent-%COMP%]{background-color:#f44336}.connection-status-too-many[_ngcontent-%COMP%]{background-color:#9c27b0}.add-repo[_ngcontent-%COMP%], .back-webserver[_ngcontent-%COMP%], .beast-saber-buttons[_ngcontent-%COMP%], .sync-songs[_ngcontent-%COMP%], .sync-songs-now[_ngcontent-%COMP%], .update-available[_ngcontent-%COMP%]{position:absolute;top:115px;right:120px;text-decoration:none;-webkit-app-region:no-drag}.update-available[_ngcontent-%COMP%]{top:6px;right:330px}.beast-saber-buttons[_ngcontent-%COMP%], .sync-songs-now[_ngcontent-%COMP%]{top:45px}.delete-repo[_ngcontent-%COMP%], .restore-backup[_ngcontent-%COMP%], .update-repo[_ngcontent-%COMP%]{padding-top:4px}.edit-repo[_ngcontent-%COMP%]{font-size:14px}.browser-loading[_ngcontent-%COMP%]{top:15px;position:relative;left:15px}.logo[_ngcontent-%COMP%]{background:url('logo-large icony.02d2ee2aa1dec02bfb1e.png') center center/100px 100px no-repeat;width:135px;height:130px;-webkit-user-select:none;cursor:pointer;border-top-left-radius:5px;-webkit-app-region:no-drag}",
+                            "#connection-refresh[_ngcontent-%COMP%], #connection-refresh-loading[_ngcontent-%COMP%]{display:none}.title-menu-container[_ngcontent-%COMP%]{position:absolute;right:5px;top:5px;-webkit-app-region:no-drag;z-index:999}.title-menu-container[_ngcontent-%COMP%]   i[_ngcontent-%COMP%]{margin-right:10px;cursor:pointer}#device-settings[_ngcontent-%COMP%]{font-size:1.2rem;vertical-align:top;margin-top:4px}.browser-input[_ngcontent-%COMP%]{width:calc(100% - 200px);display:inline-block;margin-right:13px;margin-left:13px}#browser-bar[_ngcontent-%COMP%]{position:absolute;top:65px;left:400px;width:calc(100% - 450px);-webkit-app-region:no-drag}.topper[_ngcontent-%COMP%]{background:#202225;height:35px;width:100%}.header[_ngcontent-%COMP%]{height:160px;background:url(bg-header.296b3c6bb7d256316b7b.png) left bottom no-repeat #312249;position:relative;-webkit-user-select:none;border-top-right-radius:12px;border-top-left-radius:12px;overflow:hidden;-webkit-app-region:drag}.header-title[_ngcontent-%COMP%]{position:absolute;top:40px;left:115px;font-size:2.5rem;margin-top:.4em;margin-left:1em;color:#fff;font-family:'PT Sans',sans-serif}.apk-install[_ngcontent-%COMP%]{font-size:.9rem;position:absolute;top:105px;left:155px;color:#fff;font-family:'PT Sans',sans-serif;-webkit-app-region:no-drag}.filter[_ngcontent-%COMP%]{width:200px}.filters[_ngcontent-%COMP%]{position:absolute;top:60px;left:60px;-webkit-app-region:no-drag}.search[_ngcontent-%COMP%]{position:absolute;top:60px;right:-10px;-webkit-app-region:no-drag}.search-box[_ngcontent-%COMP%]{width:400px}.search-button-margin[_ngcontent-%COMP%]{margin-right:2em;margin-left:1em}.content-section[_ngcontent-%COMP%]{border:1px solid #dde1e2;background:#fff}.content-section-header[_ngcontent-%COMP%]{border-bottom:1px solid #dde1e2;padding:1em 2em;font-size:1.2em;font-weight:700;text-transform:capitalize;height:60px}.content-section-inner[_ngcontent-%COMP%]{padding:1em}.content-padding[_ngcontent-%COMP%]{padding:2em}#connection-status-message[_ngcontent-%COMP%]{text-align:left;white-space:nowrap;float:left;margin-left:30px;margin-top:-2px;color:#fff}#connection-status[_ngcontent-%COMP%]{width:20px;height:20px;border-radius:10px;position:absolute;left:10px;top:8px;-webkit-app-region:no-drag}.connection-status-connected[_ngcontent-%COMP%]{background-color:#4caf50}.connection-status-unauthorized[_ngcontent-%COMP%]{background-color:#ff9800}.connection-status-disconnected[_ngcontent-%COMP%]{background-color:#f44336}.connection-status-too-many[_ngcontent-%COMP%]{background-color:#9c27b0}.add-repo[_ngcontent-%COMP%], .back-webserver[_ngcontent-%COMP%], .beast-saber-buttons[_ngcontent-%COMP%], .sync-songs[_ngcontent-%COMP%], .sync-songs-now[_ngcontent-%COMP%], .update-available[_ngcontent-%COMP%]{position:absolute;top:115px;right:120px;text-decoration:none;-webkit-app-region:no-drag}.update-available[_ngcontent-%COMP%]{top:6px;right:330px}.sync-songs[_ngcontent-%COMP%]{right:15px}.beast-saber-buttons[_ngcontent-%COMP%], .sync-songs-now[_ngcontent-%COMP%]{top:45px}.delete-repo[_ngcontent-%COMP%], .restore-backup[_ngcontent-%COMP%], .update-repo[_ngcontent-%COMP%]{padding-top:4px}.edit-repo[_ngcontent-%COMP%]{font-size:14px}.browser-loading[_ngcontent-%COMP%]{top:15px;position:relative;left:15px}.logo[_ngcontent-%COMP%]{background:url('logo-large icony.02d2ee2aa1dec02bfb1e.png') center center/100px 100px no-repeat;width:135px;height:130px;-webkit-user-select:none;cursor:pointer;border-top-left-radius:5px;-webkit-app-region:no-drag}",
                         ],
                     ],
                     data: {},
                 });
-            function Jy(e) {
+            function Xy(e) {
                 return Ro(
                     0,
                     [
@@ -29895,7 +30300,7 @@
                     null
                 );
             }
-            function Xy(e) {
+            function $y(e) {
                 return Ro(
                     0,
                     [
@@ -29908,7 +30313,7 @@
                     null
                 );
             }
-            function $y(e) {
+            function eb(e) {
                 return Ro(
                     0,
                     [
@@ -29939,7 +30344,7 @@
                     null
                 );
             }
-            function eb(e) {
+            function tb(e) {
                 return Ro(
                     0,
                     [
@@ -30060,7 +30465,7 @@
                     null
                 );
             }
-            function tb(e) {
+            function nb(e) {
                 return Ro(
                     0,
                     [
@@ -30105,7 +30510,7 @@
                     null
                 );
             }
-            function nb(e) {
+            function rb(e) {
                 return Ro(
                     0,
                     [
@@ -30142,7 +30547,7 @@
                     null
                 );
             }
-            function rb(e) {
+            function lb(e) {
                 return Ro(
                     0,
                     [
@@ -30179,7 +30584,7 @@
                     null
                 );
             }
-            function lb(e) {
+            function ib(e) {
                 return Ro(
                     0,
                     [
@@ -30191,7 +30596,7 @@
                             null,
                             1,
                             'div',
-                            [['class', 'waves-effect waves-light btn-flat add-repo small-button']],
+                            [['class', 'waves-effect waves-light btn-flat add-repo small-button white-text']],
                             null,
                             [[null, 'click']],
                             function(e, t, n) {
@@ -30207,7 +30612,7 @@
                     null
                 );
             }
-            function ib(e) {
+            function ob(e) {
                 return Ro(
                     0,
                     [
@@ -30238,7 +30643,7 @@
                     null
                 );
             }
-            function ob(e) {
+            function ub(e) {
                 return Ro(
                     0,
                     [
@@ -30257,7 +30662,7 @@
                             function(e, t, n) {
                                 var r = !0;
                                 return (
-                                    'click' === t && (r = !1 !== e.component.webService.loadUrl('http://sidequestvr.com') && r), r
+                                    'click' === t && (r = !1 !== e.component.webService.loadUrl('https://sidequestvr.com') && r), r
                                 );
                             },
                             null,
@@ -30314,7 +30719,7 @@
                     null
                 );
             }
-            function ub(e) {
+            function ab(e) {
                 return Ro(
                     0,
                     [
@@ -30438,7 +30843,7 @@
                     null
                 );
             }
-            function ab(e) {
+            function sb(e) {
                 return Ro(
                     0,
                     [
@@ -30465,7 +30870,7 @@
                     null
                 );
             }
-            function sb(e) {
+            function cb(e) {
                 return Ro(
                     0,
                     [
@@ -30629,7 +31034,7 @@
                         )),
                         (e()(), go(18, 0, null, null, 1, 'i', [['class', 'material-icons']], null, null, null, null, null)),
                         (e()(), Io(-1, null, ['send'])),
-                        (e()(), vo(16777216, null, null, 1, null, ab)),
+                        (e()(), vo(16777216, null, null, 1, null, sb)),
                         Bl(21, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -30652,7 +31057,7 @@
                     }
                 );
             }
-            function cb(e) {
+            function pb(e) {
                 return Ro(
                     0,
                     [
@@ -30730,12 +31135,12 @@
                     null
                 );
             }
-            function pb(e) {
+            function hb(e) {
                 return Ro(
                     0,
                     [
                         (e()(), go(0, 0, null, null, 9, 'div', [['id', 'searchFilterContainer']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, cb)),
+                        (e()(), vo(16777216, null, null, 1, null, pb)),
                         Bl(2, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(
@@ -30766,7 +31171,7 @@
                     null
                 );
             }
-            function hb(e) {
+            function db(e) {
                 return Ro(
                     0,
                     [
@@ -30948,7 +31353,7 @@
                     }
                 );
             }
-            function db(e) {
+            function fb(e) {
                 return Ro(
                     0,
                     [
@@ -31143,7 +31548,7 @@
                         (e()(), go(43, 0, null, null, 2, 'div', [['class', 'row']], null, null, null, null, null)),
                         (e()(), go(44, 0, null, null, 1, 'div', [['class', 'col s8']], null, null, null, null, null)),
                         (e()(), go(45, 0, null, null, 0, 'hr', [], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, hb)),
+                        (e()(), vo(16777216, null, null, 1, null, db)),
                         Bl(47, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                         (e()(), go(48, 0, null, null, 17, 'div', [['class', 'row']], null, null, null, null, null)),
                         (e()(), go(49, 0, null, null, 6, 'div', [['class', 'col s4']], null, null, null, null, null)),
@@ -31347,7 +31752,7 @@
                     }
                 );
             }
-            function fb(e) {
+            function vb(e) {
                 return Ro(
                     0,
                     [
@@ -31358,7 +31763,7 @@
                     null
                 );
             }
-            function vb(e) {
+            function gb(e) {
                 return Ro(
                     0,
                     [
@@ -31395,7 +31800,7 @@
                     null
                 );
             }
-            function gb(e) {
+            function mb(e) {
                 return Ro(
                     0,
                     [
@@ -31432,7 +31837,7 @@
                     null
                 );
             }
-            function mb(e) {
+            function yb(e) {
                 return Ro(
                     0,
                     [
@@ -31449,7 +31854,7 @@
                     }
                 );
             }
-            function yb(e) {
+            function bb(e) {
                 return Ro(
                     0,
                     [
@@ -31466,7 +31871,7 @@
                     }
                 );
             }
-            function bb(e) {
+            function wb(e) {
                 return Ro(
                     0,
                     [
@@ -31483,16 +31888,16 @@
                     }
                 );
             }
-            function wb(e) {
+            function Sb(e) {
                 return Ro(
                     0,
                     [
                         (e()(), go(0, 0, null, null, 6, 'div', [], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, mb)),
-                        Bl(2, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, yb)),
-                        Bl(4, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        Bl(2, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, bb)),
+                        Bl(4, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, wb)),
                         Bl(6, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -31504,7 +31909,7 @@
                     null
                 );
             }
-            function Sb(e) {
+            function kb(e) {
                 return Ro(
                     0,
                     [
@@ -31554,17 +31959,17 @@
                             null
                         )),
                         (e()(), Io(-1, null, ['SideQuest'])),
-                        (e()(), vo(16777216, null, null, 1, null, Jy)),
-                        Bl(11, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, Xy)),
-                        Bl(13, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        Bl(11, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, $y)),
-                        Bl(15, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        Bl(13, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, eb)),
+                        Bl(15, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, tb)),
                         Bl(17, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(18, 0, null, null, 30, 'div', [['class', 'title-menu-container']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, tb)),
+                        (e()(), vo(16777216, null, null, 1, null, nb)),
                         Bl(20, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(
@@ -31674,9 +32079,9 @@
                         )),
                         Bl(34, 4931584, null, 0, Ig, [Nn, Vn], { position: [0, 'position'], tooltip: [1, 'tooltip'] }, null),
                         (e()(), Io(-1, null, [' bug_report '])),
-                        (e()(), vo(16777216, null, null, 1, null, nb)),
-                        Bl(37, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, rb)),
+                        Bl(37, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, lb)),
                         Bl(39, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(
@@ -31779,17 +32184,17 @@
                         (e()(),
                         go(53, 0, null, null, 1, 'div', [['id', 'connection-status-message']], null, null, null, null, null)),
                         (e()(), Io(54, null, ['', ''])),
-                        (e()(), vo(16777216, null, null, 1, null, lb)),
-                        Bl(56, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, ib)),
-                        Bl(58, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        Bl(56, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, ob)),
-                        Bl(60, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        Bl(58, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, ub)),
+                        Bl(60, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, ab)),
                         Bl(62, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
-                        (e()(), vo(16777216, null, null, 1, null, sb)),
+                        (e()(), vo(16777216, null, null, 1, null, cb)),
                         Bl(64, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
-                        (e()(), vo(16777216, null, null, 1, null, pb)),
+                        (e()(), vo(16777216, null, null, 1, null, hb)),
                         Bl(66, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(67, 0, null, null, 30, 'mz-modal', [], null, null, null, om, im)),
                         Bl(68, 4833280, [['addRepoModal', 4]], 0, Cg, [Vn], { fixedFooter: [0, 'fixedFooter'] }, null),
@@ -32084,9 +32489,9 @@
                         Bl(151, 16384, null, 0, xg, [], null, null),
                         (e()(), go(152, 0, null, 1, 5, 'mz-modal-content', [], null, null, null, null, null)),
                         Bl(153, 16384, null, 0, Eg, [], null, null),
-                        (e()(), vo(16777216, null, null, 1, null, db)),
-                        Bl(155, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, fb)),
+                        Bl(155, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, vb)),
                         Bl(157, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(158, 0, null, 2, 9, 'mz-modal-footer', [], null, null, null, null, null)),
                         Bl(159, 16384, null, 0, Ag, [], null, null),
@@ -32111,9 +32516,9 @@
                         Bl(161, 16384, null, 0, Pg, [Cg], null, null),
                         Bl(162, 606208, null, 0, bg, [Nn, Vn], { flat: [0, 'flat'] }, null),
                         (e()(), Io(-1, null, ['Close'])),
-                        (e()(), vo(16777216, null, null, 1, null, vb)),
-                        Bl(165, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, gb)),
+                        Bl(165, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, mb)),
                         Bl(167, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(168, 0, null, null, 23, 'mz-modal', [], null, null, null, om, im)),
                         Bl(169, 4833280, [[3, 4], ['installAPKModal', 4]], 0, Cg, [Vn], { fixedFooter: [0, 'fixedFooter'] }, null),
@@ -32130,7 +32535,7 @@
                         (e()(), go(177, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), go(178, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(), Io(-1, null, [' Patch Results: '])),
-                        (e()(), vo(16777216, null, null, 1, null, wb)),
+                        (e()(), vo(16777216, null, null, 1, null, Sb)),
                         Bl(181, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(182, 0, null, 2, 9, 'mz-modal-footer', [], null, null, null, null, null)),
                         Bl(183, 16384, null, 0, Ag, [], null, null),
@@ -32366,7 +32771,7 @@
                     }
                 );
             }
-            var kb = (function() {
+            var _b = (function() {
                     function e(e, t, n) {
                         (this.router = e), (this.repoService = t), (this.webService = n);
                     }
@@ -32381,7 +32786,7 @@
                         e
                     );
                 })(),
-                _b = Ar({
+                Cb = Ar({
                     encapsulation: 0,
                     styles: [
                         [
@@ -32390,7 +32795,7 @@
                     ],
                     data: {},
                 });
-            function Cb(e) {
+            function xb(e) {
                 return Ro(
                     0,
                     [
@@ -32425,18 +32830,17 @@
                             e(t, 3, 0, 'right', el(1, '', t.context.$implicit.body.repo.description, ''));
                     },
                     function(e, t) {
-                        e(t, 4, 0, el(2, '', t.context.$implicit.url, 'icons/', t.context.$implicit.icon, '')),
-                            e(t, 7, 0, t.context.$implicit.name);
+                        e(t, 4, 0, el(1, '', t.context.$implicit.icon, '')), e(t, 7, 0, t.context.$implicit.name);
                     }
                 );
             }
-            function xb(e) {
+            function Eb(e) {
                 return Ro(
                     0,
                     [
                         (e()(), go(0, 0, null, null, 56, 'div', [['class', 'side-menu']], null, null, null, null, null)),
                         (e()(), go(1, 0, null, null, 2, 'div', [['class', 'menu-items']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, Cb)),
+                        (e()(), vo(16777216, null, null, 1, null, xb)),
                         Bl(3, 278528, null, 0, ts, [ar, or, $n], { ngForOf: [0, 'ngForOf'] }, null),
                         (e()(), go(4, 0, null, null, 9, 'div', [['class', 'menu-item-beat']], null, null, null, null, null)),
                         (e()(),
@@ -32730,13 +33134,13 @@
                     null
                 );
             }
-            var Eb = (function() {
+            var Ab = (function() {
                     function e(e, t) {
                         this.appService = t;
                     }
                     return (e.prototype.ngOnInit = function() {}), e;
                 })(),
-                Ab = Ar({
+                Pb = Ar({
                     encapsulation: 0,
                     styles: [
                         [
@@ -32745,7 +33149,7 @@
                     ],
                     data: {},
                 });
-            function Pb(e) {
+            function Tb(e) {
                 return Ro(
                     0,
                     [
@@ -32764,7 +33168,7 @@
                     null
                 );
             }
-            var Tb = (function() {
+            var Ob = (function() {
                     function e(e) {
                         (this.spinnerService = e), e.setSpinner(this);
                     }
@@ -32779,7 +33183,7 @@
                         e
                     );
                 })(),
-                Ob = Ar({
+                Ib = Ar({
                     encapsulation: 0,
                     styles: [
                         [
@@ -32788,7 +33192,7 @@
                     ],
                     data: {},
                 });
-            function Ib(e) {
+            function Mb(e) {
                 return Ro(
                     0,
                     [(e()(), go(0, 0, null, null, 0, 'div', [['class', 'loader-initial']], null, null, null, null, null))],
@@ -32796,7 +33200,7 @@
                     null
                 );
             }
-            function Mb(e) {
+            function Db(e) {
                 return Ro(
                     0,
                     [
@@ -32807,7 +33211,7 @@
                     null
                 );
             }
-            function Db(e) {
+            function Rb(e) {
                 return Ro(
                     0,
                     [
@@ -32858,15 +33262,15 @@
                     null
                 );
             }
-            function Rb(e) {
+            function Nb(e) {
                 return Ro(
                     0,
                     [
                         (e()(), go(0, 0, null, null, 9, 'div', [['class', 'spinner text-center']], null, null, null, null, null)),
                         (e()(), go(1, 0, null, null, 8, 'div', [['class', 'well well-lg']], null, null, null, null, null)),
-                        (e()(), vo(16777216, null, null, 1, null, Ib)),
-                        Bl(3, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, Mb)),
+                        Bl(3, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, Db)),
                         Bl(5, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), go(6, 0, null, null, 0, 'br', [], null, null, null, null, null)),
                         (e()(),
@@ -32884,7 +33288,7 @@
                             null,
                             null
                         )),
-                        (e()(), vo(16777216, null, null, 1, null, Db)),
+                        (e()(), vo(16777216, null, null, 1, null, Rb)),
                         Bl(9, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -32896,7 +33300,7 @@
                     }
                 );
             }
-            function Nb(e) {
+            function Fb(e) {
                 return Ro(
                     0,
                     [(e()(), go(0, 0, null, null, 0, 'div', [['class', 'spinner-background']], null, null, null, null, null))],
@@ -32904,13 +33308,13 @@
                     null
                 );
             }
-            function Fb(e) {
+            function Vb(e) {
                 return Ro(
                     0,
                     [
-                        (e()(), vo(16777216, null, null, 1, null, Rb)),
-                        Bl(1, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, Nb)),
+                        Bl(1, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, Fb)),
                         Bl(3, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -32920,7 +33324,7 @@
                     null
                 );
             }
-            var Vb = (function() {
+            var jb = (function() {
                     function e(e) {
                         this._sanitizer = e;
                     }
@@ -32931,13 +33335,13 @@
                         e
                     );
                 })(),
-                jb = (function() {
+                Lb = (function() {
                     function e(e) {
                         this.statusService = e;
                     }
                     return (e.prototype.ngOnInit = function() {}), e;
                 })(),
-                Lb = Ar({
+                Bb = Ar({
                     encapsulation: 0,
                     styles: [
                         [
@@ -32946,7 +33350,7 @@
                     ],
                     data: {},
                 });
-            function Bb(e) {
+            function zb(e) {
                 return Ro(
                     0,
                     [
@@ -32982,7 +33386,7 @@
                     null
                 );
             }
-            function zb(e) {
+            function Ub(e) {
                 return Ro(
                     0,
                     [
@@ -32995,7 +33399,7 @@
                     null
                 );
             }
-            function Ub(e) {
+            function qb(e) {
                 return Ro(
                     0,
                     [
@@ -33028,9 +33432,9 @@
                         )),
                         Bl(5, 4931584, null, 0, Ig, [Nn, Vn], { position: [0, 'position'], tooltip: [1, 'tooltip'] }, null),
                         (e()(), Io(-1, null, ['close'])),
-                        (e()(), vo(16777216, null, null, 1, null, Bb)),
-                        Bl(8, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(), vo(16777216, null, null, 1, null, zb)),
+                        Bl(8, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
+                        (e()(), vo(16777216, null, null, 1, null, Ub)),
                         Bl(10, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                         (e()(),
                         go(
@@ -33064,12 +33468,12 @@
                     }
                 );
             }
-            function qb(e) {
+            function Hb(e) {
                 return Ro(
                     0,
                     [
-                        zl(0, Vb, [cp]),
-                        (e()(), vo(16777216, null, null, 1, null, Ub)),
+                        zl(0, jb, [cp]),
+                        (e()(), vo(16777216, null, null, 1, null, qb)),
                         Bl(2, 16384, null, 0, rs, [ar, or], { ngIf: [0, 'ngIf'] }, null),
                     ],
                     function(e, t) {
@@ -33078,10 +33482,10 @@
                     null
                 );
             }
-            var Hb = (function() {
+            var Kb = (function() {
                     return function() {};
                 })(),
-                Kb = Ar({
+                Gb = Ar({
                     encapsulation: 0,
                     styles: [
                         [
@@ -33090,25 +33494,25 @@
                     ],
                     data: {},
                 });
-            function Gb(e) {
+            function Wb(e) {
                 return Ro(
                     0,
                     [
                         So(671088640, 1, { spinner: 0 }),
                         So(671088640, 2, { status: 0 }),
                         So(671088640, 3, { webview: 0 }),
-                        (e()(), go(3, 0, null, null, 1, 'app-header', [], null, null, null, Sb, Yy)),
-                        Bl(4, 4308992, null, 0, Zy, [Xu, Gu, ra, Qu, Uu, Wu, ea], null, null),
+                        (e()(), go(3, 0, null, null, 1, 'app-header', [], null, null, null, kb, Jy)),
+                        Bl(4, 4308992, null, 0, Yy, [Xu, Gu, ra, Qu, Uu, Wu, ea], null, null),
                         (e()(),
                         go(5, 0, null, null, 4, 'div', [['class', 'app-container full-height']], null, null, null, null, null)),
-                        (e()(), go(6, 0, null, null, 1, 'app-side-menu', [], null, null, null, xb, _b)),
-                        Bl(7, 114688, null, 0, kb, [Ld, ea, Qu], null, null),
-                        (e()(), go(8, 0, null, null, 1, 'app-content', [['class', 'full-height']], null, null, null, Pb, Ab)),
-                        Bl(9, 114688, null, 0, Eb, [ea, Gu], null, null),
-                        (e()(), go(10, 0, null, null, 1, 'app-loading-spinner', [], null, null, null, Fb, Ob)),
-                        Bl(11, 114688, [[1, 4], ['spinner', 4]], 0, Tb, [Uu], null, null),
-                        (e()(), go(12, 0, null, null, 1, 'app-status-bar', [], null, null, null, qb, Lb)),
-                        Bl(13, 114688, [[2, 4], ['status', 4]], 0, jb, [Wu], null, null),
+                        (e()(), go(6, 0, null, null, 1, 'app-side-menu', [], null, null, null, Eb, Cb)),
+                        Bl(7, 114688, null, 0, _b, [Ld, ea, Qu], null, null),
+                        (e()(), go(8, 0, null, null, 1, 'app-content', [['class', 'full-height']], null, null, null, Tb, Pb)),
+                        Bl(9, 114688, null, 0, Ab, [ea, Gu], null, null),
+                        (e()(), go(10, 0, null, null, 1, 'app-loading-spinner', [], null, null, null, Vb, Ib)),
+                        Bl(11, 114688, [[1, 4], ['spinner', 4]], 0, Ob, [Uu], null, null),
+                        (e()(), go(12, 0, null, null, 1, 'app-status-bar', [], null, null, null, Hb, Bb)),
+                        Bl(13, 114688, [[2, 4], ['status', 4]], 0, Lb, [Wu], null, null),
                         (e()(),
                         go(
                             14,
@@ -33117,7 +33521,7 @@
                             null,
                             4,
                             'webview',
-                            [['class', 'bsaber-webview'], ['id', 'beatView'], ['src', 'http://localhost:4201']],
+                            [['class', 'bsaber-webview'], ['id', 'beatView'], ['src', 'https://sidequestvr.com']],
                             null,
                             null,
                             null,
@@ -33127,7 +33531,7 @@
                         Ul(512, null, os, us, [Nn, er, Bn]),
                         Bl(16, 278528, null, 0, as, [os], { ngStyle: [0, 'ngStyle'] }, null),
                         To(17, { left: 0 }),
-                        Bl(18, 16384, null, 0, Hb, [], null, null),
+                        Bl(18, 16384, null, 0, Kb, [], null, null),
                     ],
                     function(e, t) {
                         var n = t.component;
@@ -33138,11 +33542,11 @@
                     null
                 );
             }
-            function Wb(e) {
+            function Qb(e) {
                 return Ro(
                     0,
                     [
-                        (e()(), go(0, 0, null, null, 1, 'app-root', [], null, null, null, Gb, Kb)),
+                        (e()(), go(0, 0, null, null, 1, 'app-root', [], null, null, null, Wb, Gb)),
                         Bl(1, 4308992, null, 0, ff, [Uu, Wu, Xu, Gu, Qu, $u, df, ra], null, null),
                     ],
                     function(e, t) {
@@ -33151,24 +33555,24 @@
                     null
                 );
             }
-            var Qb = gl('app-root', ff, Wb, {}, {}, []),
-                Zb = (function() {
-                    return function() {};
-                })(),
+            var Zb = gl('app-root', ff, Qb, {}, {}, []),
                 Yb = (function() {
                     return function() {};
                 })(),
-                Jb = '*';
-            function Xb(e, t) {
+                Jb = (function() {
+                    return function() {};
+                })(),
+                Xb = '*';
+            function $b(e, t) {
                 return void 0 === t && (t = null), { type: 2, steps: e, options: t };
             }
-            function $b(e) {
+            function ew(e) {
                 return { type: 6, styles: e, offset: null };
             }
-            function ew(e) {
+            function tw(e) {
                 Promise.resolve(null).then(e);
             }
-            var tw = (function() {
+            var nw = (function() {
                     function e(e, t) {
                         void 0 === e && (e = 0),
                             void 0 === t && (t = 0),
@@ -33208,7 +33612,7 @@
                         }),
                         (e.prototype.triggerMicrotask = function() {
                             var e = this;
-                            ew(function() {
+                            tw(function() {
                                 return e._onFinish();
                             });
                         }),
@@ -33248,7 +33652,7 @@
                         e
                     );
                 })(),
-                nw = (function() {
+                rw = (function() {
                     function e(e) {
                         var t = this;
                         (this._onDoneFns = []),
@@ -33265,7 +33669,7 @@
                             l = 0,
                             i = this.players.length;
                         0 == i
-                            ? ew(function() {
+                            ? tw(function() {
                                   return t._onFinish();
                               })
                             : this.players.forEach(function(e) {
@@ -33395,21 +33799,21 @@
                         e
                     );
                 })(),
-                rw = '!';
-            function lw() {
+                lw = '!';
+            function iw() {
                 return 'undefined' != typeof process;
             }
-            function iw(e) {
+            function ow(e) {
                 switch (e.length) {
                     case 0:
-                        return new tw();
+                        return new nw();
                     case 1:
                         return e[0];
                     default:
-                        return new nw(e);
+                        return new rw(e);
                 }
             }
-            function ow(e, t, n, r, l, i) {
+            function uw(e, t, n, r, l, i) {
                 void 0 === l && (l = {}), void 0 === i && (i = {});
                 var o = [],
                     u = [],
@@ -33425,10 +33829,10 @@
                                 u = e[n];
                             if ('offset' !== n)
                                 switch (((r = t.normalizePropertyName(r, o)), u)) {
-                                    case rw:
+                                    case lw:
                                         u = l[n];
                                         break;
-                                    case Jb:
+                                    case Xb:
                                         u = i[n];
                                         break;
                                     default:
@@ -33445,27 +33849,27 @@
                     throw new Error('Unable to animate due to the following errors:\n - ' + o.join('\n - '));
                 return u;
             }
-            function uw(e, t, n, r) {
+            function aw(e, t, n, r) {
                 switch (t) {
                     case 'start':
                         e.onStart(function() {
-                            return r(n && aw(n, 'start', e));
+                            return r(n && sw(n, 'start', e));
                         });
                         break;
                     case 'done':
                         e.onDone(function() {
-                            return r(n && aw(n, 'done', e));
+                            return r(n && sw(n, 'done', e));
                         });
                         break;
                     case 'destroy':
                         e.onDestroy(function() {
-                            return r(n && aw(n, 'destroy', e));
+                            return r(n && sw(n, 'destroy', e));
                         });
                 }
             }
-            function aw(e, t, n) {
+            function sw(e, t, n) {
                 var r = n.totalTime,
-                    l = sw(
+                    l = cw(
                         e.element,
                         e.triggerName,
                         e.fromState,
@@ -33477,37 +33881,37 @@
                     i = e._data;
                 return null != i && (l._data = i), l;
             }
-            function sw(e, t, n, r, l, i, o) {
+            function cw(e, t, n, r, l, i, o) {
                 return (
                     void 0 === l && (l = ''),
                     void 0 === i && (i = 0),
                     { element: e, triggerName: t, fromState: n, toState: r, phaseName: l, totalTime: i, disabled: !!o }
                 );
             }
-            function cw(e, t, n) {
+            function pw(e, t, n) {
                 var r;
                 return e instanceof Map ? (r = e.get(t)) || e.set(t, (r = n)) : (r = e[t]) || (r = e[t] = n), r;
             }
-            function pw(e) {
+            function hw(e) {
                 var t = e.indexOf(':');
                 return [e.substring(1, t), e.substr(t + 1)];
             }
-            var hw = function(e, t) {
+            var dw = function(e, t) {
                     return !1;
                 },
-                dw = function(e, t) {
+                fw = function(e, t) {
                     return !1;
                 },
-                fw = function(e, t, n) {
+                vw = function(e, t, n) {
                     return [];
                 },
-                vw = lw();
-            (vw || 'undefined' != typeof Element) &&
-                ((hw = function(e, t) {
+                gw = iw();
+            (gw || 'undefined' != typeof Element) &&
+                ((dw = function(e, t) {
                     return e.contains(t);
                 }),
-                (dw = (function() {
-                    if (vw || Element.prototype.matches)
+                (fw = (function() {
+                    if (gw || Element.prototype.matches)
                         return function(e, t) {
                             return e.matches(t);
                         };
@@ -33522,9 +33926,9 @@
                         ? function(e, n) {
                               return t.apply(e, [n]);
                           }
-                        : dw;
+                        : fw;
                 })()),
-                (fw = function(e, t, n) {
+                (vw = function(e, t, n) {
                     var r = [];
                     if (n) r.push.apply(r, c(e.querySelectorAll(t)));
                     else {
@@ -33533,28 +33937,28 @@
                     }
                     return r;
                 }));
-            var gw = null,
-                mw = !1;
-            function yw(e) {
-                gw ||
-                    ((gw = ('undefined' != typeof document ? document.body : null) || {}),
-                    (mw = !!gw.style && 'WebkitAppearance' in gw.style));
+            var mw = null,
+                yw = !1;
+            function bw(e) {
+                mw ||
+                    ((mw = ('undefined' != typeof document ? document.body : null) || {}),
+                    (yw = !!mw.style && 'WebkitAppearance' in mw.style));
                 var t = !0;
                 return (
-                    gw.style &&
+                    mw.style &&
                         !(function(e) {
                             return 'ebkit' == e.substring(1, 6);
                         })(e) &&
-                        !(t = e in gw.style) &&
-                        mw &&
-                        (t = 'Webkit' + e.charAt(0).toUpperCase() + e.substr(1) in gw.style),
+                        !(t = e in mw.style) &&
+                        yw &&
+                        (t = 'Webkit' + e.charAt(0).toUpperCase() + e.substr(1) in mw.style),
                     t
                 );
             }
-            var bw = dw,
-                ww = hw,
-                Sw = fw;
-            function kw(e) {
+            var ww = fw,
+                Sw = dw,
+                kw = vw;
+            function _w(e) {
                 var t = {};
                 return (
                     Object.keys(e).forEach(function(n) {
@@ -33564,49 +33968,49 @@
                     t
                 );
             }
-            var _w = (function() {
+            var Cw = (function() {
                     function e() {}
                     return (
                         (e.prototype.validateStyleProperty = function(e) {
-                            return yw(e);
+                            return bw(e);
                         }),
                         (e.prototype.matchesElement = function(e, t) {
-                            return bw(e, t);
-                        }),
-                        (e.prototype.containsElement = function(e, t) {
                             return ww(e, t);
                         }),
+                        (e.prototype.containsElement = function(e, t) {
+                            return Sw(e, t);
+                        }),
                         (e.prototype.query = function(e, t, n) {
-                            return Sw(e, t, n);
+                            return kw(e, t, n);
                         }),
                         (e.prototype.computeStyle = function(e, t, n) {
                             return n || '';
                         }),
                         (e.prototype.animate = function(e, t, n, r, l, i, o) {
-                            return void 0 === i && (i = []), new tw(n, r);
+                            return void 0 === i && (i = []), new nw(n, r);
                         }),
                         e
                     );
                 })(),
-                Cw = (function() {
+                xw = (function() {
                     function e() {}
-                    return (e.NOOP = new _w()), e;
+                    return (e.NOOP = new Cw()), e;
                 })(),
-                xw = 1e3;
-            function Ew(e) {
+                Ew = 1e3;
+            function Aw(e) {
                 if ('number' == typeof e) return e;
                 var t = e.match(/^(-?[\.\d]+)(m?s)/);
-                return !t || t.length < 2 ? 0 : Aw(parseFloat(t[1]), t[2]);
+                return !t || t.length < 2 ? 0 : Pw(parseFloat(t[1]), t[2]);
             }
-            function Aw(e, t) {
+            function Pw(e, t) {
                 switch (t) {
                     case 's':
-                        return e * xw;
+                        return e * Ew;
                     default:
                         return e;
                 }
             }
-            function Pw(e, t, n) {
+            function Tw(e, t, n) {
                 return e.hasOwnProperty('duration')
                     ? e
                     : (function(e, t, n) {
@@ -33620,9 +34024,9 @@
                                       t.push('The provided timing value "' + e + '" is invalid.'),
                                       { duration: 0, delay: 0, easing: '' }
                                   );
-                              r = Aw(parseFloat(o[1]), o[2]);
+                              r = Pw(parseFloat(o[1]), o[2]);
                               var u = o[3];
-                              null != u && (l = Aw(parseFloat(u), o[4]));
+                              null != u && (l = Pw(parseFloat(u), o[4]));
                               var a = o[5];
                               a && (i = a);
                           } else r = e;
@@ -33636,7 +34040,7 @@
                           return { duration: r, delay: l, easing: i };
                       })(e, t, n);
             }
-            function Tw(e, t) {
+            function Ow(e, t) {
                 return (
                     void 0 === t && (t = {}),
                     Object.keys(e).forEach(function(n) {
@@ -33645,53 +34049,53 @@
                     t
                 );
             }
-            function Ow(e, t, n) {
+            function Iw(e, t, n) {
                 if ((void 0 === n && (n = {}), t)) for (var r in e) n[r] = e[r];
-                else Tw(e, n);
+                else Ow(e, n);
                 return n;
             }
-            function Iw(e, t, n) {
+            function Mw(e, t, n) {
                 return n ? t + ':' + n + ';' : '';
             }
-            function Mw(e) {
-                for (var t = '', n = 0; n < e.style.length; n++) t += Iw(0, (r = e.style.item(n)), e.style.getPropertyValue(r));
+            function Dw(e) {
+                for (var t = '', n = 0; n < e.style.length; n++) t += Mw(0, (r = e.style.item(n)), e.style.getPropertyValue(r));
                 for (var r in e.style)
                     e.style.hasOwnProperty(r) &&
                         !r.startsWith('_') &&
-                        (t += Iw(0, r.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), e.style[r]));
+                        (t += Mw(0, r.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(), e.style[r]));
                 e.setAttribute('style', t);
             }
-            function Dw(e, t, n) {
+            function Rw(e, t, n) {
                 e.style &&
                     (Object.keys(t).forEach(function(r) {
-                        var l = zw(r);
+                        var l = Uw(r);
                         n && !n.hasOwnProperty(r) && (n[r] = e.style[l]), (e.style[l] = t[r]);
                     }),
-                    lw() && Mw(e));
+                    iw() && Dw(e));
             }
-            function Rw(e, t) {
+            function Nw(e, t) {
                 e.style &&
                     (Object.keys(t).forEach(function(t) {
-                        var n = zw(t);
+                        var n = Uw(t);
                         e.style[n] = '';
                     }),
-                    lw() && Mw(e));
+                    iw() && Dw(e));
             }
-            function Nw(e) {
-                return Array.isArray(e) ? (1 == e.length ? e[0] : Xb(e)) : e;
+            function Fw(e) {
+                return Array.isArray(e) ? (1 == e.length ? e[0] : $b(e)) : e;
             }
-            var Fw = new RegExp('{{\\s*(.+?)\\s*}}', 'g');
-            function Vw(e) {
+            var Vw = new RegExp('{{\\s*(.+?)\\s*}}', 'g');
+            function jw(e) {
                 var t = [];
                 if ('string' == typeof e) {
-                    for (var n = e.toString(), r = void 0; (r = Fw.exec(n)); ) t.push(r[1]);
-                    Fw.lastIndex = 0;
+                    for (var n = e.toString(), r = void 0; (r = Vw.exec(n)); ) t.push(r[1]);
+                    Vw.lastIndex = 0;
                 }
                 return t;
             }
-            function jw(e, t, n) {
+            function Lw(e, t, n) {
                 var r = e.toString(),
-                    l = r.replace(Fw, function(e, r) {
+                    l = r.replace(Vw, function(e, r) {
                         var l = t[r];
                         return (
                             t.hasOwnProperty(r) || (n.push('Please provide a value for the animation param ' + r), (l = '')),
@@ -33700,21 +34104,21 @@
                     });
                 return l == r ? e : l;
             }
-            function Lw(e) {
+            function Bw(e) {
                 for (var t = [], n = e.next(); !n.done; ) t.push(n.value), (n = e.next());
                 return t;
             }
-            var Bw = /-+([a-z0-9])/g;
-            function zw(e) {
-                return e.replace(Bw, function() {
+            var zw = /-+([a-z0-9])/g;
+            function Uw(e) {
+                return e.replace(zw, function() {
                     for (var e = [], t = 0; t < arguments.length; t++) e[t] = arguments[t];
                     return e[1].toUpperCase();
                 });
             }
-            function Uw(e, t) {
+            function qw(e, t) {
                 return 0 === e || 0 === t;
             }
-            function qw(e, t, n) {
+            function Hw(e, t, n) {
                 var r = Object.keys(n);
                 if (r.length && t.length) {
                     var l = t[0],
@@ -33729,7 +34133,7 @@
                             var o = function() {
                                     var n = t[u];
                                     i.forEach(function(t) {
-                                        n[t] = Kw(e, t);
+                                        n[t] = Gw(e, t);
                                     });
                                 },
                                 u = 1;
@@ -33740,7 +34144,7 @@
                 }
                 return t;
             }
-            function Hw(e, t, n) {
+            function Kw(e, t, n) {
                 switch (t.type) {
                     case 7:
                         return e.visitTrigger(t, n);
@@ -33772,37 +34176,37 @@
                         throw new Error('Unable to resolve animation metadata node #' + t.type);
                 }
             }
-            function Kw(e, t) {
+            function Gw(e, t) {
                 return window.getComputedStyle(e)[t];
             }
-            var Gw = '*',
-                Ww = new Set(['true', '1']),
-                Qw = new Set(['false', '0']);
-            function Zw(e, t) {
-                var n = Ww.has(e) || Qw.has(e),
-                    r = Ww.has(t) || Qw.has(t);
+            var Ww = '*',
+                Qw = new Set(['true', '1']),
+                Zw = new Set(['false', '0']);
+            function Yw(e, t) {
+                var n = Qw.has(e) || Zw.has(e),
+                    r = Qw.has(t) || Zw.has(t);
                 return function(l, i) {
-                    var o = e == Gw || e == l,
-                        u = t == Gw || t == i;
+                    var o = e == Ww || e == l,
+                        u = t == Ww || t == i;
                     return (
-                        !o && n && 'boolean' == typeof l && (o = l ? Ww.has(e) : Qw.has(e)),
-                        !u && r && 'boolean' == typeof i && (u = i ? Ww.has(t) : Qw.has(t)),
+                        !o && n && 'boolean' == typeof l && (o = l ? Qw.has(e) : Zw.has(e)),
+                        !u && r && 'boolean' == typeof i && (u = i ? Qw.has(t) : Zw.has(t)),
                         o && u
                     );
                 };
             }
-            var Yw = new RegExp('s*:selfs*,?', 'g');
-            function Jw(e, t, n) {
-                return new Xw(e).build(t, n);
+            var Jw = new RegExp('s*:selfs*,?', 'g');
+            function Xw(e, t, n) {
+                return new $w(e).build(t, n);
             }
-            var Xw = (function() {
+            var $w = (function() {
                     function e(e) {
                         this._driver = e;
                     }
                     return (
                         (e.prototype.build = function(e, t) {
-                            var n = new $w(t);
-                            return this._resetContextStyleTimingState(n), Hw(this, Nw(e), n);
+                            var n = new eS(t);
+                            return this._resetContextStyleTimingState(n), Kw(this, Fw(e), n);
                         }),
                         (e.prototype._resetContextStyleTimingState = function(e) {
                             (e.currentQuerySelector = ''),
@@ -33848,10 +34252,10 @@
                                     i = r || {};
                                 if (
                                     (n.styles.forEach(function(e) {
-                                        if (eS(e)) {
+                                        if (tS(e)) {
                                             var t = e;
                                             Object.keys(t).forEach(function(e) {
-                                                Vw(t[e]).forEach(function(e) {
+                                                jw(t[e]).forEach(function(e) {
                                                     i.hasOwnProperty(e) || l.add(e);
                                                 });
                                             });
@@ -33859,7 +34263,7 @@
                                     }),
                                     l.size)
                                 ) {
-                                    var o = Lw(l.values());
+                                    var o = Bw(l.values());
                                     t.errors.push(
                                         'state("' +
                                             e.name +
@@ -33875,7 +34279,7 @@
                             var n,
                                 r,
                                 l,
-                                i = Hw(this, Nw(e.animation), t);
+                                i = Kw(this, Fw(e.animation), t);
                             return {
                                 type: 1,
                                 matchers: ((n = e.expr),
@@ -33917,7 +34321,7 @@
                                               var i = l[1],
                                                   o = l[2],
                                                   u = l[3];
-                                              t.push(Zw(i, u)), '<' != o[0] || (i == Gw && u == Gw) || t.push(Zw(u, i));
+                                              t.push(Yw(i, u)), '<' != o[0] || (i == Ww && u == Ww) || t.push(Yw(u, i));
                                           })(e, l, r);
                                       })
                                     : l.push(n),
@@ -33925,7 +34329,7 @@
                                 animation: i,
                                 queryCount: t.queryCount,
                                 depCount: t.depCount,
-                                options: tS(e.options),
+                                options: nS(e.options),
                             };
                         }),
                         (e.prototype.visitSequence = function(e, t) {
@@ -33933,9 +34337,9 @@
                             return {
                                 type: 2,
                                 steps: e.steps.map(function(e) {
-                                    return Hw(n, e, t);
+                                    return Kw(n, e, t);
                                 }),
-                                options: tS(e.options),
+                                options: nS(e.options),
                             };
                         }),
                         (e.prototype.visitGroup = function(e, t) {
@@ -33944,30 +34348,30 @@
                                 l = 0,
                                 i = e.steps.map(function(e) {
                                     t.currentTime = r;
-                                    var i = Hw(n, e, t);
+                                    var i = Kw(n, e, t);
                                     return (l = Math.max(l, t.currentTime)), i;
                                 });
-                            return (t.currentTime = l), { type: 3, steps: i, options: tS(e.options) };
+                            return (t.currentTime = l), { type: 3, steps: i, options: nS(e.options) };
                         }),
                         (e.prototype.visitAnimate = function(e, t) {
                             var n,
                                 r = (function(e, t) {
                                     var n = null;
                                     if (e.hasOwnProperty('duration')) n = e;
-                                    else if ('number' == typeof e) return nS(Pw(e, t).duration, 0, '');
+                                    else if ('number' == typeof e) return rS(Tw(e, t).duration, 0, '');
                                     var r = e;
                                     if (
                                         r.split(/\s+/).some(function(e) {
                                             return '{' == e.charAt(0) && '{' == e.charAt(1);
                                         })
                                     ) {
-                                        var l = nS(0, 0, '');
+                                        var l = rS(0, 0, '');
                                         return (l.dynamic = !0), (l.strValue = r), l;
                                     }
-                                    return nS((n = n || Pw(r, t)).duration, n.delay, n.easing);
+                                    return rS((n = n || Tw(r, t)).duration, n.delay, n.easing);
                                 })(e.timings, t.errors);
                             t.currentAnimateTimings = r;
-                            var l = e.styles ? e.styles : $b({});
+                            var l = e.styles ? e.styles : ew({});
                             if (5 == l.type) n = this.visitKeyframes(l, t);
                             else {
                                 var i = e.styles,
@@ -33975,7 +34379,7 @@
                                 if (!i) {
                                     o = !0;
                                     var u = {};
-                                    r.easing && (u.easing = r.easing), (i = $b(u));
+                                    r.easing && (u.easing = r.easing), (i = ew(u));
                                 }
                                 t.currentTime += r.duration + r.delay;
                                 var a = this.visitStyle(i, t);
@@ -33992,7 +34396,7 @@
                             Array.isArray(e.styles)
                                 ? e.styles.forEach(function(e) {
                                       'string' == typeof e
-                                          ? e == Jb
+                                          ? e == Xb
                                               ? n.push(e)
                                               : t.errors.push('The provided style string value ' + e + ' is not allowed.')
                                           : n.push(e);
@@ -34002,7 +34406,7 @@
                                 l = null;
                             return (
                                 n.forEach(function(e) {
-                                    if (eS(e)) {
+                                    if (tS(e)) {
                                         var t = e,
                                             n = t.easing;
                                         if ((n && ((l = n), delete t.easing), !r))
@@ -34055,7 +34459,7 @@
                                                     t.options &&
                                                         ((o = t.errors),
                                                         (u = t.options.params || {}),
-                                                        (a = Vw(e[r])).length &&
+                                                        (a = jw(e[r])).length &&
                                                             a.forEach(function(e) {
                                                                 u.hasOwnProperty(e) ||
                                                                     o.push(
@@ -34093,12 +34497,12 @@
                                                       var t = null;
                                                       if (Array.isArray(e))
                                                           e.forEach(function(e) {
-                                                              if (eS(e) && e.hasOwnProperty('offset')) {
+                                                              if (tS(e) && e.hasOwnProperty('offset')) {
                                                                   var n = e;
                                                                   (t = parseFloat(n.offset)), delete n.offset;
                                                               }
                                                           });
-                                                      else if (eS(e) && e.hasOwnProperty('offset')) {
+                                                      else if (tS(e) && e.hasOwnProperty('offset')) {
                                                           var n = e;
                                                           (t = parseFloat(n.offset)), delete n.offset;
                                                       }
@@ -34139,13 +34543,13 @@
                             );
                         }),
                         (e.prototype.visitReference = function(e, t) {
-                            return { type: 8, animation: Hw(this, Nw(e.animation), t), options: tS(e.options) };
+                            return { type: 8, animation: Kw(this, Fw(e.animation), t), options: nS(e.options) };
                         }),
                         (e.prototype.visitAnimateChild = function(e, t) {
-                            return t.depCount++, { type: 9, options: tS(e.options) };
+                            return t.depCount++, { type: 9, options: nS(e.options) };
                         }),
                         (e.prototype.visitAnimateRef = function(e, t) {
-                            return { type: 10, animation: this.visitReference(e.animation, t), options: tS(e.options) };
+                            return { type: 10, animation: this.visitReference(e.animation, t), options: nS(e.options) };
                         }),
                         (e.prototype.visitQuery = function(e, t) {
                             var n = t.currentQuerySelector,
@@ -34157,7 +34561,7 @@
                                             return ':self' == e;
                                         });
                                         return (
-                                            t && (e = e.replace(Yw, '')),
+                                            t && (e = e.replace(Jw, '')),
                                             [
                                                 (e = e
                                                     .replace(/@\*/g, '.ng-trigger')
@@ -34174,8 +34578,8 @@
                                 i = l[0],
                                 o = l[1];
                             (t.currentQuerySelector = n.length ? n + ' ' + i : i),
-                                cw(t.collectedStyles, t.currentQuerySelector, {});
-                            var u = Hw(this, Nw(e.animation), t);
+                                pw(t.collectedStyles, t.currentQuerySelector, {});
+                            var u = Kw(this, Fw(e.animation), t);
                             return (
                                 (t.currentQuery = null),
                                 (t.currentQuerySelector = n),
@@ -34187,19 +34591,19 @@
                                     includeSelf: o,
                                     animation: u,
                                     originalSelector: e.selector,
-                                    options: tS(e.options),
+                                    options: nS(e.options),
                                 }
                             );
                         }),
                         (e.prototype.visitStagger = function(e, t) {
                             t.currentQuery || t.errors.push('stagger() can only be used inside of query()');
-                            var n = 'full' === e.timings ? { duration: 0, delay: 0, easing: 'full' } : Pw(e.timings, t.errors, !0);
-                            return { type: 12, animation: Hw(this, Nw(e.animation), t), timings: n, options: null };
+                            var n = 'full' === e.timings ? { duration: 0, delay: 0, easing: 'full' } : Tw(e.timings, t.errors, !0);
+                            return { type: 12, animation: Kw(this, Fw(e.animation), t), timings: n, options: null };
                         }),
                         e
                     );
                 })(),
-                $w = (function() {
+                eS = (function() {
                     return function(e) {
                         (this.errors = e),
                             (this.queryCount = 0),
@@ -34213,17 +34617,17 @@
                             (this.options = null);
                     };
                 })();
-            function eS(e) {
+            function tS(e) {
                 return !Array.isArray(e) && 'object' == typeof e;
             }
-            function tS(e) {
+            function nS(e) {
                 var t;
-                return e ? (e = Tw(e)).params && (e.params = (t = e.params) ? Tw(t) : null) : (e = {}), e;
+                return e ? (e = Ow(e)).params && (e.params = (t = e.params) ? Ow(t) : null) : (e = {}), e;
             }
-            function nS(e, t, n) {
+            function rS(e, t, n) {
                 return { duration: e, delay: t, easing: n };
             }
-            function rS(e, t, n, r, l, i, o, u) {
+            function lS(e, t, n, r, l, i, o, u) {
                 return (
                     void 0 === o && (o = null),
                     void 0 === u && (u = !1),
@@ -34241,7 +34645,7 @@
                     }
                 );
             }
-            var lS = (function() {
+            var iS = (function() {
                     function e() {
                         this._map = new Map();
                     }
@@ -34263,23 +34667,23 @@
                         e
                     );
                 })(),
-                iS = new RegExp(':enter', 'g'),
-                oS = new RegExp(':leave', 'g');
-            function uS(e, t, n, r, l, i, o, u, a, s) {
+                oS = new RegExp(':enter', 'g'),
+                uS = new RegExp(':leave', 'g');
+            function aS(e, t, n, r, l, i, o, u, a, s) {
                 return (
                     void 0 === i && (i = {}),
                     void 0 === o && (o = {}),
                     void 0 === s && (s = []),
-                    new aS().buildKeyframes(e, t, n, r, l, i, o, u, a, s)
+                    new sS().buildKeyframes(e, t, n, r, l, i, o, u, a, s)
                 );
             }
-            var aS = (function() {
+            var sS = (function() {
                     function e() {}
                     return (
                         (e.prototype.buildKeyframes = function(e, t, n, r, l, i, o, u, a, s) {
-                            void 0 === s && (s = []), (a = a || new lS());
-                            var c = new cS(e, t, a, r, l, s, []);
-                            (c.options = u), c.currentTimeline.setStyles([i], null, c.errors, u), Hw(this, n, c);
+                            void 0 === s && (s = []), (a = a || new iS());
+                            var c = new pS(e, t, a, r, l, s, []);
+                            (c.options = u), c.currentTimeline.setStyles([i], null, c.errors, u), Kw(this, n, c);
                             var p = c.timelines.filter(function(e) {
                                 return e.containsAnimation();
                             });
@@ -34291,7 +34695,7 @@
                                 ? p.map(function(e) {
                                       return e.buildKeyframes();
                                   })
-                                : [rS(t, [], [], [], 0, 0, '', !1)];
+                                : [lS(t, [], [], [], 0, 0, '', !1)];
                         }),
                         (e.prototype.visitTrigger = function(e, t) {}),
                         (e.prototype.visitState = function(e, t) {}),
@@ -34315,8 +34719,8 @@
                         }),
                         (e.prototype._visitSubInstructions = function(e, t, n) {
                             var r = t.currentTimeline.currentTime,
-                                l = null != n.duration ? Ew(n.duration) : null,
-                                i = null != n.delay ? Ew(n.delay) : null;
+                                l = null != n.duration ? Aw(n.duration) : null,
+                                i = null != n.delay ? Aw(n.delay) : null;
                             return (
                                 0 !== l &&
                                     e.forEach(function(e) {
@@ -34327,7 +34731,7 @@
                             );
                         }),
                         (e.prototype.visitReference = function(e, t) {
-                            t.updateOptions(e.options, !0), Hw(this, e.animation, t), (t.previousNode = e);
+                            t.updateOptions(e.options, !0), Kw(this, e.animation, t), (t.previousNode = e);
                         }),
                         (e.prototype.visitSequence = function(e, t) {
                             var n = this,
@@ -34339,13 +34743,13 @@
                                 (i.params || i.delay) &&
                                 ((l = t.createSubContext(i)).transformIntoNewTimeline(), null != i.delay)
                             ) {
-                                6 == l.previousNode.type && (l.currentTimeline.snapshotCurrentStyles(), (l.previousNode = sS));
-                                var o = Ew(i.delay);
+                                6 == l.previousNode.type && (l.currentTimeline.snapshotCurrentStyles(), (l.previousNode = cS));
+                                var o = Aw(i.delay);
                                 l.delayNextStep(o);
                             }
                             e.steps.length &&
                                 (e.steps.forEach(function(e) {
-                                    return Hw(n, e, l);
+                                    return Kw(n, e, l);
                                 }),
                                 l.currentTimeline.applyStylesToKeyframe(),
                                 l.subContextCount > r && l.transformIntoNewTimeline()),
@@ -34355,11 +34759,11 @@
                             var n = this,
                                 r = [],
                                 l = t.currentTimeline.currentTime,
-                                i = e.options && e.options.delay ? Ew(e.options.delay) : 0;
+                                i = e.options && e.options.delay ? Aw(e.options.delay) : 0;
                             e.steps.forEach(function(o) {
                                 var u = t.createSubContext(e.options);
                                 i && u.delayNextStep(i),
-                                    Hw(n, o, u),
+                                    Kw(n, o, u),
                                     (l = Math.max(l, u.currentTimeline.currentTime)),
                                     r.push(u.currentTimeline);
                             }),
@@ -34372,7 +34776,7 @@
                         (e.prototype._visitTiming = function(e, t) {
                             if (e.dynamic) {
                                 var n = e.strValue;
-                                return Pw(t.params ? jw(n, t.params, t.errors) : n, t.errors);
+                                return Tw(t.params ? Lw(n, t.params, t.errors) : n, t.errors);
                             }
                             return { duration: e.duration, delay: e.delay, easing: e.easing };
                         }),
@@ -34414,10 +34818,10 @@
                             var n = this,
                                 r = t.currentTimeline.currentTime,
                                 l = e.options || {},
-                                i = l.delay ? Ew(l.delay) : 0;
+                                i = l.delay ? Aw(l.delay) : 0;
                             i &&
                                 (6 === t.previousNode.type || (0 == r && t.currentTimeline.getCurrentStyleProperties().length)) &&
-                                (t.currentTimeline.snapshotCurrentStyles(), (t.previousNode = sS));
+                                (t.currentTimeline.snapshotCurrentStyles(), (t.previousNode = cS));
                             var o = r,
                                 u = t.invokeQuery(e.selector, e.originalSelector, e.limit, e.includeSelf, !!l.optional, t.errors);
                             t.currentQueryTotal = u.length;
@@ -34427,7 +34831,7 @@
                                 var u = t.createSubContext(e.options, r);
                                 i && u.delayNextStep(i),
                                     r === t.element && (a = u.currentTimeline),
-                                    Hw(n, e.animation, u),
+                                    Kw(n, e.animation, u),
                                     u.currentTimeline.applyStylesToKeyframe(),
                                     (o = Math.max(o, u.currentTimeline.currentTime));
                             }),
@@ -34454,15 +34858,15 @@
                             var a = t.currentTimeline;
                             u && a.delayNextStep(u);
                             var s = a.currentTime;
-                            Hw(this, e.animation, t),
+                            Kw(this, e.animation, t),
                                 (t.previousNode = e),
                                 (n.currentStaggerTime = r.currentTime - s + (r.startTime - n.currentTimeline.startTime));
                         }),
                         e
                     );
                 })(),
-                sS = {},
-                cS = (function() {
+                cS = {},
+                pS = (function() {
                     function e(e, t, n, r, l, i, o, u) {
                         (this._driver = e),
                             (this.element = t),
@@ -34473,13 +34877,13 @@
                             (this.timelines = o),
                             (this.parentContext = null),
                             (this.currentAnimateTimings = null),
-                            (this.previousNode = sS),
+                            (this.previousNode = cS),
                             (this.subContextCount = 0),
                             (this.options = {}),
                             (this.currentQueryIndex = 0),
                             (this.currentQueryTotal = 0),
                             (this.currentStaggerTime = 0),
-                            (this.currentTimeline = u || new pS(this._driver, t, 0)),
+                            (this.currentTimeline = u || new hS(this._driver, t, 0)),
                             o.push(this.currentTimeline);
                     }
                     return (
@@ -34495,13 +34899,13 @@
                             if (e) {
                                 var r = e,
                                     l = this.options;
-                                null != r.duration && (l.duration = Ew(r.duration)), null != r.delay && (l.delay = Ew(r.delay));
+                                null != r.duration && (l.duration = Aw(r.duration)), null != r.delay && (l.delay = Aw(r.delay));
                                 var i = r.params;
                                 if (i) {
                                     var o = l.params;
                                     o || (o = this.options.params = {}),
                                         Object.keys(i).forEach(function(e) {
-                                            (t && o.hasOwnProperty(e)) || (o[e] = jw(i[e], o, n.errors));
+                                            (t && o.hasOwnProperty(e)) || (o[e] = Lw(i[e], o, n.errors));
                                         });
                                 }
                             }
@@ -34546,7 +34950,7 @@
                         }),
                         (e.prototype.transformIntoNewTimeline = function(e) {
                             return (
-                                (this.previousNode = sS),
+                                (this.previousNode = cS),
                                 (this.currentTimeline = this.currentTimeline.fork(this.element, e)),
                                 this.timelines.push(this.currentTimeline),
                                 this.currentTimeline
@@ -34558,7 +34962,7 @@
                                     delay: this.currentTimeline.currentTime + (null != n ? n : 0) + e.delay,
                                     easing: '',
                                 },
-                                l = new hS(
+                                l = new dS(
                                     this._driver,
                                     e.element,
                                     e.keyframes,
@@ -34578,7 +34982,7 @@
                         (e.prototype.invokeQuery = function(e, t, n, r, l, i) {
                             var o = [];
                             if ((r && o.push(this.element), e.length > 0)) {
-                                e = (e = e.replace(iS, '.' + this._enterClassName)).replace(oS, '.' + this._leaveClassName);
+                                e = (e = e.replace(oS, '.' + this._enterClassName)).replace(uS, '.' + this._leaveClassName);
                                 var u = this._driver.query(this.element, e, 1 != n);
                                 0 !== n && (u = n < 0 ? u.slice(u.length + n, u.length) : u.slice(0, n)), o.push.apply(o, c(u));
                             }
@@ -34598,7 +35002,7 @@
                         e
                     );
                 })(),
-                pS = (function() {
+                hS = (function() {
                     function e(e, t, n, r) {
                         (this._driver = e),
                             (this.element = t),
@@ -34678,7 +35082,7 @@
                             var t = this;
                             e && (this._previousKeyframe.easing = e),
                                 Object.keys(this._globalTimelineStyles).forEach(function(e) {
-                                    (t._backFill[e] = t._globalTimelineStyles[e] || Jb), (t._currentKeyframe[e] = Jb);
+                                    (t._backFill[e] = t._globalTimelineStyles[e] || Xb), (t._currentKeyframe[e] = Xb);
                                 }),
                                 (this._currentEmptyStepKeyframe = this._currentKeyframe);
                         }),
@@ -34693,20 +35097,20 @@
                                         e.forEach(function(e) {
                                             '*' === e
                                                 ? (n = n || Object.keys(t)).forEach(function(e) {
-                                                      r[e] = Jb;
+                                                      r[e] = Xb;
                                                   })
-                                                : Ow(e, !1, r);
+                                                : Iw(e, !1, r);
                                         }),
                                         r
                                     );
                                 })(e, this._globalTimelineStyles);
                             Object.keys(o).forEach(function(e) {
-                                var t = jw(o[e], i, n);
+                                var t = Lw(o[e], i, n);
                                 (l._pendingStyles[e] = t),
                                     l._localTimelineStyles.hasOwnProperty(e) ||
                                         (l._backFill[e] = l._globalTimelineStyles.hasOwnProperty(e)
                                             ? l._globalTimelineStyles[e]
-                                            : Jb),
+                                            : Xb),
                                     l._updateStyle(e, t);
                             });
                         }),
@@ -34758,27 +35162,27 @@
                                 r = 1 === this._keyframes.size && 0 === this.duration,
                                 l = [];
                             this._keyframes.forEach(function(i, o) {
-                                var u = Ow(i, !0);
+                                var u = Iw(i, !0);
                                 Object.keys(u).forEach(function(e) {
                                     var r = u[e];
-                                    r == rw ? t.add(e) : r == Jb && n.add(e);
+                                    r == lw ? t.add(e) : r == Xb && n.add(e);
                                 }),
                                     r || (u.offset = o / e.duration),
                                     l.push(u);
                             });
-                            var i = t.size ? Lw(t.values()) : [],
-                                o = n.size ? Lw(n.values()) : [];
+                            var i = t.size ? Bw(t.values()) : [],
+                                o = n.size ? Bw(n.values()) : [];
                             if (r) {
                                 var u = l[0],
-                                    a = Tw(u);
+                                    a = Ow(u);
                                 (u.offset = 0), (a.offset = 1), (l = [u, a]);
                             }
-                            return rS(this.element, l, i, o, this.duration, this.startTime, this.easing, !1);
+                            return lS(this.element, l, i, o, this.duration, this.startTime, this.easing, !1);
                         }),
                         e
                     );
                 })(),
-                hS = (function(e) {
+                dS = (function(e) {
                     function t(t, n, r, l, i, o, u) {
                         void 0 === u && (u = !1);
                         var a = e.call(this, t, n, o.delay) || this;
@@ -34807,42 +35211,42 @@
                                 var i = [],
                                     o = r + n,
                                     u = n / o,
-                                    a = Ow(e[0], !1);
+                                    a = Iw(e[0], !1);
                                 (a.offset = 0), i.push(a);
-                                var s = Ow(e[0], !1);
-                                (s.offset = dS(u)), i.push(s);
+                                var s = Iw(e[0], !1);
+                                (s.offset = fS(u)), i.push(s);
                                 for (var c = e.length - 1, p = 1; p <= c; p++) {
-                                    var h = Ow(e[p], !1);
-                                    (h.offset = dS((n + h.offset * r) / o)), i.push(h);
+                                    var h = Iw(e[p], !1);
+                                    (h.offset = fS((n + h.offset * r) / o)), i.push(h);
                                 }
                                 (r = o), (n = 0), (l = ''), (e = i);
                             }
-                            return rS(this.element, e, this.preStyleProps, this.postStyleProps, r, n, l, !0);
+                            return lS(this.element, e, this.preStyleProps, this.postStyleProps, r, n, l, !0);
                         }),
                         t
                     );
-                })(pS);
-            function dS(e, t) {
+                })(hS);
+            function fS(e, t) {
                 void 0 === t && (t = 3);
                 var n = Math.pow(10, t - 1);
                 return Math.round(e * n) / n;
             }
-            var fS = (function() {
+            var vS = (function() {
                     return function() {};
                 })(),
-                vS = (function(e) {
+                gS = (function(e) {
                     function t() {
                         return (null !== e && e.apply(this, arguments)) || this;
                     }
                     return (
                         l(t, e),
                         (t.prototype.normalizePropertyName = function(e, t) {
-                            return zw(e);
+                            return Uw(e);
                         }),
                         (t.prototype.normalizeStyleValue = function(e, t, n, r) {
                             var l = '',
                                 i = n.toString().trim();
-                            if (gS[t] && 0 !== n && '0' !== n)
+                            if (mS[t] && 0 !== n && '0' !== n)
                                 if ('number' == typeof n) l = 'px';
                                 else {
                                     var o = n.match(/^[+-]?[\d\.]+([a-z]*)$/);
@@ -34852,8 +35256,8 @@
                         }),
                         t
                     );
-                })(fS),
-                gS = (function() {
+                })(vS),
+                mS = (function() {
                     return (
                         (e = 'width,height,minWidth,minHeight,maxWidth,maxHeight,left,top,bottom,right,fontSize,outlineWidth,outlineOffset,paddingTop,paddingLeft,paddingBottom,paddingRight,marginTop,marginLeft,marginBottom,marginRight,borderRadius,borderWidth,borderTopWidth,borderLeftWidth,borderRightWidth,borderBottomWidth,textIndent,perspective'.split(
                             ','
@@ -34866,7 +35270,7 @@
                     );
                     var e, t;
                 })();
-            function mS(e, t, n, r, l, i, o, u, a, s, c, p, h) {
+            function yS(e, t, n, r, l, i, o, u, a, s, c, p, h) {
                 return {
                     type: 0,
                     element: e,
@@ -34884,8 +35288,8 @@
                     errors: h,
                 };
             }
-            var yS = {},
-                bS = (function() {
+            var bS = {},
+                wS = (function() {
                     function e(e, t, n) {
                         (this._triggerName = e), (this.ast = t), (this._stateStyles = n);
                     }
@@ -34905,16 +35309,16 @@
                         }),
                         (e.prototype.build = function(e, t, n, r, l, o, u, a, s, c) {
                             var p = [],
-                                h = (this.ast.options && this.ast.options.params) || yS,
-                                d = this.buildStyles(n, (u && u.params) || yS, p),
-                                f = (a && a.params) || yS,
+                                h = (this.ast.options && this.ast.options.params) || bS,
+                                d = this.buildStyles(n, (u && u.params) || bS, p),
+                                f = (a && a.params) || bS,
                                 v = this.buildStyles(r, f, p),
                                 g = new Set(),
                                 m = new Map(),
                                 y = new Map(),
                                 b = 'void' === r,
                                 w = { params: i({}, h, f) },
-                                S = c ? [] : uS(e, t, this.ast.animation, l, o, d, v, w, s, p),
+                                S = c ? [] : aS(e, t, this.ast.animation, l, o, d, v, w, s, p),
                                 k = 0;
                             if (
                                 (S.forEach(function(e) {
@@ -34922,33 +35326,33 @@
                                 }),
                                 p.length)
                             )
-                                return mS(t, this._triggerName, n, r, b, d, v, [], [], m, y, k, p);
+                                return yS(t, this._triggerName, n, r, b, d, v, [], [], m, y, k, p);
                             S.forEach(function(e) {
                                 var n = e.element,
-                                    r = cw(m, n, {});
+                                    r = pw(m, n, {});
                                 e.preStyleProps.forEach(function(e) {
                                     return (r[e] = !0);
                                 });
-                                var l = cw(y, n, {});
+                                var l = pw(y, n, {});
                                 e.postStyleProps.forEach(function(e) {
                                     return (l[e] = !0);
                                 }),
                                     n !== t && g.add(n);
                             });
-                            var _ = Lw(g.values());
-                            return mS(t, this._triggerName, n, r, b, d, v, S, _, m, y, k);
+                            var _ = Bw(g.values());
+                            return yS(t, this._triggerName, n, r, b, d, v, S, _, m, y, k);
                         }),
                         e
                     );
                 })(),
-                wS = (function() {
+                SS = (function() {
                     function e(e, t) {
                         (this.styles = e), (this.defaultParams = t);
                     }
                     return (
                         (e.prototype.buildStyles = function(e, t) {
                             var n = {},
-                                r = Tw(this.defaultParams);
+                                r = Ow(this.defaultParams);
                             return (
                                 Object.keys(e).forEach(function(t) {
                                     var n = e[t];
@@ -34959,7 +35363,7 @@
                                         var l = e;
                                         Object.keys(l).forEach(function(e) {
                                             var i = l[e];
-                                            i.length > 1 && (i = jw(i, r, t)), (n[e] = i);
+                                            i.length > 1 && (i = Lw(i, r, t)), (n[e] = i);
                                         });
                                     }
                                 }),
@@ -34969,7 +35373,7 @@
                         e
                     );
                 })(),
-                SS = (function() {
+                kS = (function() {
                     function e(e, t) {
                         var n = this;
                         (this.name = e),
@@ -34977,14 +35381,14 @@
                             (this.transitionFactories = []),
                             (this.states = {}),
                             t.states.forEach(function(e) {
-                                n.states[e.name] = new wS(e.style, (e.options && e.options.params) || {});
+                                n.states[e.name] = new SS(e.style, (e.options && e.options.params) || {});
                             }),
-                            kS(this.states, 'true', '1'),
-                            kS(this.states, 'false', '0'),
+                            _S(this.states, 'true', '1'),
+                            _S(this.states, 'false', '0'),
                             t.transitions.forEach(function(t) {
-                                n.transitionFactories.push(new bS(e, t, n.states));
+                                n.transitionFactories.push(new wS(e, t, n.states));
                             }),
-                            (this.fallbackTransition = new bS(
+                            (this.fallbackTransition = new wS(
                                 e,
                                 {
                                     type: 1,
@@ -35022,11 +35426,11 @@
                         e
                     );
                 })();
-            function kS(e, t, n) {
+            function _S(e, t, n) {
                 e.hasOwnProperty(t) ? e.hasOwnProperty(n) || (e[n] = e[t]) : e.hasOwnProperty(n) && (e[t] = e[n]);
             }
-            var _S = new lS(),
-                CS = (function() {
+            var CS = new iS(),
+                xS = (function() {
                     function e(e, t, n) {
                         (this.bodyNode = e),
                             (this._driver = t),
@@ -35038,14 +35442,14 @@
                     return (
                         (e.prototype.register = function(e, t) {
                             var n = [],
-                                r = Jw(this._driver, t, n);
+                                r = Xw(this._driver, t, n);
                             if (n.length)
                                 throw new Error('Unable to build the animation due to the following errors: ' + n.join('\n'));
                             this._animations[e] = r;
                         }),
                         (e.prototype._buildPlayer = function(e, t, n) {
                             var r = e.element,
-                                l = ow(0, this._normalizer, 0, e.keyframes, t, n);
+                                l = uw(0, this._normalizer, 0, e.keyframes, t, n);
                             return this._driver.animate(r, l, e.duration, e.delay, e.easing, [], !0);
                         }),
                         (e.prototype.create = function(e, t, n) {
@@ -35057,8 +35461,8 @@
                                 u = new Map();
                             if (
                                 (o
-                                    ? (l = uS(this._driver, t, o, 'ng-enter', 'ng-leave', {}, {}, n, _S, i)).forEach(function(e) {
-                                          var t = cw(u, e.element, {});
+                                    ? (l = aS(this._driver, t, o, 'ng-enter', 'ng-leave', {}, {}, n, CS, i)).forEach(function(e) {
+                                          var t = pw(u, e.element, {});
                                           e.postStyleProps.forEach(function(e) {
                                               return (t[e] = null);
                                           });
@@ -35069,10 +35473,10 @@
                                 throw new Error('Unable to create the animation due to the following errors: ' + i.join('\n'));
                             u.forEach(function(e, t) {
                                 Object.keys(e).forEach(function(n) {
-                                    e[n] = r._driver.computeStyle(t, n, Jb);
+                                    e[n] = r._driver.computeStyle(t, n, Xb);
                                 });
                             });
-                            var a = iw(
+                            var a = ow(
                                 l.map(function(e) {
                                     var t = u.get(e.element);
                                     return r._buildPlayer(e, {}, t);
@@ -35099,8 +35503,8 @@
                             return t;
                         }),
                         (e.prototype.listen = function(e, t, n, r) {
-                            var l = sw(t, '', '', '');
-                            return uw(this._getPlayer(e), n, l, r), function() {};
+                            var l = cw(t, '', '', '');
+                            return aw(this._getPlayer(e), n, l, r), function() {};
                         }),
                         (e.prototype.command = function(e, t, n, r) {
                             if ('register' != n)
@@ -35137,11 +35541,11 @@
                         e
                     );
                 })(),
-                xS = [],
-                ES = { namespaceId: '', setForRemoval: !1, setForMove: !1, hasAnimation: !1, removedBeforeQueried: !1 },
-                AS = { namespaceId: '', setForMove: !1, setForRemoval: !1, hasAnimation: !1, removedBeforeQueried: !0 },
-                PS = '__ng_removed',
-                TS = (function() {
+                ES = [],
+                AS = { namespaceId: '', setForRemoval: !1, setForMove: !1, hasAnimation: !1, removedBeforeQueried: !1 },
+                PS = { namespaceId: '', setForMove: !1, setForRemoval: !1, hasAnimation: !1, removedBeforeQueried: !0 },
+                TS = '__ng_removed',
+                OS = (function() {
                     function e(e, t) {
                         void 0 === t && (t = ''), (this.namespaceId = t);
                         var n = e && e.hasOwnProperty('value');
@@ -35151,7 +35555,7 @@
                             })(n ? e.value : e)),
                             n)
                         ) {
-                            var r = Tw(e);
+                            var r = Ow(e);
                             delete r.value, (this.options = r);
                         } else this.options = {};
                         this.options.params || (this.options.params = {});
@@ -35176,8 +35580,8 @@
                         e
                     );
                 })(),
-                OS = new TS('void'),
-                IS = (function() {
+                IS = new OS('void'),
+                MS = (function() {
                     function e(e, t, n) {
                         (this.id = e),
                             (this.hostElement = t),
@@ -35187,7 +35591,7 @@
                             (this._queue = []),
                             (this._elementListeners = new Map()),
                             (this._hostClassName = 'ng-tns-' + e),
-                            LS(t, this._hostClassName);
+                            BS(t, this._hostClassName);
                     }
                     return (
                         (e.prototype.listen = function(e, t, n, r) {
@@ -35213,12 +35617,12 @@
                                         t +
                                         '" is not supported!'
                                 );
-                            var o = cw(this._elementListeners, e, []),
+                            var o = pw(this._elementListeners, e, []),
                                 u = { name: t, phase: n, callback: r };
                             o.push(u);
-                            var a = cw(this._engine.statesByElement, e, {});
+                            var a = pw(this._engine.statesByElement, e, {});
                             return (
-                                a.hasOwnProperty(t) || (LS(e, 'ng-trigger'), LS(e, 'ng-trigger-' + t), (a[t] = OS)),
+                                a.hasOwnProperty(t) || (BS(e, 'ng-trigger'), BS(e, 'ng-trigger-' + t), (a[t] = IS)),
                                 function() {
                                     i._engine.afterFlush(function() {
                                         var e = o.indexOf(u);
@@ -35239,18 +35643,18 @@
                             var l = this;
                             void 0 === r && (r = !0);
                             var i = this._getTrigger(t),
-                                o = new DS(this.id, t, e),
+                                o = new RS(this.id, t, e),
                                 u = this._engine.statesByElement.get(e);
-                            u || (LS(e, 'ng-trigger'), LS(e, 'ng-trigger-' + t), this._engine.statesByElement.set(e, (u = {})));
+                            u || (BS(e, 'ng-trigger'), BS(e, 'ng-trigger-' + t), this._engine.statesByElement.set(e, (u = {})));
                             var a = u[t],
-                                s = new TS(n, this.id);
+                                s = new OS(n, this.id);
                             if (
                                 (!(n && n.hasOwnProperty('value')) && a && s.absorbOptions(a.options),
                                 (u[t] = s),
-                                a || (a = OS),
+                                a || (a = IS),
                                 'void' === s.value || a.value !== s.value)
                             ) {
-                                var c = cw(this._engine.playersByElement, e, []);
+                                var c = pw(this._engine.playersByElement, e, []);
                                 c.forEach(function(e) {
                                     e.namespaceId == l.id && e.triggerName == t && e.queued && e.destroy();
                                 });
@@ -35272,9 +35676,9 @@
                                         isFallbackTransition: h,
                                     }),
                                     h ||
-                                        (LS(e, 'ng-animate-queued'),
+                                        (BS(e, 'ng-animate-queued'),
                                         o.onStart(function() {
-                                            BS(e, 'ng-animate-queued');
+                                            zS(e, 'ng-animate-queued');
                                         })),
                                     o.onDone(function() {
                                         var t = l.players.indexOf(o);
@@ -35308,7 +35712,7 @@
                                 d.length
                                     ? this._engine.reportError(d)
                                     : this._engine.afterFlush(function() {
-                                          Rw(e, f), Dw(e, v);
+                                          Nw(e, f), Rw(e, v);
                                       });
                             }
                         }),
@@ -35340,7 +35744,7 @@
                             var r = this;
                             void 0 === n && (n = !1),
                                 this._engine.driver.query(e, '.ng-trigger', !0).forEach(function(e) {
-                                    if (!e[PS]) {
+                                    if (!e[TS]) {
                                         var n = r._engine.fetchNamespacesByElement(e);
                                         n.size
                                             ? n.forEach(function(n) {
@@ -35367,7 +35771,7 @@
                                     return (
                                         this._engine.markElementAsRemoved(this.id, e, !0, t),
                                         n &&
-                                            iw(o).onDone(function() {
+                                            ow(o).onDone(function() {
                                                 return l._engine.processLeaveNode(e);
                                             }),
                                         !0
@@ -35385,9 +35789,9 @@
                                     if (!r.has(l)) {
                                         r.add(l);
                                         var i = t._triggers[l].fallbackTransition,
-                                            o = t._engine.statesByElement.get(e)[l] || OS,
-                                            u = new TS('void'),
-                                            a = new DS(t.id, l, e);
+                                            o = t._engine.statesByElement.get(e)[l] || IS,
+                                            u = new OS('void'),
+                                            a = new RS(t.id, l, e);
                                         t._engine.totalQueuedPlayers++,
                                             t._queue.push({
                                                 element: e,
@@ -35431,7 +35835,7 @@
                             }
                         }),
                         (e.prototype.insertNode = function(e, t) {
-                            LS(e, this._hostClassName);
+                            BS(e, this._hostClassName);
                         }),
                         (e.prototype.drainQueuedTransitions = function(e) {
                             var t = this,
@@ -35445,8 +35849,8 @@
                                         o &&
                                             o.forEach(function(t) {
                                                 if (t.name == r.triggerName) {
-                                                    var n = sw(i, r.triggerName, r.fromState.value, r.toState.value);
-                                                    (n._data = e), uw(r.player, t.phase, n, t.callback);
+                                                    var n = cw(i, r.triggerName, r.fromState.value, r.toState.value);
+                                                    (n._data = e), aw(r.player, t.phase, n, t.callback);
                                                 }
                                             }),
                                             l.markedForDestroy
@@ -35486,7 +35890,7 @@
                         e
                     );
                 })(),
-                MS = (function() {
+                DS = (function() {
                     function e(e, t, n) {
                         (this.bodyNode = e),
                             (this.driver = t),
@@ -35528,7 +35932,7 @@
                             configurable: !0,
                         }),
                         (e.prototype.createNamespace = function(e, t) {
-                            var n = new IS(e, t, this);
+                            var n = new MS(e, t, this);
                             return (
                                 t.parentNode
                                     ? this._balanceNamespaceList(n, t)
@@ -35587,15 +35991,15 @@
                             return t;
                         }),
                         (e.prototype.trigger = function(e, t, n, r) {
-                            if (RS(t)) {
+                            if (NS(t)) {
                                 var l = this._fetchNamespace(e);
                                 if (l) return l.trigger(t, n, r), !0;
                             }
                             return !1;
                         }),
                         (e.prototype.insertNode = function(e, t, n, r) {
-                            if (RS(t)) {
-                                var l = t[PS];
+                            if (NS(t)) {
+                                var l = t[TS];
                                 if (l && l.setForRemoval) {
                                     (l.setForRemoval = !1), (l.setForMove = !0);
                                     var i = this.collectedLeaveElements.indexOf(t);
@@ -35613,11 +36017,11 @@
                         }),
                         (e.prototype.markElementAsDisabled = function(e, t) {
                             t
-                                ? this.disabledNodes.has(e) || (this.disabledNodes.add(e), LS(e, 'ng-animate-disabled'))
-                                : this.disabledNodes.has(e) && (this.disabledNodes.delete(e), BS(e, 'ng-animate-disabled'));
+                                ? this.disabledNodes.has(e) || (this.disabledNodes.add(e), BS(e, 'ng-animate-disabled'))
+                                : this.disabledNodes.has(e) && (this.disabledNodes.delete(e), zS(e, 'ng-animate-disabled'));
                         }),
                         (e.prototype.removeNode = function(e, t, n, r) {
-                            if (RS(t)) {
+                            if (NS(t)) {
                                 var l = e ? this._fetchNamespace(e) : null;
                                 if ((l ? l.removeNode(t, r) : this.markElementAsRemoved(e, t, !1, r), n)) {
                                     var i = this.namespacesByHostElement.get(t);
@@ -35627,10 +36031,10 @@
                         }),
                         (e.prototype.markElementAsRemoved = function(e, t, n, r) {
                             this.collectedLeaveElements.push(t),
-                                (t[PS] = { namespaceId: e, setForRemoval: r, hasAnimation: n, removedBeforeQueried: !1 });
+                                (t[TS] = { namespaceId: e, setForRemoval: r, hasAnimation: n, removedBeforeQueried: !1 });
                         }),
                         (e.prototype.listen = function(e, t, n, r, l) {
-                            return RS(t) ? this._fetchNamespace(e).listen(t, n, r, l) : function() {};
+                            return NS(t) ? this._fetchNamespace(e).listen(t, n, r, l) : function() {};
                         }),
                         (e.prototype._buildInstruction = function(e, t, n, r, l) {
                             return e.transition.build(
@@ -35675,7 +36079,7 @@
                             var e = this;
                             return new Promise(function(t) {
                                 if (e.players.length)
-                                    return iw(e.players).onDone(function() {
+                                    return ow(e.players).onDone(function() {
                                         return t();
                                     });
                                 t();
@@ -35683,9 +36087,9 @@
                         }),
                         (e.prototype.processLeaveNode = function(e) {
                             var t = this,
-                                n = e[PS];
+                                n = e[TS];
                             if (n && n.setForRemoval) {
-                                if (((e[PS] = ES), n.namespaceId)) {
+                                if (((e[TS] = AS), n.namespaceId)) {
                                     this.destroyInnerAnimations(e);
                                     var r = this._fetchNamespace(n.namespaceId);
                                     r && r.clearElementCache(e);
@@ -35710,7 +36114,7 @@
                                 this.totalAnimations && this.collectedEnterElements.length)
                             )
                                 for (var r = 0; r < this.collectedEnterElements.length; r++)
-                                    LS(this.collectedEnterElements[r], 'ng-star-inserted');
+                                    BS(this.collectedEnterElements[r], 'ng-star-inserted');
                             if (this._namespaceList.length && (this.totalQueuedPlayers || this.collectedLeaveElements.length)) {
                                 var l = [];
                                 try {
@@ -35734,7 +36138,7 @@
                                 var i = this._whenQuietFns;
                                 (this._whenQuietFns = []),
                                     n.length
-                                        ? iw(n).onDone(function() {
+                                        ? ow(n).onDone(function() {
                                               i.forEach(function(e) {
                                                   return e();
                                               });
@@ -35751,7 +36155,7 @@
                         }),
                         (e.prototype._flushAnimations = function(e, t) {
                             var n = this,
-                                r = new lS(),
+                                r = new iS(),
                                 l = [],
                                 o = new Map(),
                                 u = [],
@@ -35765,18 +36169,18 @@
                             });
                             var d = this.bodyNode,
                                 f = Array.from(this.statesByElement.keys()),
-                                v = VS(f, this.collectedEnterElements),
+                                v = jS(f, this.collectedEnterElements),
                                 g = new Map(),
                                 m = 0;
                             v.forEach(function(e, t) {
                                 var n = 'ng-enter' + m++;
                                 g.set(t, n),
                                     e.forEach(function(e) {
-                                        return LS(e, n);
+                                        return BS(e, n);
                                     });
                             });
                             for (var y = [], b = new Set(), w = new Set(), S = 0; S < this.collectedLeaveElements.length; S++)
-                                (j = (V = this.collectedLeaveElements[S])[PS]) &&
+                                (j = (V = this.collectedLeaveElements[S])[TS]) &&
                                     j.setForRemoval &&
                                     (y.push(V),
                                     b.add(V),
@@ -35786,25 +36190,25 @@
                                           })
                                         : w.add(V));
                             var k = new Map(),
-                                _ = VS(f, Array.from(b));
+                                _ = jS(f, Array.from(b));
                             _.forEach(function(e, t) {
                                 var n = 'ng-leave' + m++;
                                 k.set(t, n),
                                     e.forEach(function(e) {
-                                        return LS(e, n);
+                                        return BS(e, n);
                                     });
                             }),
                                 e.push(function() {
                                     v.forEach(function(e, t) {
                                         var n = g.get(t);
                                         e.forEach(function(e) {
-                                            return BS(e, n);
+                                            return zS(e, n);
                                         });
                                     }),
                                         _.forEach(function(e, t) {
                                             var n = k.get(t);
                                             e.forEach(function(e) {
-                                                return BS(e, n);
+                                                return zS(e, n);
                                             });
                                         }),
                                         y.forEach(function(e) {
@@ -35816,7 +36220,7 @@
                                     var t = e.player,
                                         i = e.element;
                                     if ((C.push(t), n.collectedEnterElements.length)) {
-                                        var o = i[PS];
+                                        var o = i[TS];
                                         if (o && o.setForMove) return void t.destroy();
                                     }
                                     var c = !d || !n.driver.containsElement(d, i),
@@ -35828,20 +36232,20 @@
                                         if (c)
                                             return (
                                                 t.onStart(function() {
-                                                    return Rw(i, v.fromStyles);
+                                                    return Nw(i, v.fromStyles);
                                                 }),
                                                 t.onDestroy(function() {
-                                                    return Dw(i, v.toStyles);
+                                                    return Rw(i, v.toStyles);
                                                 }),
                                                 void l.push(t)
                                             );
                                         if (e.isFallbackTransition)
                                             return (
                                                 t.onStart(function() {
-                                                    return Rw(i, v.fromStyles);
+                                                    return Nw(i, v.fromStyles);
                                                 }),
                                                 t.onDestroy(function() {
-                                                    return Dw(i, v.toStyles);
+                                                    return Rw(i, v.toStyles);
                                                 }),
                                                 void l.push(t)
                                             );
@@ -35851,7 +36255,7 @@
                                             r.append(i, v.timelines),
                                             u.push({ instruction: v, player: t, element: i }),
                                             v.queriedElements.forEach(function(e) {
-                                                return cw(a, e, []).push(t);
+                                                return pw(a, e, []).push(t);
                                             }),
                                             v.preStyleProps.forEach(function(e, t) {
                                                 var n = Object.keys(e);
@@ -35895,19 +36299,19 @@
                                 l.forEach(function(e) {
                                     var t = e.element;
                                     n._getPreviousPlayers(t, !1, e.namespaceId, e.triggerName, null).forEach(function(e) {
-                                        cw(P, t, []).push(e), e.destroy();
+                                        pw(P, t, []).push(e), e.destroy();
                                     });
                                 });
                             var O = y.filter(function(e) {
-                                    return US(e, s, p);
+                                    return qS(e, s, p);
                                 }),
                                 I = new Map();
-                            FS(I, this.driver, w, p, Jb).forEach(function(e) {
-                                US(e, s, p) && O.push(e);
+                            VS(I, this.driver, w, p, Xb).forEach(function(e) {
+                                qS(e, s, p) && O.push(e);
                             });
                             var M = new Map();
                             v.forEach(function(e, t) {
-                                FS(M, n.driver, new Set(e), s, rw);
+                                VS(M, n.driver, new Set(e), s, lw);
                             }),
                                 O.forEach(function(e) {
                                     var t = I.get(e),
@@ -35925,7 +36329,7 @@
                                     if (h.has(t))
                                         return (
                                             i.onDestroy(function() {
-                                                return Dw(t, u.toStyles);
+                                                return Rw(t, u.toStyles);
                                             }),
                                             (i.disabled = !0),
                                             i.overrideTotalTime(u.totalTime),
@@ -35949,12 +36353,12 @@
                                     if ((i.setRealPlayer(d), a === N)) D.push(i);
                                     else {
                                         var f = n.playersByElement.get(a);
-                                        f && f.length && (i.parentPlayer = iw(f)), l.push(i);
+                                        f && f.length && (i.parentPlayer = ow(f)), l.push(i);
                                     }
                                 } else
-                                    Rw(t, u.fromStyles),
+                                    Nw(t, u.fromStyles),
                                         i.onDestroy(function() {
-                                            return Dw(t, u.toStyles);
+                                            return Rw(t, u.toStyles);
                                         }),
                                         R.push(i),
                                         h.has(t) && l.push(i);
@@ -35962,7 +36366,7 @@
                                 R.forEach(function(e) {
                                     var t = o.get(e.element);
                                     if (t && t.length) {
-                                        var n = iw(t);
+                                        var n = ow(t);
                                         e.setRealPlayer(n);
                                     }
                                 }),
@@ -35971,8 +36375,8 @@
                                 });
                             for (var F = 0; F < y.length; F++) {
                                 var V,
-                                    j = (V = y[F])[PS];
-                                if ((BS(V, 'ng-leave'), !j || !j.hasAnimation)) {
+                                    j = (V = y[F])[TS];
+                                if ((zS(V, 'ng-leave'), !j || !j.hasAnimation)) {
                                     var L = [];
                                     if (a.size) {
                                         var B = a.get(V);
@@ -35985,7 +36389,7 @@
                                     var H = L.filter(function(e) {
                                         return !e.destroyed;
                                     });
-                                    H.length ? zS(this, V, H) : this.processLeaveNode(V);
+                                    H.length ? US(this, V, H) : this.processLeaveNode(V);
                                 }
                             }
                             return (
@@ -36004,7 +36408,7 @@
                         }),
                         (e.prototype.elementContainsData = function(e, t) {
                             var n = !1,
-                                r = t[PS];
+                                r = t[TS];
                             return (
                                 r && r.setForRemoval && (n = !0),
                                 this.playersByElement.has(t) && (n = !0),
@@ -36050,7 +36454,7 @@
                                 s = function(e) {
                                     var r = e.element,
                                         l = r !== i,
-                                        a = cw(n, r, []);
+                                        a = pw(n, r, []);
                                     c._getPreviousPlayers(r, l, o, u, t.toState).forEach(function(e) {
                                         var t = e.getRealPlayer();
                                         t.beforeDestroy && t.beforeDestroy(), e.destroy(), a.push(e);
@@ -36068,7 +36472,7 @@
                                     if (r) throw r.error;
                                 }
                             }
-                            Rw(i, t.fromStyles);
+                            Nw(i, t.fromStyles);
                         }),
                         (e.prototype._buildAnimation = function(e, t, n, r, l, i) {
                             var o = this,
@@ -36080,19 +36484,19 @@
                                 h = t.timelines.map(function(t) {
                                     var h = t.element;
                                     c.add(h);
-                                    var d = h[PS];
-                                    if (d && d.removedBeforeQueried) return new tw(t.duration, t.delay);
+                                    var d = h[TS];
+                                    if (d && d.removedBeforeQueried) return new nw(t.duration, t.delay);
                                     var f,
                                         v,
                                         g = h !== a,
-                                        m = ((f = (n.get(h) || xS).map(function(e) {
+                                        m = ((f = (n.get(h) || ES).map(function(e) {
                                             return e.getRealPlayer();
                                         })),
                                         (v = []),
                                         (function e(t, n) {
                                             for (var r = 0; r < t.length; r++) {
                                                 var l = t[r];
-                                                l instanceof nw ? e(l.players, n) : n.push(l);
+                                                l instanceof rw ? e(l.players, n) : n.push(l);
                                             }
                                         })(f, v),
                                         v).filter(function(e) {
@@ -36100,16 +36504,16 @@
                                         }),
                                         y = l.get(h),
                                         b = i.get(h),
-                                        w = ow(0, o._normalizer, 0, t.keyframes, y, b),
+                                        w = uw(0, o._normalizer, 0, t.keyframes, y, b),
                                         S = o._buildPlayer(t, w, m);
                                     if ((t.subTimeline && r && p.add(h), g)) {
-                                        var k = new DS(e, u, h);
+                                        var k = new RS(e, u, h);
                                         k.setRealPlayer(S), s.push(k);
                                     }
                                     return S;
                                 });
                             s.forEach(function(e) {
-                                cw(o.playersByQueriedElement, e.element, []).push(e),
+                                pw(o.playersByQueriedElement, e.element, []).push(e),
                                     e.onDone(function() {
                                         return (function(e, t, n) {
                                             var r;
@@ -36127,18 +36531,18 @@
                                     });
                             }),
                                 c.forEach(function(e) {
-                                    return LS(e, 'ng-animating');
+                                    return BS(e, 'ng-animating');
                                 });
-                            var d = iw(h);
+                            var d = ow(h);
                             return (
                                 d.onDestroy(function() {
                                     c.forEach(function(e) {
-                                        return BS(e, 'ng-animating');
+                                        return zS(e, 'ng-animating');
                                     }),
-                                        Dw(a, t.toStyles);
+                                        Rw(a, t.toStyles);
                                 }),
                                 p.forEach(function(e) {
-                                    cw(r, e, []).push(d);
+                                    pw(r, e, []).push(d);
                                 }),
                                 d
                             );
@@ -36146,17 +36550,17 @@
                         (e.prototype._buildPlayer = function(e, t, n) {
                             return t.length > 0
                                 ? this.driver.animate(e.element, t, e.duration, e.delay, e.easing, n)
-                                : new tw(e.duration, e.delay);
+                                : new nw(e.duration, e.delay);
                         }),
                         e
                     );
                 })(),
-                DS = (function() {
+                RS = (function() {
                     function e(e, t, n) {
                         (this.namespaceId = e),
                             (this.triggerName = t),
                             (this.element = n),
-                            (this._player = new tw()),
+                            (this._player = new nw()),
                             (this._containsRealPlayer = !1),
                             (this._queuedCallbacks = {}),
                             (this.destroyed = !1),
@@ -36172,7 +36576,7 @@
                                 ((this._player = e),
                                 Object.keys(this._queuedCallbacks).forEach(function(n) {
                                     t._queuedCallbacks[n].forEach(function(t) {
-                                        return uw(e, n, void 0, t);
+                                        return aw(e, n, void 0, t);
                                     });
                                 }),
                                 (this._queuedCallbacks = {}),
@@ -36201,7 +36605,7 @@
                                 });
                         }),
                         (e.prototype._queueEvent = function(e, t) {
-                            cw(this._queuedCallbacks, e, []).push(t);
+                            pw(this._queuedCallbacks, e, []).push(t);
                         }),
                         (e.prototype.onDone = function(e) {
                             this.queued && this._queueEvent('done', e), this._player.onDone(e);
@@ -36249,36 +36653,36 @@
                         e
                     );
                 })();
-            function RS(e) {
+            function NS(e) {
                 return e && 1 === e.nodeType;
             }
-            function NS(e, t) {
+            function FS(e, t) {
                 var n = e.style.display;
                 return (e.style.display = null != t ? t : 'none'), n;
             }
-            function FS(e, t, n, r, l) {
+            function VS(e, t, n, r, l) {
                 var i = [];
                 n.forEach(function(e) {
-                    return i.push(NS(e));
+                    return i.push(FS(e));
                 });
                 var o = [];
                 r.forEach(function(n, r) {
                     var i = {};
                     n.forEach(function(e) {
                         var n = (i[e] = t.computeStyle(r, e, l));
-                        (n && 0 != n.length) || ((r[PS] = AS), o.push(r));
+                        (n && 0 != n.length) || ((r[TS] = PS), o.push(r));
                     }),
                         e.set(r, i);
                 });
                 var u = 0;
                 return (
                     n.forEach(function(e) {
-                        return NS(e, i[u++]);
+                        return FS(e, i[u++]);
                     }),
                     o
                 );
             }
-            function VS(e, t) {
+            function jS(e, t) {
                 var n = new Map();
                 if (
                     (e.forEach(function(e) {
@@ -36303,27 +36707,27 @@
                     n
                 );
             }
-            var jS = '$$classes';
-            function LS(e, t) {
+            var LS = '$$classes';
+            function BS(e, t) {
                 if (e.classList) e.classList.add(t);
                 else {
-                    var n = e[jS];
-                    n || (n = e[jS] = {}), (n[t] = !0);
+                    var n = e[LS];
+                    n || (n = e[LS] = {}), (n[t] = !0);
                 }
             }
-            function BS(e, t) {
+            function zS(e, t) {
                 if (e.classList) e.classList.remove(t);
                 else {
-                    var n = e[jS];
+                    var n = e[LS];
                     n && delete n[t];
                 }
             }
-            function zS(e, t, n) {
-                iw(n).onDone(function() {
+            function US(e, t, n) {
+                ow(n).onDone(function() {
                     return e.processLeaveNode(t);
                 });
             }
-            function US(e, t, n) {
+            function qS(e, t, n) {
                 var r = n.get(e);
                 if (!r) return !1;
                 var l = t.get(e);
@@ -36337,15 +36741,15 @@
                     !0
                 );
             }
-            var qS = (function() {
+            var HS = (function() {
                 function e(e, t, n) {
                     var r = this;
                     (this.bodyNode = e),
                         (this._driver = t),
                         (this._triggerCache = {}),
                         (this.onRemovalComplete = function(e, t) {}),
-                        (this._transitionEngine = new MS(e, t, n)),
-                        (this._timelineEngine = new CS(e, t, n)),
+                        (this._transitionEngine = new DS(e, t, n)),
+                        (this._timelineEngine = new xS(e, t, n)),
                         (this._transitionEngine.onRemovalComplete = function(e, t) {
                             return r.onRemovalComplete(e, t);
                         });
@@ -36356,7 +36760,7 @@
                             o = this._triggerCache[i];
                         if (!o) {
                             var u = [],
-                                a = Jw(this._driver, l, u);
+                                a = Xw(this._driver, l, u);
                             if (u.length)
                                 throw new Error(
                                     'The animation trigger "' +
@@ -36365,7 +36769,7 @@
                                         u.join('\n - ')
                                 );
                             (o = (function(e, t) {
-                                return new SS(e, t);
+                                return new kS(e, t);
                             })(r, a)),
                                 (this._triggerCache[i] = o);
                         }
@@ -36388,13 +36792,13 @@
                     }),
                     (e.prototype.process = function(e, t, n, r) {
                         if ('@' == n.charAt(0)) {
-                            var l = s(pw(n), 2);
+                            var l = s(hw(n), 2);
                             this._timelineEngine.command(l[0], t, l[1], r);
                         } else this._transitionEngine.trigger(e, t, n, r);
                     }),
                     (e.prototype.listen = function(e, t, n, r, l) {
                         if ('@' == n.charAt(0)) {
-                            var i = s(pw(n), 2);
+                            var i = s(hw(n), 2);
                             return this._timelineEngine.listen(i[0], t, i[1], l);
                         }
                         return this._transitionEngine.listen(e, t, n, r, l);
@@ -36415,15 +36819,15 @@
                     e
                 );
             })();
-            function HS(e, t) {
+            function KS(e, t) {
                 var n = null,
                     r = null;
                 return (
-                    Array.isArray(t) && t.length ? ((n = GS(t[0])), t.length > 1 && (r = GS(t[t.length - 1]))) : t && (n = GS(t)),
-                    n || r ? new KS(e, n, r) : null
+                    Array.isArray(t) && t.length ? ((n = WS(t[0])), t.length > 1 && (r = WS(t[t.length - 1]))) : t && (n = WS(t)),
+                    n || r ? new GS(e, n, r) : null
                 );
             }
-            var KS = (function() {
+            var GS = (function() {
                 function e(t, n, r) {
                     (this._element = t), (this._startStyles = n), (this._endStyles = r), (this._state = 0);
                     var l = e.initialStylesByElement.get(t);
@@ -36432,41 +36836,41 @@
                 return (
                     (e.prototype.start = function() {
                         this._state < 1 &&
-                            (this._startStyles && Dw(this._element, this._startStyles, this._initialStyles), (this._state = 1));
+                            (this._startStyles && Rw(this._element, this._startStyles, this._initialStyles), (this._state = 1));
                     }),
                     (e.prototype.finish = function() {
                         this.start(),
                             this._state < 2 &&
-                                (Dw(this._element, this._initialStyles),
-                                this._endStyles && (Dw(this._element, this._endStyles), (this._endStyles = null)),
+                                (Rw(this._element, this._initialStyles),
+                                this._endStyles && (Rw(this._element, this._endStyles), (this._endStyles = null)),
                                 (this._state = 1));
                     }),
                     (e.prototype.destroy = function() {
                         this.finish(),
                             this._state < 3 &&
                                 (e.initialStylesByElement.delete(this._element),
-                                this._startStyles && (Rw(this._element, this._startStyles), (this._endStyles = null)),
-                                this._endStyles && (Rw(this._element, this._endStyles), (this._endStyles = null)),
-                                Dw(this._element, this._initialStyles),
+                                this._startStyles && (Nw(this._element, this._startStyles), (this._endStyles = null)),
+                                this._endStyles && (Nw(this._element, this._endStyles), (this._endStyles = null)),
+                                Rw(this._element, this._initialStyles),
                                 (this._state = 3));
                     }),
                     (e.initialStylesByElement = new WeakMap()),
                     e
                 );
             })();
-            function GS(e) {
+            function WS(e) {
                 for (var t = null, n = Object.keys(e), r = 0; r < n.length; r++) {
                     var l = n[r];
-                    WS(l) && ((t = t || {})[l] = e[l]);
+                    QS(l) && ((t = t || {})[l] = e[l]);
                 }
                 return t;
             }
-            function WS(e) {
+            function QS(e) {
                 return 'display' === e || 'position' === e;
             }
-            var QS = 'animation',
-                ZS = 'animationend',
-                YS = (function() {
+            var ZS = 'animation',
+                YS = 'animationend',
+                JS = (function() {
                     function e(e, t, n, r, l, i, o) {
                         var u = this;
                         (this._element = e),
@@ -36497,24 +36901,24 @@
                                 this._fillMode +
                                 ' ' +
                                 this._name),
-                                (n = nk((e = this._element), '').trim()).length &&
+                                (n = rk((e = this._element), '').trim()).length &&
                                     ((function(e, t) {
                                         for (var n = 0; n < e.length; n++) ',' === e.charAt(n) && 0;
                                     })(n),
                                     (t = n + ', ' + t)),
-                                tk(e, '', t),
-                                ek(this._element, this._eventFn, !1),
+                                nk(e, '', t),
+                                tk(this._element, this._eventFn, !1),
                                 (this._startTime = Date.now());
                         }),
                         (e.prototype.pause = function() {
-                            JS(this._element, this._name, 'paused');
+                            XS(this._element, this._name, 'paused');
                         }),
                         (e.prototype.resume = function() {
-                            JS(this._element, this._name, 'running');
+                            XS(this._element, this._name, 'running');
                         }),
                         (e.prototype.setPosition = function(e) {
-                            var t = XS(this._element, this._name);
-                            (this._position = e * this._duration), tk(this._element, 'Delay', '-' + this._position + 'ms', t);
+                            var t = $S(this._element, this._name);
+                            (this._position = e * this._duration), nk(this._element, 'Delay', '-' + this._position + 'ms', t);
                         }),
                         (e.prototype.getPosition = function() {
                             return this._position;
@@ -36528,7 +36932,7 @@
                                 this.finish();
                         }),
                         (e.prototype.finish = function() {
-                            this._finished || ((this._finished = !0), this._onDoneFn(), ek(this._element, this._eventFn, !0));
+                            this._finished || ((this._finished = !0), this._onDoneFn(), tk(this._element, this._eventFn, !0));
                         }),
                         (e.prototype.destroy = function() {
                             var e, t, n, r;
@@ -36536,28 +36940,28 @@
                                 ((this._destroyed = !0),
                                 this.finish(),
                                 (t = this._name),
-                                (r = $S((n = nk((e = this._element), '').split(',')), t)) >= 0 &&
-                                    (n.splice(r, 1), tk(e, '', n.join(','))));
+                                (r = ek((n = rk((e = this._element), '').split(',')), t)) >= 0 &&
+                                    (n.splice(r, 1), nk(e, '', n.join(','))));
                         }),
                         e
                     );
                 })();
-            function JS(e, t, n) {
-                tk(e, 'PlayState', n, XS(e, t));
-            }
-            function XS(e, t) {
-                var n = nk(e, '');
-                return n.indexOf(',') > 0 ? $S(n.split(','), t) : $S([n], t);
+            function XS(e, t, n) {
+                nk(e, 'PlayState', n, $S(e, t));
             }
             function $S(e, t) {
+                var n = rk(e, '');
+                return n.indexOf(',') > 0 ? ek(n.split(','), t) : ek([n], t);
+            }
+            function ek(e, t) {
                 for (var n = 0; n < e.length; n++) if (e[n].indexOf(t) >= 0) return n;
                 return -1;
             }
-            function ek(e, t, n) {
-                n ? e.removeEventListener(ZS, t) : e.addEventListener(ZS, t);
+            function tk(e, t, n) {
+                n ? e.removeEventListener(YS, t) : e.addEventListener(YS, t);
             }
-            function tk(e, t, n, r) {
-                var l = QS + t;
+            function nk(e, t, n, r) {
+                var l = ZS + t;
                 if (null != r) {
                     var i = e.style[l];
                     if (i.length) {
@@ -36567,11 +36971,11 @@
                 }
                 e.style[l] = n;
             }
-            function nk(e, t) {
-                return e.style[QS + t];
+            function rk(e, t) {
+                return e.style[ZS + t];
             }
-            var rk = 'linear',
-                lk = (function() {
+            var lk = 'linear',
+                ik = (function() {
                     function e(e, t, n, r, l, i, o, u) {
                         (this.element = e),
                             (this.keyframes = t),
@@ -36586,7 +36990,7 @@
                             (this._started = !1),
                             (this.currentSnapshot = {}),
                             (this._state = 0),
-                            (this.easing = i || rk),
+                            (this.easing = i || lk),
                             (this.totalTime = r + l),
                             this._buildStyler();
                     }
@@ -36663,7 +37067,7 @@
                         }),
                         (e.prototype._buildStyler = function() {
                             var e = this;
-                            this._styler = new YS(
+                            this._styler = new JS(
                                 this.element,
                                 this.animationName,
                                 this._duration,
@@ -36689,7 +37093,7 @@
                             if (this.hasStarted()) {
                                 var n = this._state >= 3;
                                 Object.keys(this._finalStyles).forEach(function(r) {
-                                    'offset' != r && (t[r] = n ? e._finalStyles[r] : Kw(e.element, r));
+                                    'offset' != r && (t[r] = n ? e._finalStyles[r] : Gw(e.element, r));
                                 });
                             }
                             this.currentSnapshot = t;
@@ -36697,10 +37101,10 @@
                         e
                     );
                 })(),
-                ik = (function(e) {
+                ok = (function(e) {
                     function t(t, n) {
                         var r = e.call(this) || this;
-                        return (r.element = t), (r._startingStyles = {}), (r.__initialized = !1), (r._styles = kw(n)), r;
+                        return (r.element = t), (r._startingStyles = {}), (r.__initialized = !1), (r._styles = _w(n)), r;
                     }
                     return (
                         l(t, e),
@@ -36735,30 +37139,30 @@
                         }),
                         t
                     );
-                })(tw),
-                ok = (function() {
+                })(nw),
+                uk = (function() {
                     function e() {
                         (this._count = 0), (this._head = document.querySelector('head')), (this._warningIssued = !1);
                     }
                     return (
                         (e.prototype.validateStyleProperty = function(e) {
-                            return yw(e);
+                            return bw(e);
                         }),
                         (e.prototype.matchesElement = function(e, t) {
-                            return bw(e, t);
-                        }),
-                        (e.prototype.containsElement = function(e, t) {
                             return ww(e, t);
                         }),
+                        (e.prototype.containsElement = function(e, t) {
+                            return Sw(e, t);
+                        }),
                         (e.prototype.query = function(e, t, n) {
-                            return Sw(e, t, n);
+                            return kw(e, t, n);
                         }),
                         (e.prototype.computeStyle = function(e, t, n) {
                             return window.getComputedStyle(e)[t];
                         }),
                         (e.prototype.buildKeyframeElement = function(e, t, n) {
                             n = n.map(function(e) {
-                                return kw(e);
+                                return _w(e);
                             });
                             var r = '@keyframes ' + t + ' {\n',
                                 l = '';
@@ -36787,10 +37191,10 @@
                         (e.prototype.animate = function(e, t, n, r, l, i, o) {
                             void 0 === i && (i = []), o && this._notifyFaultyScrubber();
                             var u = i.filter(function(e) {
-                                    return e instanceof lk;
+                                    return e instanceof ik;
                                 }),
                                 a = {};
-                            Uw(n, r) &&
+                            qw(n, r) &&
                                 u.forEach(function(e) {
                                     var t = e.currentSnapshot;
                                     Object.keys(t).forEach(function(e) {
@@ -36808,13 +37212,13 @@
                                         }),
                                     t
                                 );
-                            })((t = qw(e, t, a)));
-                            if (0 == n) return new ik(e, s);
+                            })((t = Hw(e, t, a)));
+                            if (0 == n) return new ok(e, s);
                             var c = 'gen_css_kf_' + this._count++,
                                 p = this.buildKeyframeElement(e, c, t);
                             document.querySelector('head').appendChild(p);
-                            var h = HS(e, t),
-                                d = new lk(e, t, c, n, r, l, s, h);
+                            var h = KS(e, t),
+                                d = new ik(e, t, c, n, r, l, s, h);
                             return (
                                 d.onDestroy(function() {
                                     var e;
@@ -36834,7 +37238,7 @@
                         e
                     );
                 })(),
-                uk = (function() {
+                ak = (function() {
                     function e(e, t, n, r) {
                         (this.element = e),
                             (this.keyframes = t),
@@ -36954,7 +37358,7 @@
                                 t = {};
                             this.hasStarted() &&
                                 Object.keys(this._finalKeyframe).forEach(function(n) {
-                                    'offset' != n && (t[n] = e._finished ? e._finalKeyframe[n] : Kw(e.element, n));
+                                    'offset' != n && (t[n] = e._finished ? e._finalKeyframe[n] : Gw(e.element, n));
                                 }),
                                 (this.currentSnapshot = t);
                         }),
@@ -36968,23 +37372,23 @@
                         e
                     );
                 })(),
-                ak = (function() {
+                sk = (function() {
                     function e() {
-                        (this._isNativeImpl = /\{\s*\[native\s+code\]\s*\}/.test(sk().toString())),
-                            (this._cssKeyframesDriver = new ok());
+                        (this._isNativeImpl = /\{\s*\[native\s+code\]\s*\}/.test(ck().toString())),
+                            (this._cssKeyframesDriver = new uk());
                     }
                     return (
                         (e.prototype.validateStyleProperty = function(e) {
-                            return yw(e);
+                            return bw(e);
                         }),
                         (e.prototype.matchesElement = function(e, t) {
-                            return bw(e, t);
-                        }),
-                        (e.prototype.containsElement = function(e, t) {
                             return ww(e, t);
                         }),
+                        (e.prototype.containsElement = function(e, t) {
+                            return Sw(e, t);
+                        }),
                         (e.prototype.query = function(e, t, n) {
-                            return Sw(e, t, n);
+                            return kw(e, t, n);
                         }),
                         (e.prototype.computeStyle = function(e, t, n) {
                             return window.getComputedStyle(e)[t];
@@ -36999,34 +37403,34 @@
                             l && (u.easing = l);
                             var a = {},
                                 s = i.filter(function(e) {
-                                    return e instanceof uk;
+                                    return e instanceof ak;
                                 });
-                            Uw(n, r) &&
+                            qw(n, r) &&
                                 s.forEach(function(e) {
                                     var t = e.currentSnapshot;
                                     Object.keys(t).forEach(function(e) {
                                         return (a[e] = t[e]);
                                     });
                                 });
-                            var c = HS(
+                            var c = KS(
                                 e,
-                                (t = qw(
+                                (t = Hw(
                                     e,
                                     (t = t.map(function(e) {
-                                        return Ow(e, !1);
+                                        return Iw(e, !1);
                                     })),
                                     a
                                 ))
                             );
-                            return new uk(e, t, u, c);
+                            return new ak(e, t, u, c);
                         }),
                         e
                     );
                 })();
-            function sk() {
+            function ck() {
                 return ('undefined' != typeof window && void 0 !== window.document && Element.prototype.animate) || {};
             }
-            var ck = (function(e) {
+            var pk = (function(e) {
                     function t(t, n) {
                         var r = e.call(this) || this;
                         return (
@@ -37045,13 +37449,13 @@
                         (t.prototype.build = function(e) {
                             var t = this._nextAnimationId.toString();
                             this._nextAnimationId++;
-                            var n = Array.isArray(e) ? Xb(e) : e;
-                            return dk(this._renderer, null, t, 'register', [n]), new pk(t, this._renderer);
+                            var n = Array.isArray(e) ? $b(e) : e;
+                            return fk(this._renderer, null, t, 'register', [n]), new hk(t, this._renderer);
                         }),
                         t
                     );
-                })(Zb),
-                pk = (function(e) {
+                })(Yb),
+                hk = (function(e) {
                     function t(t, n) {
                         var r = e.call(this) || this;
                         return (r._id = t), (r._renderer = n), r;
@@ -37059,12 +37463,12 @@
                     return (
                         l(t, e),
                         (t.prototype.create = function(e, t) {
-                            return new hk(this._id, e, t || {}, this._renderer);
+                            return new dk(this._id, e, t || {}, this._renderer);
                         }),
                         t
                     );
-                })(Yb),
-                hk = (function() {
+                })(Jb),
+                dk = (function() {
                     function e(e, t, n, r) {
                         (this.id = e),
                             (this.element = t),
@@ -37080,7 +37484,7 @@
                         }),
                         (e.prototype._command = function(e) {
                             for (var t = [], n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-                            return dk(this._renderer, this.element, this.id, e, t);
+                            return fk(this._renderer, this.element, this.id, e, t);
                         }),
                         (e.prototype.onDone = function(e) {
                             this._listen('done', e);
@@ -37124,10 +37528,10 @@
                         e
                     );
                 })();
-            function dk(e, t, n, r, l) {
+            function fk(e, t, n, r, l) {
                 return e.setProperty(t, '@@' + n + ':' + r, l);
             }
-            var fk = (function() {
+            var vk = (function() {
                     function e(e, t, n) {
                         (this.delegate = e),
                             (this.engine = t),
@@ -37148,7 +37552,7 @@
                                 r = this.delegate.createRenderer(e, t);
                             if (!(e && t && t.data && t.data.animation)) {
                                 var l = this._rendererCache.get(r);
-                                return l || ((l = new vk('', r, this.engine)), this._rendererCache.set(r, l)), l;
+                                return l || ((l = new gk('', r, this.engine)), this._rendererCache.set(r, l)), l;
                             }
                             var i = t.id,
                                 o = t.id + '-' + this._currentId;
@@ -37158,7 +37562,7 @@
                                 t.data.animation.forEach(function(t) {
                                     return n.engine.registerTrigger(i, o, e, t.name, t);
                                 }),
-                                new gk(this, o, r, this.engine)
+                                new mk(this, o, r, this.engine)
                             );
                         }),
                         (e.prototype.begin = function() {
@@ -37203,7 +37607,7 @@
                         e
                     );
                 })(),
-                vk = (function() {
+                gk = (function() {
                     function e(e, t, n) {
                         (this.namespaceId = e),
                             (this.delegate = t),
@@ -37287,7 +37691,7 @@
                         e
                     );
                 })(),
-                gk = (function(e) {
+                mk = (function(e) {
                     function t(t, n, r, l) {
                         var i = e.call(this, n, r, l) || this;
                         return (i.factory = t), (i.namespaceId = n), i;
@@ -37334,27 +37738,27 @@
                         }),
                         t
                     );
-                })(vk),
-                mk = (function(e) {
+                })(gk),
+                yk = (function(e) {
                     function t(t, n, r) {
                         return e.call(this, t.body, n, r) || this;
                     }
                     return l(t, e), t;
-                })(qS);
-            function yk() {
-                return 'function' == typeof sk() ? new ak() : new ok();
-            }
+                })(HS);
             function bk() {
-                return new vS();
+                return 'function' == typeof ck() ? new sk() : new uk();
             }
-            function wk(e, t, n) {
-                return new fk(e, t, n);
+            function wk() {
+                return new gS();
             }
-            var Sk = new qe('AnimationModuleType'),
-                kk = (function() {
+            function Sk(e, t, n) {
+                return new vk(e, t, n);
+            }
+            var kk = new qe('AnimationModuleType'),
+                _k = (function() {
                     return function() {};
                 })(),
-                _k = Lu(zu, [ff], function(e) {
+                Ck = Lu(zu, [ff], function(e) {
                     return (function(e) {
                         for (var t = {}, n = [], r = !1, l = 0; l < e.length; l++) {
                             var i = e[l];
@@ -37365,7 +37769,7 @@
                         }
                         return { factory: null, providersByKey: t, providers: e, modules: n, isRoot: r };
                     })([
-                        ul(512, Tn, On, [[8, [yf, av, qg, Xg, mm, Pm, zm, ey, iy, yy, Qy, Qb]], [3, Tn], Mn]),
+                        ul(512, Tn, On, [[8, [yf, av, qg, Xg, mm, Pm, zm, ey, iy, by, Zy, Zb]], [3, Tn], Mn]),
                         ul(5120, ao, po, [[3, ao]]),
                         ul(4608, Za, Ya, [ao, [2, Qa]]),
                         ul(5120, ri, ho, [Mi]),
@@ -37386,18 +37790,18 @@
                         ul(4608, Ic, Ic, [Oc, Mi]),
                         ul(135680, Rc, Rc, [ds]),
                         ul(4608, zc, zc, [Ic, Rc, si]),
-                        ul(5120, Cw, yk, []),
-                        ul(5120, fS, bk, []),
-                        ul(4608, qS, mk, [ds, Cw, fS]),
-                        ul(5120, jn, wk, [zc, qS, Mi]),
+                        ul(5120, xw, bk, []),
+                        ul(5120, vS, wk, []),
+                        ul(4608, HS, yk, [ds, xw, vS]),
+                        ul(5120, jn, Sk, [zc, HS, Mi]),
                         ul(6144, Dc, null, [Rc]),
                         ul(4608, Bi, Bi, [Mi]),
                         ul(4608, Rv, Rv, []),
                         ul(4608, mg, mg, [Zi, Tn, Ze]),
                         ul(4608, Tg, Tg, [mg]),
                         ul(4608, Pf, Pf, []),
-                        ul(4608, Zb, ck, [jn, ds]),
-                        ul(4608, Py, Py, [[2, xy]]),
+                        ul(4608, Yb, pk, [jn, ds]),
+                        ul(4608, Ty, Ty, [[2, Ey]]),
                         ul(5120, Th, af, [Ld]),
                         ul(4608, Qd, Qd, []),
                         ul(6144, Gd, null, [Qd]),
@@ -37454,7 +37858,7 @@
                         ul(131584, Zi, Zi, [Mi, vi, Ze, Nt, Tn, ai]),
                         ul(1073742336, fo, fo, [Zi]),
                         ul(1073742336, wp, wp, [[3, wp]]),
-                        ul(1073742336, Oy, Oy, []),
+                        ul(1073742336, Iy, Iy, []),
                         ul(1073742336, fg, fg, []),
                         ul(1073742336, vg, vg, []),
                         ul(1024, Xd, lf, [[3, Ld]]),
@@ -37481,7 +37885,7 @@
                                         { path: 'app/:package', component: Km },
                                         { path: 'webview', component: ty },
                                         { path: 'device-files', component: oy },
-                                        { path: 'custom-levels', component: Uy },
+                                        { path: 'custom-levels', component: qy },
                                         { path: '**', component: ty },
                                     ],
                                 ];
@@ -37496,10 +37900,10 @@
                         ul(1073742336, wg, wg, []),
                         ul(1073742336, _g, _g, []),
                         ul(1073742336, If, If, []),
-                        ul(1073742336, kk, kk, []),
+                        ul(1073742336, _k, _k, []),
                         ul(1073742336, zu, zu, []),
                         ul(256, _n, !0, []),
-                        ul(256, Sk, 'BrowserAnimations', []),
+                        ul(256, kk, 'BrowserAnimations', []),
                     ]);
                 });
             (function() {
@@ -37507,7 +37911,7 @@
                 Ft = !1;
             })(),
                 yp()
-                    .bootstrapModuleFactory(_k)
+                    .bootstrapModuleFactory(Ck)
                     .catch(function(e) {
                         return console.error(e);
                     });

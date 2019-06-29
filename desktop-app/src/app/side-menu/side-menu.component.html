@@ -3,7 +3,7 @@
     <div class="menu-item" *ngFor="let repo of repoService.repos; let i = index" >
       <div class="menu-item-inner menu no-outline" mz-tooltip position="right"
            tooltip="{{repo.body.repo.description}}" routerLink="/apps/{{i}}">
-        <img class="menu-icon" src="{{repo.url}}icons/{{repo.icon}}" /><br />
+        <img class="menu-icon" src="{{repo.icon}}" /><br />
         <span class="menu-name">{{repo.name}}</span>
       </div>
     </div>

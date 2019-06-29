@@ -225,5 +225,8 @@ ipcMain.on('adb-command', (event, arg) => {
         case 'tcpip':
             adb.tcpip(arg.settings.serial, success, reject);
             break;
+        case 'setProperties':
+            adb.setProperties(arg.settings.serial, arg.settings.command, success, reject);
+            break;
     }
 });

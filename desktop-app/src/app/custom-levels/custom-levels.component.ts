@@ -42,10 +42,8 @@ export class CustomLevelsComponent implements OnInit {
     removeSong(id) {
         this.bsaberService.removeSong(id);
         this.bsaberService.getMySongs().then(() => this.bsaberService.saveJson(this.bsaberService.jSon));
-        this.bsaberService.jSon.packs.forEach(p => {
-            (p as any).levelIDs = p.levelIDs.filter(s => {
-                return s.id !== id;
-            });
+        this.bsaberService.jSon.packs.forEach((p: any) => {
+            p.levelIDs = p.levelIDs.filter(s => s.id !== id);
         });
     }
     ngOnInit() {
