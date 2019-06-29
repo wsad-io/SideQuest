@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AdbClientService, ConnectionStatus } from '../adb-client.service';
-import { AppService, FolderType, ThemeMode } from '../app.service';
+import { AppService, FolderType } from '../app.service';
 import { WebviewService } from '../webview.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
@@ -20,7 +20,6 @@ export class HeaderComponent implements OnInit {
   @ViewChild('syncSongsModal', { static: false }) syncSongsModal;
   @ViewChild('installAPKModal', { static: false }) installAPKModal;
   @ViewChild('autoFixModal', { static: false }) autoFixModal;
-  theme = ThemeMode;
   folder = FolderType;
   isMaximized: boolean;
   addrepoUrl: string = '';

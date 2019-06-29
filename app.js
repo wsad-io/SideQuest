@@ -17,10 +17,10 @@ function createWindow() {
     });
     if (process.env.NODE_ENV === 'dev') {
         mainWindow.loadURL('http://localhost:4200');
+        mainWindow.webContents.openDevTools();
     } else {
         mainWindow.loadFile('build/app/index.html');
     }
-    //mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });

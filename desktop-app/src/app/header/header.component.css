@@ -27,9 +27,9 @@
 }
 #browser-bar {
   position: absolute;
-  top: 90px;
-  left: 320px;
-  width: calc(100% - 340px);
+  top: 65px;
+  left: 400px;
+  width: calc(100% - 450px);
   -webkit-app-region: no-drag;
 }
 
@@ -40,7 +40,7 @@
 }
 .header {
   height: 160px;
-  background: transparent url(../../assets/images/bg-header.png) left bottom no-repeat;
+  background: #312249 url(../../assets/images/bg-header.png) left bottom no-repeat;
   position: relative;
   -webkit-user-select: none;
   border-top-right-radius: 12px;
@@ -51,7 +51,7 @@
 .header-title{
   position:absolute;
   top: 40px;
-  left: 135px;
+  left: 115px;
   font-size: 2.5rem;
   margin-top: 0.4em;
   margin-left: 1em;
@@ -62,7 +62,7 @@
   font-size: 0.9rem;
   position: absolute;
   top: 105px;
-  left: 175px;
+  left: 155px;
   color: #ffffff;
   font-family: 'PT Sans', sans-serif;
   -webkit-app-region: no-drag;
@@ -140,10 +140,11 @@
 .sync-songs,
 .sync-songs-now,
 .update-available,
-.beast-saber-buttons{
+.beast-saber-buttons,
+.back-webserver{
   position: absolute;
   top: 115px;
-  right: 15px;
+  right: 120px;
   text-decoration:none;
   -webkit-app-region: no-drag;
 }
@@ -168,11 +169,12 @@
   left: 15px;
 }
 .logo {
-  background: transparent url('../../assets/images/logo.png') center center no-repeat;
-  background-size: 85.47579298831386px 100px;
+  background: transparent url('../../assets/images/logo-large icony.png') center center no-repeat;
+  background-size: 100px 100px;
   width: 135px;
   height: 130px;
   -webkit-user-select: none;
-  -webkit-app-region: drag;
+  cursor: pointer;
   border-top-left-radius: 5px;
+  -webkit-app-region: no-drag;
 }

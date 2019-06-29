@@ -35,7 +35,7 @@ export class AdbClientService {
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService
     ) {
-        this.lastConnectionCheck = performance.now() - 1000; //-this.pollInterval;
+        this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
 
         this.adbResolves = {};
@@ -318,7 +318,6 @@ export class AdbClientService {
         this.spinnerService.setMessage('Installing Apk...<br>' + filePath);
         this.spinnerService.showLoader();
         return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
-            console.log(status);
             this.spinnerService.setMessage(
                 status.percent === 1
                     ? 'Installing Apk...<br>' + filePath

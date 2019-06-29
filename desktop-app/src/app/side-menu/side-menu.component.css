@@ -4,17 +4,17 @@
   position: absolute;
   left: 0;
   top: 160px;
-  background: #533a7e;
+  background: #312249;
   border-bottom-left-radius: 5px;
 }
 .menu-items {
-  height: calc(100% - 271px);
-  margin-top: 90px;
+  height: calc(100% - 224px);
+  margin-top: 43px;
   overflow: hidden;
   overflow-y: auto;
   border-bottom: 1px solid #afafaf;
   border-top: 1px solid #afafaf;
-  background: #1b112a;
+  background: #1b1129;
 }
 .menu-item a {
   color: white;
@@ -36,7 +36,7 @@
 .menu-item-video,
 .menu-item-files{
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   left: 0;
   width: 135px;
 }
@@ -46,8 +46,8 @@
   outline: none;
 }
 .menu-item-beat {
-  top: 0px;
-  height: 92px;
+  top: 0;
+  bottom:auto;
 }
 .menu-item-repo {
   bottom: 92px;

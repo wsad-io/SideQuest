@@ -65,13 +65,14 @@ export class RepoService {
                                 a = a.concat(
                                     repo.body.apps.map(app => {
                                         app.__package = repo.body.packages[app.packageName];
+                                        app.__repo = repo;
                                         return app;
                                     })
                                 );
                                 return a;
                             }, [])
                             .forEach(app => {
-                                this.allApps[app.packageName] = { name: app.name, icon: app.icon };
+                                this.allApps[app.packageName] = { name: app.name, icon: app.icon, repo: app.__repo };
                             });
                     });
             }
