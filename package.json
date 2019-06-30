@@ -35,6 +35,10 @@
                 "tar.xz"
             ]
         },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
         "files": [
             "build/**/*",
             "node_modules/**/*",
