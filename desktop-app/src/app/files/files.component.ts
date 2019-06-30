@@ -100,6 +100,13 @@ export class FilesComponent implements OnInit {
             files => this.uploadFilesFromList(files)
         );
     }
+    deleteFile(file) {
+        let path = this.appService.path.posix.join(this.currentPath, file.name);
+        this.adbService.adbCommand('shell', { serial: this.adbService.deviceSerial, command: 'rm ' + path }).then(() => {
+            this.open(this.currentPath);
+            this.statusService.showStatus('File Deleted!! ' + path);
+        });
+    }
     saveFile() {
         this.filesModal.closeModal();
         let savePath = this.appService.path.join(this.adbService.savePath, this.currentFile.name);

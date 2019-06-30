@@ -3,6 +3,8 @@ const fs = require('fs');
 const request = require('request');
 const progress = require('request-progress');
 const Readable = require('stream').Readable;
+const SetPropertiesCommand = require('./setproperties');
+
 module.exports = class ADB {
     setupAdb(adbPath) {
         if (this.client) return;
@@ -10,6 +12,7 @@ module.exports = class ADB {
             bin: adbPath,
         });
     }
+
     install(serial, path, isLocal, cb, scb, ecb) {
         if (!this.client) return ecb('Not connected.');
         this.client
@@ -84,6 +87,18 @@ module.exports = class ADB {
         this.client
             .listDevices()
             .then(cb)
+            .catch(e => ecb(e));
+    }
+    setProperties(serial, command, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .transport(serial)
+            .then(function(transport) {
+                return new SetPropertiesCommand(transport).execute(command);
+            })
+            // this.client
+            //     .setProperties(serial, command)
+            .then(res => cb(res))
             .catch(e => ecb(e));
     }
     getPackages(serial, cb, ecb) {

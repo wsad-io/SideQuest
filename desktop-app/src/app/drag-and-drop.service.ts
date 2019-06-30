@@ -55,6 +55,7 @@ export class DragAndDropService {
                         this.adbService.installLocalObb(filepath);
                     }
                 } else {
+                    this.spinnerService.hideLoader();
                     this.statusService.showStatus('Unrecognised File: ' + filepath, true);
                 }
             });

@@ -17,8 +17,9 @@ export const AppRoutes: Routes = [
   { path: 'tools', component: ToolsComponent },
   { path: 'apps/:index', component: SideQuestAppsComponent },
   { path: 'app/:index/:package', component: SideQuestDetailComponent },
+  { path: 'app/:package', component: SideQuestDetailComponent },
   { path: 'webview', component: WebviewComponent },
   { path: 'device-files', component: FilesComponent },
   { path: 'custom-levels', component: CustomLevelsComponent },
-  { path: '**', component: SideQuestAppsComponent },
+  { path: '**', component: WebviewComponent },
 ];

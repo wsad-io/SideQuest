@@ -1,11 +1,12 @@
 <app-song-pack-manager
-  [ngClass]="appService.getThemeCssClass('text')"
+  [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}"
   [packs]="(bsaberService.jSon?bsaberService.jSon.packs:[])"
   [songs]="bsaberService.songs" (addPack)="addPackModal.openModal()"
   (editPack)="addPack.name = $event.name;addPack.id = $event.id;addPack.coverImagePath = $event.coverImagePath;addPackModal.openModal()"
   (addPack)="addPackModal.openModal()"
   (saveJson)="bsaberService.saveJson(bsaberService.jSon)"
   (removeSong)="removeSong($event)"
+  (openSong)="openSongFolder($event)"
   (orderSongs)="orderSongs($event==='recent')">
 
 </app-song-pack-manager>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
-
+declare const process;
 export enum ConnectionStatus {
     CONNECTED,
     OFFLINE,
@@ -30,12 +30,14 @@ export class AdbClientService {
     deviceIp: string;
     wifiEnabled: boolean;
     wifiHost: string;
+    isBatteryCharging: boolean;
+    batteryLevel: number;
     constructor(
         public appService: AppService,
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService
     ) {
-        this.lastConnectionCheck = performance.now() - 1000; //-this.pollInterval;
+        this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
 
         this.adbResolves = {};
@@ -106,10 +108,15 @@ export class AdbClientService {
         return this.adbCommand('shell', {
             serial: this.deviceSerial,
             command: 'dumpsys package ' + packageName + ' | grep versionName',
-        }).then(res => {
-            let versionParts = res.split('=');
-            return versionParts.length ? versionParts[1] : '0.0.0.0';
-        });
+        })
+            .then(res => {
+                console.log(res);
+                let versionParts = res.split('=');
+                return versionParts.length ? versionParts[1] : '0.0.0.0';
+            })
+            .catch(e => {
+                this.statusService.showStatus(e.message ? e.message : e.toString(), true);
+            });
     }
     makeDirectory(dir) {
         return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + dir + '"' });
@@ -123,6 +130,7 @@ export class AdbClientService {
                 break;
             case ConnectionStatus.CONNECTED:
                 this.getPackages();
+                this.getBatteryLevel();
                 this.deviceStatusMessage = 'Connected';
                 break;
             case ConnectionStatus.DISCONNECTED:
@@ -190,6 +198,18 @@ export class AdbClientService {
         });
     }
     isAdbDownloaded() {
+        // let command = 'which adb';
+        // if (process.platform == 'win32') {
+        //     command = 'where adb';
+        // }
+        // try{
+        //
+        //   let stdout = this.appService.execSync(command);
+        //   if (this.doesFileExist(stdout)) {
+        //     this.adbPath = this.appService.path.dirname(stdout);
+        //     return true;
+        //   }
+        // }catch(e){}
         return this.doesFileExist(this.adbPath);
     }
 
@@ -212,7 +232,6 @@ export class AdbClientService {
         let url = 'https://dl.google.com/android/repository/platform-tools-latest-';
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Downloading/Extracting ADB...');
-        console.log('downloading adb');
         return new Promise((resolve, reject) => {
             this.appService
                 .downloadFile(url + 'windows.zip', url + 'linux.zip', url + 'darwin.zip', url => this.adbPath + '.zip')
@@ -317,11 +336,10 @@ export class AdbClientService {
         this.spinnerService.setMessage('Installing Apk...<br>' + filePath);
         this.spinnerService.showLoader();
         return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
-            console.log(status);
             this.spinnerService.setMessage(
                 status.percent === 1
                     ? 'Installing Apk...<br>' + filePath
-                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + 'MB'
+                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + '%'
             );
         })
             .then(r => {
@@ -606,6 +624,22 @@ export class AdbClientService {
                     }
                 });
             });
+        });
+    }
+    getBatteryLevel() {
+        this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
+            let batteryObject = {};
+            const batteyInfo = data.substring(data.indexOf('\n') + 1);
+            batteyInfo.split('\n ').forEach(element => {
+                let attribute = element.replace(/\s/g, '').split(':');
+                const matcher = /true|false|[0-9].{0,}/g;
+                if (attribute[1].match(matcher)) {
+                    attribute[1] = JSON.parse(attribute[1]);
+                }
+                Object.assign(batteryObject, { [attribute[0]]: attribute[1] });
+            });
+            this.isBatteryCharging = batteryObject['USBpowered'] || batteryObject['ACpowered'];
+            this.batteryLevel = batteryObject['level'];
         });
     }
 }

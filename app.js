@@ -17,10 +17,10 @@ function createWindow() {
     });
     if (process.env.NODE_ENV === 'dev') {
         mainWindow.loadURL('http://localhost:4200');
+        mainWindow.webContents.openDevTools();
     } else {
         mainWindow.loadFile('build/app/index.html');
     }
-    //mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
@@ -44,10 +44,10 @@ function createWindow() {
         }
     );
 
-    protocol.registerBufferProtocol(
+    protocol.registerStringProtocol(
         'sidequest',
         (request, callback) => {
-            console.log(request.url);
+            mainWindow.webContents.send('open-url', request.url);
         },
         error => {
             if (error) console.error('Failed to register protocol');
@@ -224,6 +224,9 @@ ipcMain.on('adb-command', (event, arg) => {
             break;
         case 'tcpip':
             adb.tcpip(arg.settings.serial, success, reject);
+            break;
+        case 'setProperties':
+            adb.setProperties(arg.settings.serial, arg.settings.command, success, reject);
             break;
     }
 });

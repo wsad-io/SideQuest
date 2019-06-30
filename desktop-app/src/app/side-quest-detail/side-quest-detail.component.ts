@@ -4,6 +4,7 @@ import { RepoService } from '../repo.service';
 import { JSONApp, JSONPackage, RepoItem } from '../repo-item/repo-item.component';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { AppService } from '../app.service';
+import { AdbClientService } from '../adb-client.service';
 
 @Component({
   selector: 'app-side-quest-detail',
@@ -19,11 +20,17 @@ export class SideQuestDetailComponent implements OnInit {
   appDescription:string;
   currentRepo:number = 0;
 
-  constructor(private route: ActivatedRoute,private repoService:RepoService,public appService:AppService,router:Router,private appRef:ChangeDetectorRef) {
+  constructor(private route: ActivatedRoute,
+              private repoService:RepoService,
+              public appService:AppService,
+              public adbService:AdbClientService,
+              router:Router,
+              private appRef:ChangeDetectorRef) {
+    this.appService.resetTop();
+    this.appService.showSearch = true;
     this.sub = router.events.subscribe((val) => {
       if (val instanceof NavigationEnd) {
         this.currentApp = this.route.snapshot.paramMap.get("package");
-        this.currentRepo = parseInt(this.route.snapshot.paramMap.get("index"))||0;
         appService.webService.isWebviewOpen = false;
       }
     });
@@ -36,15 +43,17 @@ export class SideQuestDetailComponent implements OnInit {
     if(this.sub)this.sub.unsubscribe();
   }
   getRepo(){
-    this.repo = <RepoItem>this.repoService.setCurrent(this.currentRepo);
-    if(!this.app&&this.repo&&this.repo.body.apps.length){
-      let apps = this.repoService.currentRepo.body.apps.filter(a=>a.packageName === this.currentApp);
-      if(apps.length){
-        this.app = apps[0];
-        this.package = this.repoService.currentRepo.body.packages[this.currentApp];
-        this.appService.setTitle(this.app.name);
-        this.appDescription = "<h4>"+this.app.name+"</h4><br>"+this.getAppSummary(this.app)+"<br><br>"+this.getLongMetaData(this.app);
-        this.appRef.detectChanges();
+    if(this.repoService.allApps[this.currentApp] && this.repoService.allApps[this.currentApp].repo){
+      this.repo = this.repoService.currentRepo = this.repoService.allApps[this.currentApp].repo;
+      if(!this.app&&this.repo&&this.repo.body.apps.length){
+        let apps = this.repoService.currentRepo.body.apps.filter(a=>a.packageName === this.currentApp);
+        if(apps.length){
+          this.app = apps[0];
+          this.package = this.repoService.currentRepo.body.packages[this.currentApp];
+          this.appService.setTitle(this.app.name);
+          this.appDescription = "<h4>"+this.app.name+"</h4><br>"+this.getAppSummary(this.app)+"<br><br>"+this.getLongMetaData(this.app);
+          this.appRef.detectChanges();
+        }
       }
     }
   }
@@ -122,5 +131,11 @@ export class SideQuestDetailComponent implements OnInit {
       }
     });
     return output;
+  }
+  uninstallApk(){
+    this.adbService.uninstallAPK(this.app.packageName).then(()=>{
+        this.app = null;
+        this.getRepo();
+    })
   }
 }

@@ -2,5 +2,8 @@ node_modules
 .idea
 platform-tools
 dist
-tmp
 /app
+desktop-app/sources/*.json
+tmp
+.DS_Store
+**/.DS_Store

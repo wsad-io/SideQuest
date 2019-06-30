@@ -13,7 +13,11 @@ export class RepoItemComponent implements OnInit {
     @Input('i') i: number;
     constructor(public repoService: RepoService, private appService: AppService, private statusService: StatusBarService) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        if (this.repo.icon.substr(0, 7) !== 'http://' && this.repo.icon.substr(0, 8) !== 'https://') {
+            this.repo.icon = this.repo.url + 'icons/' + this.repo.icon;
+        }
+    }
     deleteRepo() {
         this.repoService.deleteRepo(this.i);
         this.statusService.showStatus('Repo deleted OK!');
@@ -55,7 +59,8 @@ export interface JSONApp {
     packageName: string;
     lastUpdated: number;
     __package?: any;
-    __is_installed?:boolean;
+    __repo?: any;
+    __is_installed?: boolean;
 }
 export interface JSONPackage {
     added: number;

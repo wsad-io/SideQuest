@@ -38,6 +38,7 @@ export class PackagesComponent implements OnInit {
         this.appService.setTitle('Installed Apps');
         this.sub = router.events.subscribe(val => {
             if (val instanceof NavigationEnd) {
+              console.log(val.url);
                 let currentPackage = route.snapshot.paramMap.get('packageName');
                 if (currentPackage) {
                     this.currentPackage.package = currentPackage;

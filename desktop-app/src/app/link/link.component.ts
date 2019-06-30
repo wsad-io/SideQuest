@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AppService, ThemeMode } from '../app.service';
+import { AppService } from '../app.service';
 
 @Component({
   selector: 'app-link',
@@ -7,7 +7,6 @@ import { AppService, ThemeMode } from '../app.service';
   styleUrls: ['./link.component.css']
 })
 export class LinkComponent implements OnInit {
-  theme = ThemeMode;
   @Input('url') url:string;
   @Input('text') text:string;
   @Input('isDark') isDark:boolean;

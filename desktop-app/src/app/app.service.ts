@@ -3,10 +3,6 @@ import { LoadingSpinnerService } from './loading-spinner.service';
 import { WebviewService } from './webview.service';
 import { FilesComponent } from './files/files.component';
 declare let __dirname, process;
-export enum ThemeMode {
-    LIGHT,
-    DARK,
-}
 export enum FolderType {
     MAIN,
     ADB,
@@ -16,6 +12,7 @@ export enum FolderType {
     DATA_BACKUPS,
     QUEST_SABER_PATCH,
     APP_BACKUP,
+    SONG_FOLDER,
 }
 
 @Injectable({
@@ -46,10 +43,12 @@ export class AppService {
     md5: any;
     semver: any;
     exec: any;
+    execSync: any;
     titleEle: HTMLElement;
     webService: WebviewService;
-    currentTheme: ThemeMode = ThemeMode.DARK;
-    versionName: string = '0.4.1';
+    currentTheme: string = 'dark';
+    versionName: string = '0.4.2';
+    showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
         this.fs = (<any>window).require('fs');
@@ -67,10 +66,11 @@ export class AppService {
         this.nativeApp = this.electron.remote.app;
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
+        this.execSync = (<any>window).require('child_process').execSync;
         this.makeFolders().then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {
-            this.currentTheme = ThemeMode.LIGHT;
+            this.currentTheme = 'light';
         }
     }
 
@@ -109,17 +109,17 @@ export class AppService {
             this.titleEle.innerText = title;
         }
     }
-    isTheme(theme: ThemeMode) {
+    isTheme(theme: string) {
         return this.currentTheme === theme;
     }
-    setTheme(theme: ThemeMode) {
+    setTheme(theme: string) {
         this.currentTheme = theme;
-        localStorage.setItem('theme', theme === ThemeMode.DARK ? 'dark' : 'light');
+        localStorage.setItem('theme', theme === 'dark' ? 'dark' : 'light');
     }
     getThemeCssClass(prefix: string, isButton?: boolean) {
         let classes = {};
-        classes[prefix + '-dark-theme'] = this.isTheme(ThemeMode.DARK);
-        classes[prefix + '-light-theme'] = this.isTheme(ThemeMode.LIGHT);
+        classes[prefix + '-dark-theme'] = this.isTheme('dark');
+        classes[prefix + '-light-theme'] = this.isTheme('light');
         if (isButton || prefix === 'button') {
             classes['waves-dark'] = true;
             classes['waves-light'] = false;
@@ -151,6 +151,9 @@ export class AppService {
                 break;
             case FolderType.APP_BACKUP:
                 this.electron.shell.openItem(this.path.join(this.appData, 'backups', packageName));
+                break;
+            case FolderType.SONG_FOLDER:
+                this.electron.shell.openItem(this.path.join(this.appData, 'bsaber', packageName));
                 break;
         }
     }

@@ -64,7 +64,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
         BrowserModule,
         DragulaModule.forRoot(),
         FormsModule,
-        RouterModule.forRoot(AppRoutes),
+        RouterModule.forRoot(AppRoutes, { useHash: true }),
         MzTooltipModule,
         MzModalModule,
         MzButtonModule,

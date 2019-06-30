@@ -2,3 +2,9 @@
   position: fixed;
   top: 160px;
 }
+
+.drag-indicator{
+  font-size: 2rem;
+  line-height: 3rem;
+  vertical-align: middle;
+}

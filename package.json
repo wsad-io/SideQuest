@@ -1,6 +1,6 @@
 {
     "name": "SideQuest",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "A open app store for mobile android based VR devices such as the Levovo Mirage, Oculus Go, Oculus Quest, Vive Focus.",
     "repository": "https://github.com/the-expanse/SideQuest.git",
     "license": "MIT",
@@ -35,12 +35,17 @@
                 "tar.xz"
             ]
         },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
         "files": [
             "build/**/*",
             "node_modules/**/*",
             "package.json",
             "app.js",
-            "adbkit.js"
+            "adbkit.js",
+            "setproperties.js"
         ],
         "asarUnpack": [
           "build/**/*"
@@ -48,7 +53,7 @@
     },
     "husky": {
         "hooks": {
-            "pre-commit": "pretty-quick --staged",
+            "pre-commit": "pretty-quick --staged --pattern \"**/*.*(js|jsx|ts|tsx)\"",
             "post-commit": "git update-index -g"
         }
     },
@@ -77,6 +82,7 @@
         "wait-on": "^3.2.0"
     },
     "devDependencies": {
+        "@angular/cli": "^8.0.3",
         "electron": "^4.1.4",
         "electron-builder": "^20.43.0",
         "husky": "^2.3.0",

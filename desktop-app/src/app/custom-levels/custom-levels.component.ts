@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { AdbClientService } from '../adb-client.service';
 import { StatusBarService } from '../status-bar.service';
-import { AppService } from '../app.service';
+import { AppService, FolderType } from '../app.service';
 import { BsaberService, QuestSaberPatchPack } from '../bsaber.service';
 @Component({
     selector: 'app-custom-levels',
@@ -10,7 +10,7 @@ import { BsaberService, QuestSaberPatchPack } from '../bsaber.service';
     styleUrls: ['./custom-levels.component.css'],
 })
 export class CustomLevelsComponent implements OnInit {
-  @ViewChild('oldMacOsModal',{static:false}) oldMacOsModal;
+    @ViewChild('oldMacOsModal', { static: false }) oldMacOsModal;
     addPack: QuestSaberPatchPack;
     constructor(
         public spinnerService: LoadingSpinnerService,
@@ -33,19 +33,28 @@ export class CustomLevelsComponent implements OnInit {
             coverImagePath: this.bsaberService.defaultImage,
         };
     }
+    openSongFolder(id) {
+        let path = this.appService.path.join(this.appService.appData, 'bsaber', id);
+        if (this.appService.fs.existsSync(path)) {
+            this.appService.openFolder(FolderType.SONG_FOLDER, id);
+        }
+    }
     removeSong(id) {
         this.bsaberService.removeSong(id);
         this.bsaberService.getMySongs().then(() => this.bsaberService.saveJson(this.bsaberService.jSon));
+        this.bsaberService.jSon.packs.forEach((p: any) => {
+            p.levelIDs = p.levelIDs.filter(s => s.id !== id);
+        });
     }
     ngOnInit() {
         this.bsaberService.getMySongs().then(() => this.orderSongs(true));
-        this.bsaberService.hasBackup = this.bsaberService.backupExists();
+        //this.bsaberService.hasBackup = this.bsaberService.backupExists();
         this.changes.detectChanges();
         this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(info => {
-          this.bsaberService.beatSaberVersion = info.trim();
+            this.bsaberService.beatSaberVersion = info.trim();
         });
-        if(this.appService.os.platform() === 'darwin' && +this.appService.os.release().split('.')[0] < 16){
-          this.oldMacOsModal.openModal();
+        if (this.appService.os.platform() === 'darwin' && +this.appService.os.release().split('.')[0] < 16) {
+            this.oldMacOsModal.openModal();
         }
     }
     deletePack() {

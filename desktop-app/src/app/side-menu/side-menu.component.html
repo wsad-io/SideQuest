@@ -3,7 +3,7 @@
     <div class="menu-item" *ngFor="let repo of repoService.repos; let i = index" >
       <div class="menu-item-inner menu no-outline" mz-tooltip position="right"
            tooltip="{{repo.body.repo.description}}" routerLink="/apps/{{i}}">
-        <img class="menu-icon" src="{{repo.url}}icons/{{repo.icon}}" /><br />
+        <img class="menu-icon" src="{{repo.icon}}" /><br />
         <span class="menu-name">{{repo.name}}</span>
       </div>
     </div>
@@ -13,10 +13,17 @@
       class="menu-item-inner beat-menu side-sub-menu" routerLink="/webview"
       mz-tooltip
       position="right"
-      tooltip="Install APK files and Browse and install custom songs from www.bsaber.com and others."
+      tooltip="Browse the web to download songs, APK files and find info on new releases and upcoming events."
     >
-      <i class="material-icons browser-icon">public</i><br />
-      <span class="menu-name">Browser</span>
+
+      <div class="row no-margin" >
+        <div class="col s6 no-padding">
+          <i class="material-icons fixed-menu-icon">public</i>
+        </div>
+        <div class="col s6 no-padding icon-text">Web</div>
+      </div>
+      <!--<i class="material-icons browser-icon">public</i><br />-->
+      <!--<span class="menu-name">Browser</span>-->
     </div>
   </div>
 
@@ -28,7 +35,7 @@
     >
       <div class="row no-margin" >
         <div class="col s6 no-padding">
-          <i class="material-icons fixed-menu-icon">apps</i>
+          <i class="material-icons fixed-menu-icon">list</i>
         </div>
         <div class="col s6 no-padding icon-text">Repos</div>
       </div>
@@ -54,15 +61,15 @@
       mz-tooltip
       position="right"
       tooltip="Watch a great how-to video on how to use SideQuest."
-      (click)="videoModal.openModal()"
+      routerLink="/packages"
     >
       <div class="row no-margin">
         <div class="col s6 no-padding">
           <i class="material-icons fixed-menu-icon"
-          >ondemand_video</i
+          >apps</i
           >
         </div>
-        <div class="col s6 no-padding icon-text">How-To</div>
+        <div class="col s6 no-padding icon-text">Apps</div>
       </div>
     </div>
   </div>
@@ -70,15 +77,15 @@
     <div
       class="menu-item-inner setup-menu side-sub-menu"
       mz-tooltip
-      position="right" routerLink="/setup"
+      position="right" routerLink="/tools"
       tooltip="Setup developer mode. You should only have to do this once."
     >
       <div class="row no-margin">
         <div class="col s6 no-padding">
           <i class="material-icons fixed-menu-icon"
-          >done_all</i>
+          >build</i>
         </div>
-        <div class="col s6 no-padding icon-text">Setup</div>
+        <div class="col s6 no-padding icon-text">Tools</div>
       </div>
     </div>
   </div>
