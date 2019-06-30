@@ -21,7 +21,7 @@ export class HeaderComponent implements OnInit {
     @ViewChild('installAPKModal', { static: false }) installAPKModal;
     @ViewChild('autoFixModal', { static: false }) autoFixModal;
     folder = FolderType;
-    isMaximized: boolean;
+    isMaximized: boolean = false;
     addrepoUrl: string = '';
     colorA: string;
     colorB: string;
