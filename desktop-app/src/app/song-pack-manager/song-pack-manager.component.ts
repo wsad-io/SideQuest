@@ -15,6 +15,7 @@ export interface SongItem {
     _levelAuthorName?: string;
     _beatsPerMinute?: string;
     _difficultyBeatmapSets?: string[];
+    isValid: boolean;
 }
 @Component({
     selector: 'app-song-pack-manager',
