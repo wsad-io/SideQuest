@@ -58,7 +58,8 @@
         <li *ngFor="let song of songs;let i = index" class="collection-song avatar">
           <i class="material-icons cursor orange-text drag-indicator right" (click)="removeSong.emit(song.id)">close</i>
           <i class="material-icons cursor drag-indicator right" (click)="openSong.emit(song.id)">folder_open</i>
-          <i title="info.dat misses required keys" *ngIf="!song.isValid" class="material-icons red-text drag-indicator right">warning</i>
+          <i mz-tooltip tooltip="This song does not contain all information and may not work" position="right"
+             *ngIf="!song.isValid" class="material-icons red-text drag-indicator right">warning</i>
           <mz-checkbox-container class="right checkbox-container" *ngIf="checkboxChecked">
             <input mz-checkbox
                    [label]="'Select Song'"
