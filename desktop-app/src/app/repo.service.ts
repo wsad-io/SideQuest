@@ -57,7 +57,7 @@ export class RepoService {
                         .map((url, i) => this.addRepo(url, i))
                 )
                     .then(() => this.repos.sort((a, b) => a.order - b.order))
-                    .then(() => setTimeout(() => this.appRef.tick()))
+                    .then(() => setTimeout(() => this.appRef.tick(), 500))
                     .then(() => this.saveRepos())
                     .then(() => {
                         this.repos

@@ -17,6 +17,13 @@
     },
     "build": {
         "appId": "com.sidequestvr.app",
+        "publish": [
+            {
+                "provider": "github",
+                "owner": "the-expanse",
+                "repo": "SideQuest"
+            }
+        ],
         "mac": {
             "category": "public.app-category.utilities",
             "target": [
@@ -44,7 +51,7 @@
             "setproperties.js"
         ],
         "asarUnpack": [
-          "build/**/*"
+            "build/**/*"
         ]
     },
     "husky": {
@@ -67,6 +74,7 @@
         "adbkit": "^2.11.1",
         "concurrently": "^4.1.0",
         "cross-env": "^5.2.0",
+        "electron-updater": "^4.0.14",
         "express": "^4.17.1",
         "extract-zip": "^1.6.7",
         "md5": "^2.2.1",
