@@ -559,6 +559,7 @@ export class BsaberService {
                                 this.appService.fs.readFileSync(this.appService.path.join(fullpath, covername)).toString('base64'),
                             //'file://' +this.appService.path.join(fullpath, covername).replace(/\\/g, '/'),
                             created: this.appService.fs.statSync(this.appService.path.join(fullpath, covername)).mtime.getTime(),
+                            isValid: this.validateSong(songData),
                         };
                         song.name = song.name.replace(/\(.+?\)/g, '');
                         song.name = song.name.replace(/[^a-z0-9 -]+/gi, '');
@@ -611,6 +612,24 @@ export class BsaberService {
                     });
                 })
                 .pipe(this.appService.fs.createWriteStream(zipPath));
+        });
+    }
+
+    validateSong(song) {
+        const keys = [
+            '_version',
+            '_songName',
+            '_songSubName',
+            '_songAuthorName',
+            '_levelAuthorName',
+            '_beatsPerMinute',
+            '_songFilename',
+            '_coverImageFilename',
+            '_environmentName',
+            '_difficultyBeatmapSets',
+        ];
+        return keys.every(function(item) {
+            return song.hasOwnProperty(item);
         });
     }
 
