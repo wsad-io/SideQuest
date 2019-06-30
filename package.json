@@ -40,7 +40,8 @@
             "node_modules/**/*",
             "package.json",
             "app.js",
-            "adbkit.js"
+            "adbkit.js",
+            "setproperties.js"
         ],
         "asarUnpack": [
           "build/**/*"
