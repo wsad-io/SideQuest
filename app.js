@@ -16,7 +16,7 @@ function createWindow() {
         },
     });
     if (process.env.NODE_ENV === 'dev') {
-        mainWindow.loadURL('http://localhost:4200');
+        mainWindow.loadURL('http://localhost:4205');
         mainWindow.webContents.openDevTools();
     } else {
         mainWindow.loadFile('build/app/index.html');
@@ -209,6 +209,9 @@ ipcMain.on('adb-command', (event, arg) => {
             break;
         case 'uninstall':
             adb.uninstall(arg.settings.serial, arg.settings.packageName, success, reject);
+            break;
+        case 'installRemote':
+            adb.installRemote(arg.settings.serial, arg.settings.path, success, reject);
             break;
         case 'clear':
             adb.clear(arg.settings.serial, arg.settings.packageName, success, reject);

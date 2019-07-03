@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
+import { RepoBody } from './repo-item/repo-item.component';
+import { HttpClient } from '@angular/common/http';
+import { BsaberService } from './bsaber.service';
+import { BeatOnService } from './beat-on.service';
 declare const process;
 export enum ConnectionStatus {
     CONNECTED,
@@ -35,7 +39,8 @@ export class AdbClientService {
     constructor(
         public appService: AppService,
         private spinnerService: LoadingSpinnerService,
-        private statusService: StatusBarService
+        private statusService: StatusBarService,
+        private beatonService: BeatOnService
     ) {
         this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
@@ -44,6 +49,7 @@ export class AdbClientService {
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
     }
+
     installFile(filepath) {
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Installing...');
@@ -110,7 +116,6 @@ export class AdbClientService {
             command: 'dumpsys package ' + packageName + ' | grep versionName',
         })
             .then(res => {
-                console.log(res);
                 let versionParts = res.split('=');
                 return versionParts.length ? versionParts[1] : '0.0.0.0';
             })
@@ -121,7 +126,7 @@ export class AdbClientService {
     makeDirectory(dir) {
         return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + dir + '"' });
     }
-    updateConnectedStatus(status: ConnectionStatus) {
+    async updateConnectedStatus(status: ConnectionStatus) {
         this.deviceStatus = status;
         document.getElementById('connection-status').className = 'connection-status-' + status;
         switch (status) {
@@ -130,8 +135,10 @@ export class AdbClientService {
                 break;
             case ConnectionStatus.CONNECTED:
                 this.getPackages();
-                this.getBatteryLevel();
-                this.deviceStatusMessage = 'Connected';
+                await this.getBatteryLevel();
+                await this.getIpAddress();
+                await this.beatonService.checkIsBeatOnRunning(this);
+                this.deviceStatusMessage = 'Connected -  Wifi IP: ' + this.deviceIp + ', Battery: ' + this.batteryLevel + '% ';
                 break;
             case ConnectionStatus.DISCONNECTED:
                 this.deviceStatusMessage = 'Disconnected: Connect/Reconnect your headset via USB';
@@ -626,8 +633,8 @@ export class AdbClientService {
             });
         });
     }
-    getBatteryLevel() {
-        this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
+    async getBatteryLevel() {
+        return this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
             let batteryObject = {};
             const batteyInfo = data.substring(data.indexOf('\n') + 1);
             batteyInfo.split('\n ').forEach(element => {

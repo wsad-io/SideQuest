@@ -12,7 +12,13 @@ module.exports = class ADB {
             bin: adbPath,
         });
     }
-
+    installRemote(serial, path, cb, ecb) {
+        if (!this.client) return ecb('Not connected.');
+        this.client
+            .installRemote(serial, path)
+            .then(cb)
+            .catch(e => ecb(e));
+    }
     install(serial, path, isLocal, cb, scb, ecb) {
         if (!this.client) return ecb('Not connected.');
         this.client

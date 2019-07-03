@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
-import { AdbClientService } from './adb-client.service';
+import { AdbClientService, ConnectionStatus } from './adb-client.service';
 import { StatusBarService } from './status-bar.service';
 import { SongItem } from './song-pack-manager/song-pack-manager.component';
 import { LoadingSpinnerService } from './loading-spinner.service';
+import { HttpClient } from '@angular/common/http';
 declare let __dirname, process;
 enum OrderType {
     NAME,
@@ -104,6 +105,7 @@ export class BsaberService {
             localStorage.setItem('beat-saber-version', JSON.stringify(this.supportedBeatSaberVersions));
         }
     }
+
     async getBSandQSPVersions() {
         const jsonUrl = 'https://raw.githubusercontent.com/the-expanse/SideQuest/master/vendor_versions.txt';
         return new Promise((resolve, reject) => {

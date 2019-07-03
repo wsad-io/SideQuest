@@ -32,6 +32,8 @@ import { FilesComponent } from './files/files.component';
 import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
 import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.component';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { BeatOnComponent } from './beat-on/beat-on.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
     declarations: [
@@ -59,6 +61,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
         FilesComponent,
         CustomLevelsComponent,
         SongPackManagerComponent,
+        BeatOnComponent,
     ],
     imports: [
         BrowserModule,
@@ -68,9 +71,10 @@ import { ColorPickerModule } from 'ngx-color-picker';
         MzTooltipModule,
         MzModalModule,
         MzButtonModule,
-      MzCheckboxModule,
-      ColorPickerModule,
-      BrowserAnimationsModule,
+        HttpClientModule,
+        MzCheckboxModule,
+        ColorPickerModule,
+        BrowserAnimationsModule,
     ],
     providers: [],
     bootstrap: [AppComponent],
