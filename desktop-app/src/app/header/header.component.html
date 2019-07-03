@@ -340,7 +340,7 @@
         <div class="row">
           <div class="col s4 left-align padding-top">
             <div *ngIf="beatonService.beatOnEnabled">
-              Beat On PID: {{beatonService.beatOnEnabled}}<br>
+              Beat On PID: {{beatonService.beatOnPID}}<br>
               <div *ngIf="beatonService.beatOnStatus">
                 Beat On Status: {{beatonService.beatOnStatus.CurrentStatus === 'ModInstalled' ? 'Installed' : 'Not Installed'}}<br>
                 Beat Saber Installed: {{beatonService.beatOnStatus.IsBeatSaberInstalled? 'Yes' : 'No'}}

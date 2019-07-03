@@ -2,9 +2,6 @@ import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
-import { RepoBody } from './repo-item/repo-item.component';
-import { HttpClient } from '@angular/common/http';
-import { BsaberService } from './bsaber.service';
 import { BeatOnService } from './beat-on.service';
 declare const process;
 export enum ConnectionStatus {

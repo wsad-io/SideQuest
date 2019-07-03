@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AdbClientService, ConnectionStatus } from './adb-client.service';
+import { AdbClientService } from './adb-client.service';
 import { HttpClient } from '@angular/common/http';
 import { LoadingSpinnerService } from './loading-spinner.service';
-import { BsaberService } from './bsaber.service';
-import { AppService } from './app.service';
 import { StatusBarService } from './status-bar.service';
 
 interface BeatOnStatus {
@@ -27,7 +25,8 @@ export enum SetupEventType {
     providedIn: 'root',
 })
 export class BeatOnService {
-    beatOnEnabled: string;
+    beatOnEnabled: boolean;
+    beatOnPID: string;
     websocket: WebSocket;
     beatOnStatus: BeatOnStatus = {
         CurrentStatus: '',
@@ -80,7 +79,10 @@ export class BeatOnService {
                 serial: adbService.deviceSerial,
                 command: 'pidof com.emulamer.beaton',
             })
-            .then(res => (this.beatOnEnabled = res))
+            .then(res => {
+                this.beatOnEnabled = !!res;
+                this.beatOnPID = res;
+            })
             .then(() => {
                 if (this.beatOnEnabled && adbService.deviceIp) {
                     return this.beatOnRequest(adbService, 'mod/status').then((body: BeatOnStatus) => {
