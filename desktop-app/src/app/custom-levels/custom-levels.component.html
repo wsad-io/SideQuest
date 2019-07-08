@@ -7,7 +7,8 @@
   (saveJson)="bsaberService.saveJson(bsaberService.jSon)"
   (removeSong)="removeSong($event)"
   (openSong)="openSongFolder($event)"
-  (orderSongs)="orderSongs($event==='recent')">
+  (orderSongs)="orderSongs($event==='recent')"
+(refreshSongs)="bsaberService.getMySongs()">
 
 </app-song-pack-manager>
 

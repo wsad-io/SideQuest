@@ -44,6 +44,7 @@ export class AppService {
     semver: any;
     exec: any;
     execSync: any;
+    uuidv4: any;
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
@@ -67,6 +68,7 @@ export class AppService {
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
         this.execSync = (<any>window).require('child_process').execSync;
+        this.uuidv4 = (<any>window).require('uuid/v4');
         this.makeFolders().then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {

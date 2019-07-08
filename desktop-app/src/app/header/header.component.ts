@@ -306,7 +306,7 @@ export class HeaderComponent implements OnInit {
             } else {
                 this.beatOnModal.closeModal();
                 await this.adbService.installAPK(
-                    'https://cdn.glitch.com/4a459494-5a13-473f-a92a-81290c1e78cc%2Fcom.emulamer.beaton.apk'
+                    'https://cdn.glitch.com/6f805e7a-5d34-4158-a46c-ed6e48e31393%2Fcom.emulamer.beaton.apk'
                 );
                 this.beatOnModal.openModal();
                 this.beatOnLoading = true;

@@ -166,17 +166,17 @@ const adb = new ADB();
 ipcMain.on('adb-command', (event, arg) => {
     const success = d => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, resp: d });
+            event.sender.send('adb-command', { command: arg.command, resp: d, uuid: arg.uuid });
         }
     };
     const reject = e => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, error: e });
+            event.sender.send('adb-command', { command: arg.command, error: e, uuid: arg.uuid });
         }
     };
     const status = d => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, status: d });
+            event.sender.send('adb-command', { command: arg.command, status: d, uuid: arg.uuid });
         }
     };
     switch (arg.command) {

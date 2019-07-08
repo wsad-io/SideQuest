@@ -213,7 +213,7 @@ export class BsaberService {
         }
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Downloading/Extracting songe-converter...');
-        return new Promise((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.appService
                 .downloadFile(url + '.exe', url, url + '-mac', downloadUrl => {
                     let urlParts = downloadUrl.split('/');

@@ -84,14 +84,6 @@
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
       position="bottom"
-      tooltip="Refresh the songs in this list." (click)="bsaberService.getMySongs()">
-      Refresh Songs
-    </div>
-    &nbsp;&nbsp;
-    <div
-      class="waves-effect waves-light btn small-button pink-button"
-      mz-tooltip
-      position="bottom"
       tooltip="Open your custom levels folder." (click)="appService.openFolder(folder.BSABER)">
       Open Songs Folder
     </div>
@@ -102,6 +94,14 @@
       position="bottom"
       tooltip="Manage your APK and Data backups." routerLink="packages/com.beatgames.beatsaber">
       Backups
+    </div>
+    &nbsp;&nbsp;
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Sync your songs to beat saber." (click)="beatonService.setupBeatOnSocket(this.adbService);beatonService.syncSongs(adbService)">
+      Sync to Beat On
     </div>
     &nbsp;&nbsp;
     <div
@@ -325,7 +325,13 @@
 
 <mz-modal #beatOnModal [fixedFooter]="true">
   <mz-modal-header>
-    <h4>BeatOn</h4>
+    <h4>
+      <a class="small-button waves-effect waves-light btn search-button-margin pink-button right"
+         (click)="appService.opn('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CRKPPSJ4MUS3J&source=url')">
+        Support BeatOn on Paypal
+      </a>
+      BeatOn
+    </h4>
   </mz-modal-header>
   <mz-modal-content>
     <div class="center-align">

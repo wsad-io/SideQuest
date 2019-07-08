@@ -177,9 +177,10 @@ export class AdbClientService {
             });
     }
     adbCommand(command: string, settings?, callback?) {
+        const uuid = this.appService.uuidv4();
         return new Promise<any>((resolve, reject) => {
-            this.adbResolves[command] = { resolve, reject, callback };
-            this.appService.electron.ipcRenderer.send('adb-command', { command, settings });
+            this.adbResolves[uuid] = { resolve, reject, callback };
+            this.appService.electron.ipcRenderer.send('adb-command', { command, settings, uuid });
         });
     }
     async setupAdb() {
@@ -187,13 +188,13 @@ export class AdbClientService {
             await this.downloadTools();
         }
         this.appService.electron.ipcRenderer.on('adb-command', (event, arg: any) => {
-            if (this.adbResolves[arg.command]) {
-                if (arg.status && this.adbResolves[arg.command].callback) {
-                    this.adbResolves[arg.command].callback(arg.status);
+            if (this.adbResolves[arg.uuid]) {
+                if (arg.status && this.adbResolves[arg.uuid].callback) {
+                    this.adbResolves[arg.uuid].callback(arg.status);
                 } else if (arg.error) {
-                    this.adbResolves[arg.command].reject(arg.error);
+                    this.adbResolves[arg.uuid].reject(arg.error);
                 } else {
-                    this.adbResolves[arg.command].resolve(arg.resp);
+                    this.adbResolves[arg.uuid].resolve(arg.resp);
                 }
             }
         });

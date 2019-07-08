@@ -30,8 +30,8 @@ export class AppComponent {
     ) {}
     ngOnInit() {
         this.bsaberSerivce
-            .downloadQSP()
-            .then(() => <Promise<void>>this.bsaberSerivce.downloadConverterBinary())
+            .downloadConverterBinary()
+            .then(() => this.bsaberSerivce.downloadQSP())
             .then(() => this.adbService.setupAdb())
             .then(() => this.adbService.connectedStatus())
             .then(() => this.bsaberSerivce.getMySongs())

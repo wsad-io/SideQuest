@@ -3,6 +3,7 @@ import { AdbClientService } from './adb-client.service';
 import { HttpClient } from '@angular/common/http';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
+import { AppService } from './app.service';
 
 interface BeatOnStatus {
     CurrentStatus: string;
@@ -33,7 +34,12 @@ export class BeatOnService {
         IsBeatSaberInstalled: false,
     };
 
-    constructor(private http: HttpClient, private spinnerService: LoadingSpinnerService, private statusService: StatusBarService) {}
+    constructor(
+        private http: HttpClient,
+        private spinnerService: LoadingSpinnerService,
+        private statusService: StatusBarService,
+        private appService: AppService
+    ) {}
     setupBeatOn(adbService: AdbClientService) {
         this.spinnerService.showLoader();
         return this.beatOnStep(adbService, '1')
@@ -91,6 +97,37 @@ export class BeatOnService {
                 }
             });
     }
+    async syncSongs(adbService: AdbClientService) {
+        this.spinnerService.setMessage('Restoring Backup...');
+        this.spinnerService.showLoader();
+        let packageBackupPath = this.appService.path.join(this.appService.appData, 'bsaber');
+        if (this.appService.fs.existsSync(packageBackupPath)) {
+            adbService.localFiles = [];
+            await adbService
+                .getLocalFoldersRecursive(packageBackupPath)
+                .then(() => {
+                    adbService.localFiles.forEach(file => {
+                        file.savePath = this.appService.path.posix.join(
+                            '/sdcard/BeatOnData/CustomSongs/',
+                            file.name
+                                .replace(packageBackupPath, '')
+                                .split('\\')
+                                .join('/')
+                        );
+                    });
+                    return adbService.uploadFile(adbService.localFiles.filter(f => f.__isFile));
+                })
+                .then(() =>
+                    this.http.post('http://' + adbService.deviceIp + ':50000/host/beatsaber/reloadsongfolders', '').toPromise()
+                )
+                .then(() => {
+                    setTimeout(() => {
+                        this.spinnerService.hideLoader();
+                        this.statusService.showStatus('Songs synced to Beat On OK!');
+                    }, 5000);
+                });
+        }
+    }
     setupBeatOnSocket(adbService: AdbClientService) {
         if (this.websocket != null && this.websocket.readyState === WebSocket.OPEN) {
             console.log('HostMessageService.openSocket called, but the connection is already open.');
@@ -108,8 +145,7 @@ export class BeatOnService {
             reader.onload = () => {
                 let msgStr = <string>reader.result;
                 let msgEvent: HostSetupEvent = JSON.parse(msgStr);
-                if (msgEvent.Type == 'SetupEvent') {
-                    console.log(msgStr);
+                if (msgEvent.Message) {
                     this.spinnerService.setMessage(msgEvent.Message);
                     //this.setupMessage.emit(<HostSetupEvent>msgEvent);
                     // } else if (msgEvent.Type == 'Toast') {

@@ -30,6 +30,7 @@ export class SongPackManagerComponent implements OnInit {
     @Output('removeSong') removeSong = new EventEmitter();
     @Output('orderSongs') orderSongs = new EventEmitter();
     @Output('openSong') openSong = new EventEmitter();
+    @Output('refreshSongs') refreshSongs = new EventEmitter();
     @ViewChild('song_container', { static: false }) song_container;
     @ViewChild('pack_container', { static: false }) pack_container;
     @ViewChild('mirror_holder', { static: false }) mirror_holder;

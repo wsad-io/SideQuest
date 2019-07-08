@@ -16,6 +16,9 @@ body {
     transform: rotate(360deg);
   }
 }
+.btn{
+  -webkit-app-region: no-drag;
+}
 .text-light-theme{
   color:#0d3349!important;;
   transition: color 350ms ease-out;
