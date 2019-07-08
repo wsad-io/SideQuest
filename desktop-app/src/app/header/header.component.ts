@@ -305,9 +305,20 @@ export class HeaderComponent implements OnInit {
                 await this.launchBeatOn();
             } else {
                 this.beatOnModal.closeModal();
-                await this.adbService.installAPK(
-                    'https://cdn.glitch.com/6f805e7a-5d34-4158-a46c-ed6e48e31393%2Fcom.emulamer.beaton.apk'
-                );
+                const beatOnApps = await fetch('https://api.github.com/repos/emulamer/BeatOn/releases/latest')
+                    .then(r => r.json())
+                    .then(r => {
+                        return r.assets
+                            .filter(a => {
+                                return a.name.split('.').pop() === 'apk';
+                            })
+                            .map(a => a.browser_download_url);
+                    });
+                for (let i = 0; i < beatOnApps.length; i++) {
+                    await this.adbService.installAPK(
+                        beatOnApps[i] //'https://cdn.glitch.com/6f805e7a-5d34-4158-a46c-ed6e48e31393%2Fcom.emulamer.beaton.apk'
+                    );
+                }
                 this.beatOnModal.openModal();
                 this.beatOnLoading = true;
                 setTimeout(() => {
