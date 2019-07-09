@@ -217,7 +217,15 @@ export class AdbClientService {
         // }catch(e){}
         return this.doesFileExist(this.adbPath);
     }
-
+    setPermission(packageName: string, permission: string) {
+        return this.adbCommand('shell', {
+            serial: this.adbService.deviceSerial,
+            command: 'pm grant ' + packageName + ' ' + permission,
+        }).then(r => {
+            console.log(r);
+            this.statusService.showStatus('Permission set OK!!');
+        });
+    }
     doesFileExist(path) {
         try {
             return this.appService.fs.existsSync(path);

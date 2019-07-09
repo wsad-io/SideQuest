@@ -57,8 +57,13 @@ export class BeatOnService {
                                 serial: adbService.deviceSerial,
                                 path: '/sdcard/Android/data/com.emulamer.beaton/cache/beatsabermod.apk',
                             })
-                            .then(r => {
-                                console.log(r);
+                            .then(() =>
+                                adbService.setPermission('com.beatgame.beatsaber', 'android.permission.WRITE_EXTERNAL_STORAGE')
+                            )
+                            .then(() =>
+                                adbService.setPermission('com.beatgame.beatsaber', 'android.permission.READ_EXTERNAL_STORAGE')
+                            )
+                            .then(() => {
                                 this.spinnerService.hideLoader();
                                 this.statusService.showStatus('Beat On Installed!');
                             })

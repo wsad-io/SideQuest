@@ -1,6 +1,6 @@
 <div class="header">
   <div class="topper"></div>
-  <div class="logo no-outline" (click)="webService.webView.loadURL('http://localhost:4201');" routerLink="webview"></div>
+  <div class="logo no-outline" (click)="webService.webView.loadURL('https://sidequestvr.com');" routerLink="webview"></div>
   <div class="header-title" #header>SideQuest</div>
   <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
   <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this window to install!</div>
@@ -17,7 +17,7 @@
   <div class="title-menu-container">
     <img mz-tooltip (click)="this.bsaberService.hasBackup = this.bsaberService.backupExists();beatonService.setupBeatOnSocket(this.adbService);beatOnModal.openModal();"
          class="material-icons no-outline beaton-icon"
-         src="{{beatonService.beatOnEnabled?'../assets/images/beaton.png':'../assets/images/beatoff.png'}}"
+         src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"
          position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>
 
     <i mz-tooltip *ngIf="false" (click)="wifiModal.openModal()" class="material-icons no-outline" [ngClass]="{'green-text':adbService.wifiEnabled,'white-text':!adbService.wifiEnabled}" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
@@ -340,7 +340,7 @@
       <br>
       <br>
       <br>
-      <img class="cursor" src="{{beatonService.beatOnEnabled?'../assets/images/beaton.png':'../assets/images/beatoff.png'}}" (click)="beatonService.beatOnEnabled = !beatonService.beatOnEnabled;toggleBeatOn()"/>
+      <img class="cursor" src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}" (click)="beatonService.beatOnEnabled = !beatonService.beatOnEnabled;toggleBeatOn()"/>
       <br><app-loading-spinner-small *ngIf="beatOnLoading"></app-loading-spinner-small>
       <div>
         <div class="row">
