@@ -1,7 +1,7 @@
 # SideQuest
 
 
-[Latest Download](https://github.com/the-expanse/SideQuest/releases) | [Discord](https://discord.gg/pqUz9F7) | [Patreon](https://www.patreon.com/TheExpanseVR) | [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)
+[Latest Download](https://sidequestvr.com/#/download) | [Discord](https://discord.gg/pqUz9F7) | [Patreon](https://www.patreon.com/TheExpanseVR) | [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)
 
 ![Image](https://i.imgur.com/3Rcv2DC.png)
 
