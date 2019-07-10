@@ -219,7 +219,7 @@ export class AdbClientService {
     }
     setPermission(packageName: string, permission: string) {
         return this.adbCommand('shell', {
-            serial: this.adbService.deviceSerial,
+            serial: this.deviceSerial,
             command: 'pm grant ' + packageName + ' ' + permission,
         }).then(r => {
             console.log(r);

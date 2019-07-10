@@ -248,8 +248,14 @@ export class HeaderComponent implements OnInit {
             .adbCommand('shell', {
                 serial: this.adbService.deviceSerial,
                 command: 'am startservice com.emulamer.beaton/com.emulamer.BeatOnService',
-                //'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"'
             })
+            .then(() =>
+                this.adbService.adbCommand('shell', {
+                    serial: this.adbService.deviceSerial,
+                    command:
+                        'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"',
+                })
+            )
             .then(r => {
                 this.beatonService.setupBeatOnSocket(this.adbService);
             });
