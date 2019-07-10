@@ -367,28 +367,28 @@
             <div *ngIf="beatonService.beatOnEnabled">
               <h5 *ngIf="!bsaberService.hasBackup && !beatonService.beatOnStatus.IsBeatSaberInstalled"> Please Install beat saber from the Oculus Store on your headset!</h5>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus === 'ModInstalled'">
-                <a class="waves-effect waves-light btn search-button-margin pink-button"
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                    (click)="beatOnModal.closeModal();webService.loadUrl('http://'+adbService.deviceIp+':50000');webService.isWebviewOpen = true">
-                  Open Beat On
+                  Open BeatOn
                 </a><br><br>
               </div>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus !== 'ModInstalled' && beatonService.beatOnStatus.IsBeatSaberInstalled">
-                <a class="waves-effect waves-light btn search-button-margin pink-button"
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                   (click)="beatonService.setupBeatOn(adbService);beatOnModal.closeModal();">
-                  Install Beat On
+                  Install BeatOn
                 </a><br><br>
               </div>
               <div *ngIf="bsaberService.hasBackup">
-                <a class="waves-effect waves-light btn search-button-margin pink-button"
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                    (click)="beatOnModal.closeModal();installBaseAPK()">
-                  Reset Beat saber
+                  Reset BeatSaber
                 </a><br><br>
               </div>
               <div *ngIf="!bsaberService.hasBackup && beatonService.beatOnStatus.IsBeatSaberInstalled">
-                <a class="waves-effect waves-light btn search-button-margin pink-button"
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                    (click)="beatOnModal.closeModal()"
                    routerLink="packages/com.beatgames.beatsaber">
-                  Backup Beat saber
+                  Backup BeatSaber
                 </a>
               </div>
             </div>

@@ -100,6 +100,9 @@ export class BeatOnService {
                         this.beatOnStatus = body;
                     });
                 }
+            })
+            .catch(e => {
+                this.statusService.showStatus(e.toString(), true);
             });
     }
     async syncSongs(adbService: AdbClientService) {

@@ -218,6 +218,7 @@ export class AppService {
                 })
                 .on('progress', state => {
                     this.spinnerService.setMessage('Downloading... ' + Math.round(state.percent * 100) + '%');
+                    this.spinnerService.spinner.changes.detectChanges();
                 })
                 .on('end', () => {
                     this.spinnerService.setMessage('Processing... <br>This might take 10 - 30 seconds.');

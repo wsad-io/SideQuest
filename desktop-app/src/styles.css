@@ -16,6 +16,9 @@ body {
     transform: rotate(360deg);
   }
 }
+.no-wrap{
+  white-space: nowrap;
+}
 .btn{
   -webkit-app-region: no-drag;
 }

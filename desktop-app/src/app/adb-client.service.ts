@@ -134,8 +134,8 @@ export class AdbClientService {
                 this.getPackages();
                 await this.getBatteryLevel();
                 await this.getIpAddress();
-                await this.beatonService.checkIsBeatOnRunning(this);
                 this.deviceStatusMessage = 'Connected -  Wifi IP: ' + this.deviceIp + ', Battery: ' + this.batteryLevel + '% ';
+                this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
                 this.deviceStatusMessage = 'Disconnected: Connect/Reconnect your headset via USB';

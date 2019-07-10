@@ -332,7 +332,9 @@ export class HeaderComponent implements OnInit {
                         if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
                             await this.setBeatOnPermission();
                             await this.launchBeatOn();
-                            this.beatOnLoading = false;
+                            setTimeout(() => {
+                                this.beatOnLoading = false;
+                            }, 3000);
                         } else {
                             this.statusService.showStatus('Could not launch Beat On. Please try again...', true);
                         }

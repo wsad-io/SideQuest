@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 
 @Injectable({
