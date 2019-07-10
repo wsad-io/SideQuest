@@ -437,11 +437,7 @@ export class AdbClientService {
         let f: any = files.shift();
         return this.adbCommand('push', { serial: this.deviceSerial, path: f.name, savePath: f.savePath }, stats => {
             this.spinnerService.setMessage(
-                'File uploading: ' +
-                    this.appService.path.basename(f.name) +
-                    ' <br>' +
-                    Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 +
-                    'MB'
+                'File uploading: ' + f.name + ' <br>' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB'
             );
         }).then(r => this.uploadFile(files));
     }
