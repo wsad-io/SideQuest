@@ -6,6 +6,7 @@ import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
 import { RepoService } from '../repo.service';
 import { BsaberService, QuestSaberPatchResponseJson } from '../bsaber.service';
+import { BeatOnService } from '../beat-on.service';
 interface ReplaceText {
     key: string;
     value: string;
@@ -20,11 +21,13 @@ export class HeaderComponent implements OnInit {
     @ViewChild('syncSongsModal', { static: false }) syncSongsModal;
     @ViewChild('installAPKModal', { static: false }) installAPKModal;
     @ViewChild('autoFixModal', { static: false }) autoFixModal;
+    @ViewChild('beatOnModal', { static: false }) beatOnModal;
     folder = FolderType;
     isMaximized: boolean = false;
     addrepoUrl: string = '';
     colorA: string;
     colorB: string;
+    beatOnLoading: boolean;
     replaceText: ReplaceText[] = [];
     addkey: string;
     addvalue: string;
@@ -36,7 +39,8 @@ export class HeaderComponent implements OnInit {
         public webService: WebviewService,
         public spinnerService: LoadingSpinnerService,
         public statusService: StatusBarService,
-        public repoService: RepoService
+        public repoService: RepoService,
+        public beatonService: BeatOnService
     ) {}
     ngOnInit() {}
     isConnected() {
@@ -183,8 +187,14 @@ export class HeaderComponent implements OnInit {
             .map(k => k + ':' + this.qspResponse.installSkipped[k])
             .join(', ');
     }
+    installAPK(name: string) {
+        return this.adbService.installAPK(this.appService.path.join(this.appService.appData, name), true, true);
+    }
     installPatchedAPK() {
-        this.adbService.installAPK(this.appService.path.join(this.appService.appData, 'bsaber-base_patched.apk'), true, true);
+        this.installAPK('bsaber-base_patched.apk');
+    }
+    installBaseAPK() {
+        this.installAPK('bsaber-base.apk');
     }
     removeText(text) {
         this.replaceText = this.replaceText.filter(d => d !== text);
@@ -232,5 +242,105 @@ export class HeaderComponent implements OnInit {
         this.bsaberService.hasBackup = this.bsaberService.backupExists();
         this.getReplaceAndColors();
         this.syncSongsModal.openModal();
+    }
+    launchBeatOn() {
+        return this.adbService
+            .adbCommand('shell', {
+                serial: this.adbService.deviceSerial,
+                command: 'am startservice com.emulamer.beaton/com.emulamer.BeatOnService',
+            })
+            .then(() =>
+                this.adbService.adbCommand('shell', {
+                    serial: this.adbService.deviceSerial,
+                    command:
+                        'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"',
+                })
+            )
+            .then(r => {
+                this.beatonService.setupBeatOnSocket(this.adbService);
+            });
+    }
+    setBeatOnPermission() {
+        return this.adbService
+            .adbCommand('shell', {
+                serial: this.adbService.deviceSerial,
+                command: 'pm grant com.emulamer.beaton android.permission.READ_EXTERNAL_STORAGE',
+            })
+            .then(r => {
+                console.log('here', r);
+            })
+            .then(() =>
+                this.adbService.adbCommand('shell', {
+                    serial: this.adbService.deviceSerial,
+                    command: 'pm grant com.emulamer.beaton android.permission.WRITE_EXTERNAL_STORAGE',
+                })
+            )
+            .then(r => {
+                console.log('here2', r);
+            });
+    }
+    async toggleBeatOn() {
+        if (!this.beatonService.beatOnEnabled) {
+            this.beatOnModal.closeModal();
+            this.spinnerService.showLoader();
+            this.spinnerService.setMessage('Closing app...');
+            this.adbService
+                .adbCommand('shell', {
+                    serial: this.adbService.deviceSerial,
+                    command: 'am force-stop com.oculus.tv',
+                })
+                .then(() =>
+                    this.adbService.adbCommand('shell', {
+                        serial: this.adbService.deviceSerial,
+                        command: 'am force-stop com.emulamer.beaton',
+                    })
+                )
+                .then(r => {})
+                .catch(e => {
+                    this.statusService.showStatus(e.toString(), true);
+                    this.spinnerService.hideLoader();
+                    return this.beatonService.checkIsBeatOnRunning(this.adbService);
+                });
+            setTimeout(() => {
+                this.statusService.showStatus('Beat On Disabled');
+                this.spinnerService.hideLoader();
+                return this.beatonService.checkIsBeatOnRunning(this.adbService);
+            }, 5000);
+        } else {
+            if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
+                await this.launchBeatOn();
+            } else {
+                this.beatOnModal.closeModal();
+                const beatOnApps = await fetch('https://api.github.com/repos/emulamer/BeatOn/releases/latest')
+                    .then(r => r.json())
+                    .then(r => {
+                        return r.assets
+                            .filter(a => {
+                                return a.name.split('.').pop() === 'apk';
+                            })
+                            .map(a => a.browser_download_url);
+                    });
+                for (let i = 0; i < beatOnApps.length; i++) {
+                    await this.adbService.installAPK(
+                        beatOnApps[i] //'https://cdn.glitch.com/6f805e7a-5d34-4158-a46c-ed6e48e31393%2Fcom.emulamer.beaton.apk'
+                    );
+                }
+                this.beatOnModal.openModal();
+                this.beatOnLoading = true;
+                setTimeout(() => {
+                    this.adbService.getPackages().then(async () => {
+                        if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
+                            await this.setBeatOnPermission();
+                            await this.launchBeatOn();
+                            setTimeout(() => {
+                                this.beatOnLoading = false;
+                            }, 3000);
+                        } else {
+                            this.statusService.showStatus('Could not launch Beat On. Please try again...', true);
+                        }
+                    });
+                }, 2000);
+            }
+        }
     }
 }

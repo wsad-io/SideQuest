@@ -46,6 +46,7 @@
     <div class="packs-right">
       <h4>
         <div class="right song-sort">
+          <i mz-tooltip tooltip="Refresh Songs" position="bottom" class="material-icons right cursor" (click)="refreshSongs.emit()">refresh</i>
           <i mz-tooltip tooltip="Sort by Recent" position="bottom" class="material-icons right cursor" (click)="orderSongs.emit('recent')">swap_vert</i>
           <i mz-tooltip tooltip="Sort Alphabetically" position="bottom" class="material-icons right cursor" (click)="orderSongs.emit('name')">sort</i>
           <i mz-tooltip tooltip="Select multiple songs to add to a pack" (click)="checkboxChecked = !checkboxChecked" position="bottom" class="material-icons right cursor">check_box</i>

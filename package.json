@@ -1,6 +1,6 @@
 {
     "name": "SideQuest",
-    "version": "0.4.2",
+    "version": "0.5.0",
     "description": "A open app store for mobile android based VR devices such as the Levovo Mirage, Oculus Go, Oculus Quest, Vive Focus.",
     "repository": "https://github.com/the-expanse/SideQuest.git",
     "license": "MIT",
@@ -8,7 +8,7 @@
     "main": "app.js",
     "scripts": {
         "concurrently": "concurrently",
-        "start": "concurrently \"wait-on http-get://localhost:4200/ && cross-env NODE_ENV=dev electron .\" \"cd desktop-app && ng serve\"",
+        "start": "concurrently \"wait-on http-get://localhost:4205/ && cross-env NODE_ENV=dev electron .\" \"cd desktop-app && ng serve --port 4205\"",
         "postinstall": "electron-builder install-app-deps && cd desktop-app && yarn install",
         "dist": "yarn app-build && electron-builder",
         "electron": "cross-env NODE_ENV=dev electron .",

@@ -44,10 +44,11 @@ export class AppService {
     semver: any;
     exec: any;
     execSync: any;
+    uuidv4: any;
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.4.2';
+    versionName: string = '0.5.0';
     showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
@@ -67,6 +68,7 @@ export class AppService {
         this.appData = this.path.join(this.nativeApp.getPath('appData'), 'SideQuest');
         this.exec = (<any>window).require('child_process').exec;
         this.execSync = (<any>window).require('child_process').execSync;
+        this.uuidv4 = (<any>window).require('uuid/v4');
         this.makeFolders().then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {
@@ -216,6 +218,7 @@ export class AppService {
                 })
                 .on('progress', state => {
                     this.spinnerService.setMessage('Downloading... ' + Math.round(state.percent * 100) + '%');
+                    this.spinnerService.spinner.changes.detectChanges();
                 })
                 .on('end', () => {
                     this.spinnerService.setMessage('Processing... <br>This might take 10 - 30 seconds.');

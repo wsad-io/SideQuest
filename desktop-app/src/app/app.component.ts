@@ -7,6 +7,7 @@ import { DragAndDropService } from './drag-and-drop.service';
 import { ElectronService } from './electron.service';
 import { BsaberService } from './bsaber.service';
 import { AdbClientService } from './adb-client.service';
+import { BeatOnService } from './beat-on.service';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -24,12 +25,13 @@ export class AppComponent {
         public webService: WebviewService,
         public dragService: DragAndDropService,
         electronService: ElectronService,
-        private bsaberSerivce: BsaberService
+        private bsaberSerivce: BsaberService,
+        private beatonService: BeatOnService
     ) {}
     ngOnInit() {
         this.bsaberSerivce
-            .downloadQSP()
-            .then(() => <Promise<void>>this.bsaberSerivce.downloadConverterBinary())
+            .downloadConverterBinary()
+            .then(() => this.bsaberSerivce.downloadQSP())
             .then(() => this.adbService.setupAdb())
             .then(() => this.adbService.connectedStatus())
             .then(() => this.bsaberSerivce.getMySongs())

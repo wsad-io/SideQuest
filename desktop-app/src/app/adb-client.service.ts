@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
+import { BeatOnService } from './beat-on.service';
 declare const process;
 export enum ConnectionStatus {
     CONNECTED,
@@ -35,7 +36,8 @@ export class AdbClientService {
     constructor(
         public appService: AppService,
         private spinnerService: LoadingSpinnerService,
-        private statusService: StatusBarService
+        private statusService: StatusBarService,
+        private beatonService: BeatOnService
     ) {
         this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
@@ -44,6 +46,7 @@ export class AdbClientService {
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
     }
+
     installFile(filepath) {
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Installing...');
@@ -110,7 +113,6 @@ export class AdbClientService {
             command: 'dumpsys package ' + packageName + ' | grep versionName',
         })
             .then(res => {
-                console.log(res);
                 let versionParts = res.split('=');
                 return versionParts.length ? versionParts[1] : '0.0.0.0';
             })
@@ -121,7 +123,7 @@ export class AdbClientService {
     makeDirectory(dir) {
         return this.adbCommand('shell', { serial: this.deviceSerial, command: 'mkdir "' + dir + '"' });
     }
-    updateConnectedStatus(status: ConnectionStatus) {
+    async updateConnectedStatus(status: ConnectionStatus) {
         this.deviceStatus = status;
         document.getElementById('connection-status').className = 'connection-status-' + status;
         switch (status) {
@@ -130,8 +132,10 @@ export class AdbClientService {
                 break;
             case ConnectionStatus.CONNECTED:
                 this.getPackages();
-                this.getBatteryLevel();
-                this.deviceStatusMessage = 'Connected';
+                await this.getBatteryLevel();
+                await this.getIpAddress();
+                this.deviceStatusMessage = 'Connected -  Wifi IP: ' + this.deviceIp + ', Battery: ' + this.batteryLevel + '% ';
+                this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
                 this.deviceStatusMessage = 'Disconnected: Connect/Reconnect your headset via USB';
@@ -173,9 +177,10 @@ export class AdbClientService {
             });
     }
     adbCommand(command: string, settings?, callback?) {
+        const uuid = this.appService.uuidv4();
         return new Promise<any>((resolve, reject) => {
-            this.adbResolves[command] = { resolve, reject, callback };
-            this.appService.electron.ipcRenderer.send('adb-command', { command, settings });
+            this.adbResolves[uuid] = { resolve, reject, callback };
+            this.appService.electron.ipcRenderer.send('adb-command', { command, settings, uuid });
         });
     }
     async setupAdb() {
@@ -183,13 +188,13 @@ export class AdbClientService {
             await this.downloadTools();
         }
         this.appService.electron.ipcRenderer.on('adb-command', (event, arg: any) => {
-            if (this.adbResolves[arg.command]) {
-                if (arg.status && this.adbResolves[arg.command].callback) {
-                    this.adbResolves[arg.command].callback(arg.status);
+            if (this.adbResolves[arg.uuid]) {
+                if (arg.status && this.adbResolves[arg.uuid].callback) {
+                    this.adbResolves[arg.uuid].callback(arg.status);
                 } else if (arg.error) {
-                    this.adbResolves[arg.command].reject(arg.error);
+                    this.adbResolves[arg.uuid].reject(arg.error);
                 } else {
-                    this.adbResolves[arg.command].resolve(arg.resp);
+                    this.adbResolves[arg.uuid].resolve(arg.resp);
                 }
             }
         });
@@ -212,7 +217,15 @@ export class AdbClientService {
         // }catch(e){}
         return this.doesFileExist(this.adbPath);
     }
-
+    setPermission(packageName: string, permission: string) {
+        return this.adbCommand('shell', {
+            serial: this.deviceSerial,
+            command: 'pm grant ' + packageName + ' ' + permission,
+        }).then(r => {
+            console.log(r);
+            this.statusService.showStatus('Permission set OK!!');
+        });
+    }
     doesFileExist(path) {
         try {
             return this.appService.fs.existsSync(path);
@@ -424,11 +437,7 @@ export class AdbClientService {
         let f: any = files.shift();
         return this.adbCommand('push', { serial: this.deviceSerial, path: f.name, savePath: f.savePath }, stats => {
             this.spinnerService.setMessage(
-                'File uploading: ' +
-                    this.appService.path.basename(f.name) +
-                    ' <br>' +
-                    Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 +
-                    'MB'
+                'File uploading: ' + f.name + ' <br>' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB'
             );
         }).then(r => this.uploadFile(files));
     }
@@ -626,8 +635,8 @@ export class AdbClientService {
             });
         });
     }
-    getBatteryLevel() {
-        this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
+    async getBatteryLevel() {
+        return this.adbCommand('shell', { serial: this.deviceSerial, command: 'dumpsys battery' }).then(data => {
             let batteryObject = {};
             const batteyInfo = data.substring(data.indexOf('\n') + 1);
             batteyInfo.split('\n ').forEach(element => {

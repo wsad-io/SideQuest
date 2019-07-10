@@ -1,13 +1,13 @@
 <div class="header">
   <div class="topper"></div>
-  <div class="logo no-outline" (click)="webService.webView.loadURL('http://localhost:4201');" routerLink="webview"></div>
+  <div class="logo no-outline" (click)="webService.webView.loadURL('https://sidequestvr.com');" routerLink="webview"></div>
   <div class="header-title" #header>SideQuest</div>
   <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
   <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this window to install!</div>
   <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
   <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
     <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
-    <app-link url="https://github.com/emulamer/QuestStopgap" text="@emulamer"></app-link>,
+    <app-link url="https://github.com/emulamer/BeatOn" text="@emulamer"></app-link>,
     <app-link url="https://github.com/ATechAdventurer" text="@ATechAdventurer"></app-link>,<br>
     <app-link url="https://www.reddit.com/u/drewbaumann/" text="@drewbaumann"></app-link>,
     <app-link url="https://www.reddit.com/u/motokochan/" text="@motokochan"></app-link>
@@ -15,7 +15,12 @@
     <app-link url="https://bsaber.com/members/elliotttate/" text="@elliotttate"></app-link>
     for beat saber efforts.</div>
   <div class="title-menu-container">
-    <i mz-tooltip *ngIf="false" (click)="adbService.getIpAddress();wifiModal.openModal()" class="material-icons no-outline" [ngClass]="{'green-text':adbService.wifiEnabled,'white-text':!adbService.wifiEnabled}" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
+    <img mz-tooltip (click)="this.bsaberService.hasBackup = this.bsaberService.backupExists();beatonService.setupBeatOnSocket(this.adbService);beatOnModal.openModal();"
+         class="material-icons no-outline beaton-icon"
+         src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"
+         position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>
+
+    <i mz-tooltip *ngIf="false" (click)="wifiModal.openModal()" class="material-icons no-outline" [ngClass]="{'green-text':adbService.wifiEnabled,'white-text':!adbService.wifiEnabled}" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
       wifi
     </i>
     <i routerLink="custom-levels" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Beast Saber Custom Levels">
@@ -59,28 +64,22 @@
     Add Repo
   </div>
   <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
-       url="https://github.com/the-expanse/SideQuest/releases" text="Update Available"></app-link>
+            url="https://github.com/the-expanse/SideQuest/releases" text="Update Available"></app-link>
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">
       Home</a>&nbsp;&nbsp;&nbsp;
+    <a *ngIf="beatonService.beatOnEnabled" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">
+      Beat On</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">
       Beast Saber</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">
       Beat Saver</a>&nbsp;&nbsp;&nbsp;
     <!--<a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">-->
-      <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
+    <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
   </div>
 
   <div class="sync-songs" *ngIf="appService.showCustomActions">
     <span class="beat-saber-version"></span>&nbsp;&nbsp;
-    <div
-      class="waves-effect waves-light btn small-button pink-button"
-      mz-tooltip
-      position="bottom"
-      tooltip="Refresh the songs in this list." (click)="bsaberService.getMySongs()">
-      Refresh Songs
-    </div>
-    &nbsp;&nbsp;
     <div
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
@@ -95,6 +94,14 @@
       position="bottom"
       tooltip="Manage your APK and Data backups." routerLink="packages/com.beatgames.beatsaber">
       Backups
+    </div>
+    &nbsp;&nbsp;
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Sync your songs to beat saber." (click)="beatonService.setupBeatOnSocket(this.adbService);beatonService.syncSongs(adbService)">
+      Sync to Beat On
     </div>
     &nbsp;&nbsp;
     <div
@@ -316,3 +323,81 @@
   </mz-modal-footer>
 </mz-modal>
 
+<mz-modal #beatOnModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>
+      <a class="small-button waves-effect waves-light btn search-button-margin pink-button right"
+         (click)="appService.opn('https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CRKPPSJ4MUS3J&source=url')">
+        Support BeatOn on Paypal
+      </a>
+      BeatOn
+    </h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <div class="center-align">
+      Install / Enable BeatOn on your device.<br>
+      Sync songs and other mods on your headset.
+      <br>
+      <br>
+      <br>
+      <img class="cursor" src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}" (click)="beatonService.beatOnEnabled = !beatonService.beatOnEnabled;toggleBeatOn()"/>
+      <br><app-loading-spinner-small *ngIf="beatOnLoading"></app-loading-spinner-small>
+      <div>
+        <div class="row">
+          <div class="col s4 left-align padding-top">
+            <div *ngIf="beatonService.beatOnEnabled">
+              Beat On PID: {{beatonService.beatOnPID}}<br>
+              <div *ngIf="beatonService.beatOnStatus">
+                Beat On Status: {{beatonService.beatOnStatus.CurrentStatus === 'ModInstalled' ? 'Installed' : 'Not Installed'}}<br>
+                Beat Saber Installed: {{beatonService.beatOnStatus.IsBeatSaberInstalled? 'Yes' : 'No'}}
+              </div>
+            </div>
+          </div>
+          <div class="col s4 padding-top">
+            <div class="switch cursor">
+              <label>
+                Off
+                <input type="checkbox" [(ngModel)]="beatonService.beatOnEnabled" (change)="toggleBeatOn()" />
+                <span class="lever"></span>
+                On
+              </label>
+            </div>
+          </div>
+          <div class="col s4 right-align padding-top">
+            <div *ngIf="beatonService.beatOnEnabled">
+              <h5 *ngIf="!bsaberService.hasBackup && !beatonService.beatOnStatus.IsBeatSaberInstalled"> Please Install beat saber from the Oculus Store on your headset!</h5>
+              <div *ngIf="beatonService.beatOnStatus.CurrentStatus === 'ModInstalled'">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                   (click)="beatOnModal.closeModal();webService.loadUrl('http://'+adbService.deviceIp+':50000');webService.isWebviewOpen = true">
+                  Open BeatOn
+                </a><br><br>
+              </div>
+              <div *ngIf="beatonService.beatOnStatus.CurrentStatus !== 'ModInstalled' && beatonService.beatOnStatus.IsBeatSaberInstalled">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                  (click)="beatonService.setupBeatOn(adbService);beatOnModal.closeModal();">
+                  Install BeatOn
+                </a><br><br>
+              </div>
+              <div *ngIf="bsaberService.hasBackup">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                   (click)="beatOnModal.closeModal();installBaseAPK()">
+                  Reset BeatSaber
+                </a><br><br>
+              </div>
+              <div *ngIf="!bsaberService.hasBackup && beatonService.beatOnStatus.IsBeatSaberInstalled">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                   (click)="beatOnModal.closeModal()"
+                   routerLink="packages/com.beatgames.beatsaber">
+                  Backup BeatSaber
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>

@@ -16,8 +16,8 @@ function createWindow() {
         },
     });
     if (process.env.NODE_ENV === 'dev') {
-        mainWindow.loadURL('http://localhost:4200');
-        mainWindow.webContents.openDevTools();
+        mainWindow.loadURL('http://localhost:4205');
+        //mainWindow.webContents.openDevTools();
     } else {
         mainWindow.loadFile('build/app/index.html');
     }
@@ -166,17 +166,17 @@ const adb = new ADB();
 ipcMain.on('adb-command', (event, arg) => {
     const success = d => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, resp: d });
+            event.sender.send('adb-command', { command: arg.command, resp: d, uuid: arg.uuid });
         }
     };
     const reject = e => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, error: e });
+            event.sender.send('adb-command', { command: arg.command, error: e, uuid: arg.uuid });
         }
     };
     const status = d => {
         if (!event.sender.isDestroyed()) {
-            event.sender.send('adb-command', { command: arg.command, status: d });
+            event.sender.send('adb-command', { command: arg.command, status: d, uuid: arg.uuid });
         }
     };
     switch (arg.command) {
@@ -209,6 +209,9 @@ ipcMain.on('adb-command', (event, arg) => {
             break;
         case 'uninstall':
             adb.uninstall(arg.settings.serial, arg.settings.packageName, success, reject);
+            break;
+        case 'installRemote':
+            adb.installRemote(arg.settings.serial, arg.settings.path, success, reject);
             break;
         case 'clear':
             adb.clear(arg.settings.serial, arg.settings.packageName, success, reject);

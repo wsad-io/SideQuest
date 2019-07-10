@@ -5,20 +5,17 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
-  selector: 'app-webview',
-  templateUrl: './webview.component.html',
-  styleUrls: ['./webview.component.css']
+    selector: 'app-webview',
+    templateUrl: './webview.component.html',
+    styleUrls: ['./webview.component.css'],
 })
 export class WebviewComponent implements OnInit {
-  constructor(webService:WebviewService,appService:AppService,router:Router,route:ActivatedRoute) {
-    appService.resetTop();
-    webService.isWebviewOpen = true;
-    appService.showBrowserBar = true;
-    appService.setTitle('SideQuest');
+    constructor(webService: WebviewService, appService: AppService, router: Router, route: ActivatedRoute) {
+        appService.resetTop();
+        webService.isWebviewOpen = true;
+        appService.showBrowserBar = true;
+        appService.setTitle('SideQuest');
+    }
 
-  }
-
-  ngOnInit() {
-
-  }
+    ngOnInit() {}
 }

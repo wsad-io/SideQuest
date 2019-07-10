@@ -158,6 +158,12 @@
 .sync-songs-now,.beast-saber-buttons {
   top: 45px;
 }
+.beaton-icon{
+  height: 18px;
+  margin-top: -2px;
+  margin-right: 8px;
+  cursor: pointer;
+}
 .update-repo,
 .delete-repo,
 .restore-backup {
@@ -180,4 +186,7 @@
   cursor: pointer;
   border-top-left-radius: 5px;
   -webkit-app-region: no-drag;
+}
+.padding-top{
+  padding-top: 2em;
 }

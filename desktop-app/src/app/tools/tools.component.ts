@@ -232,15 +232,7 @@ export class ToolsComponent implements OnInit {
             });
     }
     setPavlovPermission() {
-        this.adbService
-            .adbCommand('shell', {
-                serial: this.adbService.deviceSerial,
-                command: 'pm grant com.davevillz.pavlov android.permission.RECORD_AUDIO',
-            })
-            .then(r => {
-                console.log(r);
-                this.statusService.showStatus('Permission set OK!!');
-            });
+        this.adbService.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
     }
     pasteToDevice() {
         this._textToSend = this.textToSend.split('');
