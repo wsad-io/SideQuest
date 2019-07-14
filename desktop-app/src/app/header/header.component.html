@@ -10,7 +10,7 @@
     <div class="header-title" #header>SideQuest</div>
     <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
     <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this corner of the window to install!</div>
-    <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
+    <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files over this corner to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
     <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
       <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
       <app-link url="https://github.com/emulamer/BeatOn" text="@emulamer"></app-link>,
