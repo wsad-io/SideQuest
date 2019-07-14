@@ -351,8 +351,10 @@
     </div>
     <div class="center-align" *ngIf="!isAlive&&!isAliveChecking">
       <h4>Cant see headset...</h4>
-      Your headset and PC must be on the same wifi. We tried to ping your headset on the ip {{adbService.deviceIp}}
-      and got no response. You will need to make sure that your PC and headset are on the same wifi network to setup beat on.
+      Were sorry but your headset and PC must be on the same Wi-Fi, we tried to ping your headsets IP {{adbService.deviceIp}} and got no response.
+      You will need to make sure that your PC and headset are on the same Wi-Fi network to setup BeatOn, for initial
+      installation of BeatOn you must be plugged in as well as on the same Wi-Fi connection so it may read and save the
+      IP to ping wirelessly from now on, also check if your headset is asleep, Thank you for using SideQuest and BeatOn
       <br><br>
       <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
          (click)="pingHeadset()">Try Again</a>
