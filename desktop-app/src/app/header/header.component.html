@@ -1,5 +1,5 @@
 <div class="header">
-  <div #mainLogo>
+  <div #mainLogo class="top-dnd-backing">
     <div class="topper"></div>
     <div class="well well-lg drop-message center-align"  *ngIf="dragAndDropService.isDragging">
       <h5>Drop file(s) here!</h5>
@@ -391,7 +391,7 @@
               <h5 *ngIf="!bsaberService.hasBackup && !beatonService.beatOnStatus.IsBeatSaberInstalled"> Please Install beat saber from the Oculus Store on your headset!</h5>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus === 'ModInstalled'">
                 <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
-                   (click)="beatOnModal.closeModal();webService.loadUrl('http://'+adbService.deviceIp+':50000');webService.isWebviewOpen = true">
+                   (click)="beatOnModal.closeModal();router.navigateByUrl('webview');webService.loadUrl('http://'+adbService.deviceIp+':50000');">
                   Open BeatOn
                 </a><br><br>
               </div>

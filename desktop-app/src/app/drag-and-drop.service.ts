@@ -21,28 +21,26 @@ export class DragAndDropService {
     setupDragAndDrop(ele) {
         let dragTimeout;
         ele.ondragover = () => {
-            if (this.webService.isWebviewOpen) return;
-            console.log('ondragover');
-            //clearTimeout(dragTimeout);
+            clearTimeout(dragTimeout);
             this.message = this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!';
             this.isDragging = true;
             return false;
         };
 
         ele.ondragleave = () => {
-            if (this.webService.isWebviewOpen) return;
-            this.isDragging = false;
+            dragTimeout = setTimeout(() => {
+                this.isDragging = false;
+            }, 1000);
             return false;
         };
 
         ele.ondragend = () => {
-            if (this.webService.isWebviewOpen) return;
             this.isDragging = false;
             return false;
         };
 
         ele.ondrop = e => {
-            if (this.webService.isWebviewOpen || !this.isDragging) return;
+            if (!this.isDragging) return;
             this.isDragging = false;
             e.preventDefault();
             if (this.appService.isFilesOpen && this.appService.filesComponent) {

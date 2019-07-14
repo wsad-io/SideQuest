@@ -8,6 +8,7 @@ import { RepoService } from '../repo.service';
 import { BsaberService, QuestSaberPatchResponseJson } from '../bsaber.service';
 import { BeatOnService } from '../beat-on.service';
 import { DragAndDropService } from '../drag-and-drop.service';
+import { Router } from '@angular/router';
 interface ReplaceText {
     key: string;
     value: string;
@@ -45,7 +46,8 @@ export class HeaderComponent implements OnInit {
         public statusService: StatusBarService,
         public repoService: RepoService,
         public beatonService: BeatOnService,
-        public dragAndDropService: DragAndDropService
+        public dragAndDropService: DragAndDropService,
+        public router: Router
     ) {}
     ngOnInit() {}
     isConnected() {

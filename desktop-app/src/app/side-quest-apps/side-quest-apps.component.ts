@@ -56,7 +56,6 @@ export class SideQuestAppsComponent implements OnInit {
                     app.__is_installed = !!~this.adbService.devicePackages.indexOf(app.packageName);
                 });
                 this.isLoaded = true;
-                console.log('here', this.apps);
             });
         } else {
             setTimeout(() => this.getApps(), 1000);

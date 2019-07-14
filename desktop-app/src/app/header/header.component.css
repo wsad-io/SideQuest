@@ -187,6 +187,11 @@
   border-top-left-radius: 5px;
   -webkit-app-region: no-drag;
 }
+.top-dnd-backing{
+  position:absolute;
+  width: 100%;
+  height: 200px;
+}
 .padding-top{
   padding-top: 2em;
 }
@@ -196,5 +201,5 @@
   left: 16px;
   width: 300px;
   height: 120px;
-  z-index: 2;
+  z-index: 1;
 }
