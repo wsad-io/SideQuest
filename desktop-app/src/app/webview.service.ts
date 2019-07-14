@@ -101,7 +101,7 @@ export class WebviewService {
         //   }
         // });
         this.webView.addEventListener('did-start-loading', e => {
-            this.currentAddress = this.webView.getURL();
+            //this.currentAddress = this.webView.getURL();
             this.isWebviewLoading = true;
             this.webView.insertCSS(customCss);
         });
@@ -122,6 +122,7 @@ export class WebviewService {
             //   this.webView.executeJavaScript(customJS);
             //   //this.bsaber.getCurrentDeviceSongs();
             // }, 8500);
+            this.currentAddress = this.webView.getURL();
         });
         this.webView.addEventListener('did-stop-loading', async e => {
             this.currentAddress = this.webView.getURL();

@@ -7,6 +7,7 @@ import { StatusBarService } from '../status-bar.service';
 import { RepoService } from '../repo.service';
 import { BsaberService, QuestSaberPatchResponseJson } from '../bsaber.service';
 import { BeatOnService } from '../beat-on.service';
+import { DragAndDropService } from '../drag-and-drop.service';
 interface ReplaceText {
     key: string;
     value: string;
@@ -22,12 +23,15 @@ export class HeaderComponent implements OnInit {
     @ViewChild('installAPKModal', { static: false }) installAPKModal;
     @ViewChild('autoFixModal', { static: false }) autoFixModal;
     @ViewChild('beatOnModal', { static: false }) beatOnModal;
+    @ViewChild('mainLogo', { static: false }) mainLogo;
     folder = FolderType;
     isMaximized: boolean = false;
     addrepoUrl: string = '';
     colorA: string;
     colorB: string;
     beatOnLoading: boolean;
+    isAlive: boolean;
+    isAliveChecking: boolean;
     replaceText: ReplaceText[] = [];
     addkey: string;
     addvalue: string;
@@ -40,7 +44,8 @@ export class HeaderComponent implements OnInit {
         public spinnerService: LoadingSpinnerService,
         public statusService: StatusBarService,
         public repoService: RepoService,
-        public beatonService: BeatOnService
+        public beatonService: BeatOnService,
+        public dragAndDropService: DragAndDropService
     ) {}
     ngOnInit() {}
     isConnected() {
@@ -48,6 +53,7 @@ export class HeaderComponent implements OnInit {
     }
     ngAfterViewInit() {
         this.appService.setTitleEle(this.header.nativeElement);
+        this.dragAndDropService.setupDragAndDrop(this.mainLogo.nativeElement);
     }
     getConnectionCssClass() {
         return {
@@ -59,6 +65,14 @@ export class HeaderComponent implements OnInit {
     }
     closeApp() {
         this.appService.remote.getCurrentWindow().close();
+    }
+    pingHeadset() {
+        this.isAliveChecking = true;
+        this.appService.ping.sys.probe(this.adbService.deviceIp, isAlive => {
+            console.log(isAlive);
+            this.isAlive = isAlive;
+            this.isAliveChecking = false;
+        });
     }
     minimizeApp() {
         this.appService.remote.getCurrentWindow().minimize();
@@ -244,21 +258,23 @@ export class HeaderComponent implements OnInit {
         this.syncSongsModal.openModal();
     }
     launchBeatOn() {
-        return this.adbService
-            .adbCommand('shell', {
-                serial: this.adbService.deviceSerial,
-                command: 'am startservice com.emulamer.beaton/com.emulamer.BeatOnService',
-            })
-            .then(() =>
-                this.adbService.adbCommand('shell', {
+        return (
+            this.adbService
+                .adbCommand('shell', {
                     serial: this.adbService.deviceSerial,
-                    command:
-                        'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"',
+                    command: 'am startservice com.emulamer.beaton/com.emulamer.BeatOnService',
                 })
-            )
-            .then(r => {
-                this.beatonService.setupBeatOnSocket(this.adbService);
-            });
+                // .then(() =>
+                //   this.adbService.adbCommand('shell', {
+                //     serial: this.adbService.deviceSerial,
+                //     command:
+                //       'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"',
+                //   })
+                // )
+                .then(r => {
+                    this.beatonService.setupBeatOnSocket(this.adbService);
+                })
+        );
     }
     setBeatOnPermission() {
         return this.adbService

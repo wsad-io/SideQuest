@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { RepoService } from '../repo.service';
 import { Observable } from 'rxjs/internal/Observable';
@@ -14,15 +14,16 @@ import { AdbClientService } from '../adb-client.service';
 })
 export class SideQuestAppsComponent implements OnInit {
     sub: Subscription;
-    apps: JSONApp[];
+    apps: JSONApp[] = [];
     currentRepo: number = 0;
-
+    isLoaded: boolean;
     constructor(
         private route: ActivatedRoute,
         private repoService: RepoService,
         private appService: AppService,
         router: Router,
-        private adbService: AdbClientService
+        private adbService: AdbClientService,
+        private changes: ChangeDetectorRef
     ) {
         this.appService.resetTop();
         this.appService.showSearch = true;
@@ -31,24 +32,35 @@ export class SideQuestAppsComponent implements OnInit {
                 appService.webService.isWebviewOpen = false;
                 this.apps = null;
                 this.currentRepo = parseInt(this.route.snapshot.paramMap.get('index')) || 0;
+                if (this.isLoaded) {
+                    this.getApps();
+                }
             }
         });
     }
+
     ngOnInit() {}
+
+    ngAfterViewInit() {
+        this.getApps();
+    }
     getApps() {
-        if (!this.apps && this.repoService.repos.length) {
-            let apps = this.repoService.setCurrent(this.currentRepo);
-            if (apps) {
-                this.appService.setTitle(apps.name);
-                this.adbService.getPackages().then(() => {
-                    this.apps = apps.body.apps;
-                    this.apps.forEach(app => {
-                        app.__is_installed = !!~this.adbService.devicePackages.indexOf(app.packageName);
-                    });
+        let apps = this.repoService.setCurrent(this.currentRepo);
+        if (apps) {
+            this.isLoaded = false;
+            this.appService.setTitle(apps.name);
+            this.apps = apps.body.apps;
+            this.changes.detectChanges();
+            this.adbService.getPackages().then(() => {
+                this.apps.forEach(app => {
+                    app.__is_installed = !!~this.adbService.devicePackages.indexOf(app.packageName);
                 });
-            }
+                this.isLoaded = true;
+                console.log('here', this.apps);
+            });
+        } else {
+            setTimeout(() => this.getApps(), 1000);
         }
-        return this.apps;
     }
     ngOnDestroy() {
         if (this.sub) this.sub.unsubscribe();

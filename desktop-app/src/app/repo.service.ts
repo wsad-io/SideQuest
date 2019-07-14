@@ -42,7 +42,7 @@ export class RepoService {
             this.currentRepo = this.repos[index];
             return this.currentRepo;
         } else {
-            return { name: '', body: { apps: [] } };
+            return null;
         }
     }
     getRepos() {
@@ -58,7 +58,6 @@ export class RepoService {
                 )
                     .then(() => this.repos.sort((a, b) => a.order - b.order))
                     .then(() => setTimeout(() => this.appRef.tick()))
-                    .then(() => this.saveRepos())
                     .then(() => {
                         this.repos
                             .reduce((a, repo) => {

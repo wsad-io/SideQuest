@@ -13,7 +13,7 @@
   <div class="card-reveal {{isAppScreen?'no-cursor':''}}" *ngIf="!isAppScreen" [ngClass]="{'card-dark-theme':appService.currentTheme === 'dark','card-light-theme':appService.currentTheme === 'light'}">
     <span class="card-title card-title-two truncate {{isAppScreen?'no-cursor':''}}" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">{{app.name}}</span>
     <p class="description">
-      Here is some more information about this product that is only revealed once clicked on.
+      {{app.summary}}
     </p>
   </div>
   <div class="card-action right-align" *ngIf="!isAppScreen">

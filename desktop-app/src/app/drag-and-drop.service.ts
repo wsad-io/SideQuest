@@ -9,43 +9,41 @@ import { WebviewService } from './webview.service';
     providedIn: 'root',
 })
 export class DragAndDropService {
+    message: string;
+    isDragging: boolean;
     constructor(
         private adbService: AdbClientService,
         private appService: AppService,
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService,
         private webService: WebviewService
-    ) {
-        this.setupDragAndDrop();
-    }
-    setupDragAndDrop() {
+    ) {}
+    setupDragAndDrop(ele) {
         let dragTimeout;
-        document.ondragover = () => {
+        ele.ondragover = () => {
             if (this.webService.isWebviewOpen) return;
-            clearTimeout(dragTimeout);
-            this.spinnerService.setMessage(
-                this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!'
-            );
-            this.spinnerService.showDrag();
+            console.log('ondragover');
+            //clearTimeout(dragTimeout);
+            this.message = this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!';
+            this.isDragging = true;
             return false;
         };
 
-        document.ondragleave = () => {
+        ele.ondragleave = () => {
             if (this.webService.isWebviewOpen) return;
-            dragTimeout = setTimeout(() => {
-                this.spinnerService.hideLoader();
-            }, 1000);
+            this.isDragging = false;
             return false;
         };
 
-        document.ondragend = () => {
+        ele.ondragend = () => {
             if (this.webService.isWebviewOpen) return;
-            this.spinnerService.hideLoader();
+            this.isDragging = false;
             return false;
         };
 
-        document.ondrop = e => {
-            if (this.webService.isWebviewOpen) return;
+        ele.ondrop = e => {
+            if (this.webService.isWebviewOpen || !this.isDragging) return;
+            this.isDragging = false;
             e.preventDefault();
             if (this.appService.isFilesOpen && this.appService.filesComponent) {
                 return this.appService.filesComponent.uploadFilesFromList(

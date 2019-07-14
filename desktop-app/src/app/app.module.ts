@@ -32,7 +32,6 @@ import { FilesComponent } from './files/files.component';
 import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
 import { SongPackManagerComponent } from './song-pack-manager/song-pack-manager.component';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { BeatOnComponent } from './beat-on/beat-on.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -61,7 +60,6 @@ import { HttpClientModule } from '@angular/common/http';
         FilesComponent,
         CustomLevelsComponent,
         SongPackManagerComponent,
-        BeatOnComponent,
     ],
     imports: [
         BrowserModule,

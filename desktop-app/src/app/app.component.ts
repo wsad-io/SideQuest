@@ -35,7 +35,15 @@ export class AppComponent {
             .then(() => this.adbService.setupAdb())
             .then(() => this.adbService.connectedStatus())
             .then(() => this.bsaberSerivce.getMySongs())
-            .then(() => (this.bsaberSerivce.jSon = this.bsaberSerivce.getAppJson()));
+            .then(() => (this.bsaberSerivce.jSon = this.bsaberSerivce.getAppJson()))
+            .then(() => {
+                if (!localStorage.getItem('first_run')) {
+                    localStorage.setItem('first_run', 'true');
+                    this.statusService.showStatus(
+                        'Thanks for downloading SideQuest! Please check the Setup & How To on the top right for a one time setup!'
+                    );
+                }
+            });
     }
     ngAfterViewInit() {
         this.spinnerService.setSpinner(this.spinner);

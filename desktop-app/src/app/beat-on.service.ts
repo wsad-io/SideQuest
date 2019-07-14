@@ -142,6 +142,10 @@ export class BeatOnService {
         }
     }
     setupBeatOnSocket(adbService: AdbClientService) {
+        if (!adbService.deviceIp) {
+            console.log("Can't connect, no wifi IP.");
+            return;
+        }
         if (this.websocket != null && this.websocket.readyState === WebSocket.OPEN) {
             console.log('HostMessageService.openSocket called, but the connection is already open.');
             return;
