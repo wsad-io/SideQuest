@@ -187,6 +187,19 @@
   border-top-left-radius: 5px;
   -webkit-app-region: no-drag;
 }
+.top-dnd-backing{
+  position:absolute;
+  width: 100%;
+  height: 200px;
+}
 .padding-top{
   padding-top: 2em;
+}
+.drop-message{
+  position:absolute;
+  top: 16px;
+  left: 16px;
+  width: 300px;
+  height: 120px;
+  z-index: 1;
 }

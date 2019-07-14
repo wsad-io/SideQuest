@@ -23,10 +23,12 @@ export class FilesComponent implements OnInit {
     @ViewChild('filesModal', { static: false }) filesModal;
     @ViewChild('fixedAction', { static: false }) fixedAction;
     files: FileFolderListing[] = [];
+    currentFileDelete: FileFolderListing;
     breadcrumbs: BreadcrumbListing[] = [];
     isOpen: boolean = false;
     currentPath: string;
     folderName: string;
+    confirmMessage: string;
     currentFile: FileFolderListing;
     constructor(
         public spinnerService: LoadingSpinnerService,
@@ -100,11 +102,16 @@ export class FilesComponent implements OnInit {
             files => this.uploadFilesFromList(files)
         );
     }
-    deleteFile(file) {
+    confirmDeleteFile(file: FileFolderListing) {
         let path = this.appService.path.posix.join(this.currentPath, file.name);
-        this.adbService.adbCommand('shell', { serial: this.adbService.deviceSerial, command: 'rm ' + path }).then(() => {
+        this.confirmMessage = 'Are you sure you want to delete this item? - ' + path;
+    }
+    deleteFile(file: FileFolderListing) {
+        let path = this.appService.path.posix.join(this.currentPath, file.name);
+        this.adbService.adbCommand('shell', { serial: this.adbService.deviceSerial, command: 'rm "' + path + '" -r' }).then(r => {
+            console.log(r);
             this.open(this.currentPath);
-            this.statusService.showStatus('File Deleted!! ' + path);
+            this.statusService.showStatus('Item Deleted!! ' + path);
         });
     }
     saveFile() {

@@ -1,21 +1,29 @@
 <div class="header">
-  <div class="topper"></div>
-  <div class="logo no-outline" (click)="webService.webView.loadURL('https://sidequestvr.com');" routerLink="webview"></div>
-  <div class="header-title" #header>SideQuest</div>
-  <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
-  <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this window to install!</div>
-  <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
-  <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
-    <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
-    <app-link url="https://github.com/emulamer/BeatOn" text="@emulamer"></app-link>,
-    <app-link url="https://github.com/ATechAdventurer" text="@ATechAdventurer"></app-link>,<br>
-    <app-link url="https://www.reddit.com/u/drewbaumann/" text="@drewbaumann"></app-link>,
-    <app-link url="https://www.reddit.com/u/motokochan/" text="@motokochan"></app-link>
-    and of course
-    <app-link url="https://bsaber.com/members/elliotttate/" text="@elliotttate"></app-link>
-    for beat saber efforts.</div>
+  <div #mainLogo class="top-dnd-backing">
+    <div class="topper"></div>
+    <div class="well well-lg drop-message center-align"  *ngIf="dragAndDropService.isDragging">
+      <h5>Drop file(s) here!</h5>
+      <br />
+      <span class="spinner-loading-message" [innerHTML]="dragAndDropService.message"></span>
+    </div>
+    <div class="logo no-outline" (click)="webService.webView.loadURL('https://sidequestvr.com');" routerLink="webview"></div>
+    <div class="header-title" #header>SideQuest</div>
+    <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
+    <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this message to install!</div>
+    <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files over this message to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
+    <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
+      <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
+      <app-link url="https://github.com/emulamer/BeatOn" text="@emulamer"></app-link>,
+      <app-link url="https://github.com/ATechAdventurer" text="@ATechAdventurer"></app-link>,<br>
+      <app-link url="https://www.reddit.com/u/drewbaumann/" text="@drewbaumann"></app-link>,
+      <app-link url="https://www.reddit.com/u/motokochan/" text="@motokochan"></app-link>
+      and of course
+      <app-link url="https://bsaber.com/members/elliotttate/" text="@elliotttate"></app-link>
+      for beat saber efforts.
+    </div>
+  </div>
   <div class="title-menu-container">
-    <img mz-tooltip (click)="this.bsaberService.hasBackup = this.bsaberService.backupExists();beatonService.setupBeatOnSocket(this.adbService);beatOnModal.openModal();"
+    <img mz-tooltip (click)="this.pingHeadset();this.bsaberService.hasBackup = this.bsaberService.backupExists();beatonService.setupBeatOnSocket(this.adbService);beatOnModal.openModal();"
          class="material-icons no-outline beaton-icon"
          src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"
          position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>
@@ -68,7 +76,7 @@
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">
       Home</a>&nbsp;&nbsp;&nbsp;
-    <a *ngIf="beatonService.beatOnEnabled" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">
+    <a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">
       Beat On</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">
       Beast Saber</a>&nbsp;&nbsp;&nbsp;
@@ -334,7 +342,24 @@
     </h4>
   </mz-modal-header>
   <mz-modal-content>
-    <div class="center-align">
+    <div class="center-align" *ngIf="isAliveChecking">
+      <br><br>
+      <app-loading-spinner-small></app-loading-spinner-small>
+      <br>
+      <h4>Connecting...</h4>
+
+    </div>
+    <div class="center-align" *ngIf="!isAlive&&!isAliveChecking">
+      <h4>Cant see headset...</h4>
+      Were sorry but your headset and PC must be on the same Wi-Fi, we tried to ping your headsets IP {{adbService.deviceIp}} and got no response.
+      You will need to make sure that your PC and headset are on the same Wi-Fi network to setup BeatOn, for initial
+      installation of BeatOn you must be plugged in as well as on the same Wi-Fi connection so it may read and save the
+      IP to ping wirelessly from now on, also check if your headset is asleep, Thank you for using SideQuest and BeatOn
+      <br><br>
+      <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+         (click)="pingHeadset()">Try Again</a>
+    </div>
+    <div class="center-align" *ngIf="isAlive&&!isAliveChecking">
       Install / Enable BeatOn on your device.<br>
       Sync songs and other mods on your headset.
       <br>
@@ -346,9 +371,9 @@
         <div class="row">
           <div class="col s4 left-align padding-top">
             <div *ngIf="beatonService.beatOnEnabled">
-              Beat On PID: {{beatonService.beatOnPID}}<br>
+              BeatOn PID: {{beatonService.beatOnPID}}<br>
               <div *ngIf="beatonService.beatOnStatus">
-                Beat On Status: {{beatonService.beatOnStatus.CurrentStatus === 'ModInstalled' ? 'Installed' : 'Not Installed'}}<br>
+                BeatOn Status: {{beatonService.beatOnStatus.CurrentStatus === 'ModInstalled' ? 'Installed' : 'Not Installed'}}<br>
                 Beat Saber Installed: {{beatonService.beatOnStatus.IsBeatSaberInstalled? 'Yes' : 'No'}}
               </div>
             </div>
@@ -368,13 +393,13 @@
               <h5 *ngIf="!bsaberService.hasBackup && !beatonService.beatOnStatus.IsBeatSaberInstalled"> Please Install beat saber from the Oculus Store on your headset!</h5>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus === 'ModInstalled'">
                 <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
-                   (click)="beatOnModal.closeModal();webService.loadUrl('http://'+adbService.deviceIp+':50000');webService.isWebviewOpen = true">
+                   (click)="beatOnModal.closeModal();router.navigateByUrl('webview');webService.loadUrl('http://'+adbService.deviceIp+':50000');">
                   Open BeatOn
                 </a><br><br>
               </div>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus !== 'ModInstalled' && beatonService.beatOnStatus.IsBeatSaberInstalled">
                 <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
-                  (click)="beatonService.setupBeatOn(adbService);beatOnModal.closeModal();">
+                   (click)="beatonService.setupBeatOn(adbService);beatOnModal.closeModal();">
                   Install BeatOn
                 </a><br><br>
               </div>

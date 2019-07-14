@@ -45,10 +45,11 @@ export class AppService {
     exec: any;
     execSync: any;
     uuidv4: any;
+    ping: any;
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.5.0';
+    versionName: string = '0.5.1';
     showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
@@ -69,6 +70,7 @@ export class AppService {
         this.exec = (<any>window).require('child_process').exec;
         this.execSync = (<any>window).require('child_process').execSync;
         this.uuidv4 = (<any>window).require('uuid/v4');
+        this.ping = (<any>window).require('ping');
         this.makeFolders().then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {

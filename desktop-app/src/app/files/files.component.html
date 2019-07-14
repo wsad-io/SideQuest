@@ -23,7 +23,7 @@
       <div class="right">
         <span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}
 
-        <i *ngIf="file.icon !== 'folder'" class="material-icons cursor orange-text drag-indicator right" (click)="deleteFile(file)">close</i>
+        <i class="material-icons cursor orange-text drag-indicator right" (click)="currentFileDelete = file;confirmDeleteFile(currentFileDelete);confirmModal.openModal()">close</i>
       </div>
       <div (click)="openFile(file)">
         <i class="material-icons medium vertical-align" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">{{file.icon}}</i>{{file.name}}
@@ -72,6 +72,22 @@
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
     <button mz-button class="pink-button" mz-modal-close (click)="saveFile()">Save To PC</button>
+  </mz-modal-footer>
+</mz-modal>
+
+<mz-modal #confirmModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Delete this item</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <br><br>
+    {{confirmMessage}}
+    <br><br>
+    WARNING: This cannot be undone!!
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="red" mz-modal-close (click)="deleteFile(currentFileDelete)">Delete Item</button>
   </mz-modal-footer>
 </mz-modal>
 

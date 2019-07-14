@@ -134,7 +134,8 @@ export class AdbClientService {
                 this.getPackages();
                 await this.getBatteryLevel();
                 await this.getIpAddress();
-                this.deviceStatusMessage = 'Connected -  Wifi IP: ' + this.deviceIp + ', Battery: ' + this.batteryLevel + '% ';
+                this.deviceStatusMessage =
+                    'Connected -  Wifi IP: ' + (this.deviceIp || 'Not found...') + ', Battery: ' + this.batteryLevel + '% ';
                 this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:

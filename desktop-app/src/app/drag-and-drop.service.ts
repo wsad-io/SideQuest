@@ -3,43 +3,45 @@ import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
 import { AdbClientService } from './adb-client.service';
+import { WebviewService } from './webview.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class DragAndDropService {
+    message: string;
+    isDragging: boolean;
     constructor(
         private adbService: AdbClientService,
         private appService: AppService,
         private spinnerService: LoadingSpinnerService,
-        private statusService: StatusBarService
-    ) {
-        this.setupDragAndDrop();
-    }
-    setupDragAndDrop() {
+        private statusService: StatusBarService,
+        private webService: WebviewService
+    ) {}
+    setupDragAndDrop(ele) {
         let dragTimeout;
-        document.ondragover = () => {
+        ele.ondragover = () => {
             clearTimeout(dragTimeout);
-            this.spinnerService.setMessage(
-                this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!'
-            );
-            this.spinnerService.showDrag();
+            this.message = this.appService.isFilesOpen ? 'Drop files to upload!' : 'Drop the file here to install!';
+            this.isDragging = true;
             return false;
         };
 
-        document.ondragleave = () => {
+        ele.ondragleave = () => {
             dragTimeout = setTimeout(() => {
-                this.spinnerService.hideLoader();
+                this.isDragging = false;
             }, 1000);
             return false;
         };
 
-        document.ondragend = () => {
-            this.spinnerService.hideLoader();
+        ele.ondragend = () => {
+            this.isDragging = false;
             return false;
         };
 
-        document.ondrop = e => {
+        ele.ondrop = e => {
+            if (!this.isDragging) return;
+            this.isDragging = false;
             e.preventDefault();
             if (this.appService.isFilesOpen && this.appService.filesComponent) {
                 return this.appService.filesComponent.uploadFilesFromList(
