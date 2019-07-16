@@ -44,7 +44,7 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 
 [![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
 
-('Setup' tab was moved to the 'Web' tab under 'Setup & How-To')
+('Setup' tab was moved to the 'Setup & How-To' tab, inside the 'Web' tab)
 
 ## App Developers: 
 
