@@ -132,8 +132,9 @@ export class WebviewService {
             //this.webView.executeJavaScript(customJS);
             // this.bsaber.getCurrentDeviceSongs();
             //}
+
+            //this.webView.openDevTools();
         });
-        //this.webView.openDevTools();
     }
     back() {
         if (this.webView.canGoBack()) {

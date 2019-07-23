@@ -105,7 +105,16 @@
   height: 26px;
   line-height: 1.8;
   text-align: left;
+  white-space: nowrap;
 }
 .browser-icon{
   font-size: 3rem;
+}
+.apps-title{
+  width: 100px;
+  display: inline-block;
+  border-bottom: 1px solid #afafaf;
+}
+.top-title{
+  margin-top: 16px;
 }

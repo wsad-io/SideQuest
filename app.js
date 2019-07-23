@@ -56,7 +56,7 @@ function createWindow() {
 
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
         let url = item.getURL();
-        let etx = path.extname(url.split('?')[0]);
+        let etx = path.extname(url.split('?')[0]).toLowerCase();
         if (~url.indexOf('https://beatsaver.com/cdn')) {
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
         } else if (etx === '.apk') {
@@ -131,7 +131,7 @@ if (!gotTheLock) {
     app.on('second-instance', (event, commandLine, workingDirectory) => {
         parseOpenUrl(commandLine);
         if (mainWindow) {
-            if (mainWindow.isMinimized()) myWindow.restore();
+            if (mainWindow.isMinimized()) mainWindow.restore();
             mainWindow.focus();
         }
     });

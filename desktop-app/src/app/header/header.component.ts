@@ -279,23 +279,7 @@ export class HeaderComponent implements OnInit {
         );
     }
     setBeatOnPermission() {
-        return this.adbService
-            .adbCommand('shell', {
-                serial: this.adbService.deviceSerial,
-                command: 'pm grant com.emulamer.beaton android.permission.READ_EXTERNAL_STORAGE',
-            })
-            .then(r => {
-                console.log('here', r);
-            })
-            .then(() =>
-                this.adbService.adbCommand('shell', {
-                    serial: this.adbService.deviceSerial,
-                    command: 'pm grant com.emulamer.beaton android.permission.WRITE_EXTERNAL_STORAGE',
-                })
-            )
-            .then(r => {
-                console.log('here2', r);
-            });
+        return this.beatonService.setBeatOnPermission(this.adbService);
     }
     async toggleBeatOn() {
         if (!this.beatonService.beatOnEnabled) {

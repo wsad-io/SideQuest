@@ -27,7 +27,9 @@
     <span class="chip">
       <img *ngIf="currentPackage.repoApp" [src]="currentPackage.repoApp.icon">
       {{currentPackage.repoApp?currentPackage.repoApp.name:currentPackage.package}}
-    </span><br><br>
+    </span><br>
+    <div *ngIf="currentPackage.repoApp">{{currentPackage.package}}</div>
+    <br>
     <h4>Permissions</h4>
     Manage this apps permissions.<br>
     <i>Coming soon!</i><br><br>

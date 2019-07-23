@@ -83,6 +83,8 @@ export class BeatOnService {
             .post('http://' + adbService.deviceIp + ':50000/host/mod/install/step' + step, '')
             .toPromise()
             .then(r => console.log(r));
+
+        ///host/beatsaber/upload
     }
     checkIsBeatOnRunning(adbService: AdbClientService) {
         return adbService
@@ -141,6 +143,20 @@ export class BeatOnService {
                 });
         }
     }
+
+    setBeatOnPermission(adbService) {
+        return adbService
+            .adbCommand('shell', {
+                serial: adbService.deviceSerial,
+                command: 'pm grant com.emulamer.beaton android.permission.READ_EXTERNAL_STORAGE',
+            })
+            .then(() =>
+                adbService.adbCommand('shell', {
+                    serial: adbService.deviceSerial,
+                    command: 'pm grant com.emulamer.beaton android.permission.WRITE_EXTERNAL_STORAGE',
+                })
+            );
+    }
     setupBeatOnSocket(adbService: AdbClientService) {
         if (!adbService.deviceIp) {
             console.log("Can't connect, no wifi IP.");
@@ -164,15 +180,6 @@ export class BeatOnService {
                 let msgEvent: HostSetupEvent = JSON.parse(msgStr);
                 if (msgEvent.Message) {
                     this.spinnerService.setMessage(msgEvent.Message);
-                    //this.setupMessage.emit(<HostSetupEvent>msgEvent);
-                    // } else if (msgEvent.Type == 'Toast') {
-                    //   this.toastMessage.emit(<HostShowToast>msgEvent);
-                    // } else if (msgEvent.Type == 'DownloadStatus') {
-                    //   this.downloadStatusMessage.emit(<HostDownloadStatus>msgEvent);
-                    // } else if (msgEvent.Type == 'ConfigChange') {
-                    //   this.configChangeMessage.emit(<HostConfigChangeEvent>msgEvent);
-                    // } else if (msgEvent.Type = 'OpStatus') {
-                    //this.opStatusMessage.emit();
                 } else {
                     console.log(`Unknown host message: ${msgStr}`);
                 }
@@ -187,5 +194,61 @@ export class BeatOnService {
         this.websocket.onerror = (ev: Event) => {
             console.log('WEBSOCKET ERROR OH NOOOOO!');
         };
+    }
+
+    downloadSong(downloadUrl, adbService) {
+        let parts = downloadUrl.split('/');
+        let zipPath = this.appService.path.join(this.appService.appData, parts[parts.length - 1]);
+        let name = parts[parts.length - 1].split('.')[0];
+        const requestOptions = {
+            timeout: 30000,
+            'User-Agent': this.appService.getUserAgent(),
+        };
+        return new Promise((resolve, reject) => {
+            if (adbService.deviceIp && this.beatOnEnabled && this.beatOnPID && this.beatOnStatus.CurrentStatus === 'ModInstalled') {
+                this.appService
+                    .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 300 })
+                    .on('error', error => {
+                        reject(error);
+                    })
+                    .on('progress', state => {
+                        this.spinnerService.setMessage('Saving to BeatOn... ' + Math.round(state.percent * 100) + '%');
+                    })
+                    .on('end', () => {
+                        let formData = {
+                            file: {
+                                value: this.appService.fs.createReadStream(zipPath),
+                                options: {
+                                    filename: parts[parts.length - 1],
+                                    contentType: 'application/zip',
+                                },
+                            },
+                        };
+                        let options = {
+                            url: 'http://' + adbService.deviceIp + ':50000/host/beatsaber/upload',
+                            method: 'POST',
+                            formData: formData,
+                        };
+                        this.appService
+                            .progress(this.appService.request(options), { throttle: 300 })
+                            .on('error', error => {
+                                reject(error);
+                            })
+                            .on('progress', state => {
+                                this.spinnerService.setMessage('Uploading To Beat On... ' + Math.round(state.percent * 100) + '%');
+                            })
+                            .on('end', () => {
+                                resolve(parts[parts.length - 1].split('.')[0]);
+                            });
+                    })
+                    .pipe(this.appService.fs.createWriteStream(zipPath));
+            } else {
+                reject(
+                    new Error(
+                        'BeatOn not installed / enabled. Please enable Beat On and ensure yore on the safe wifi as your headset.'
+                    )
+                );
+            }
+        });
     }
 }

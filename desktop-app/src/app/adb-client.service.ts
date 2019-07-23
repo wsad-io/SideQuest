@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
 import { BeatOnService } from './beat-on.service';
+import { WebviewService } from './webview.service';
 declare const process;
 export enum ConnectionStatus {
     CONNECTED,
@@ -37,7 +38,8 @@ export class AdbClientService {
         public appService: AppService,
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService,
-        private beatonService: BeatOnService
+        private beatonService: BeatOnService,
+        private webService: WebviewService
     ) {
         this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
@@ -105,6 +107,16 @@ export class AdbClientService {
                 let textB = b.toUpperCase();
                 return textA < textB ? -1 : textA > textB ? 1 : 0;
             });
+            if (this.webService.webView) {
+                this.webService.webView.executeJavaScript(
+                    `
+              window.sideQuest = {
+                installed: ` +
+                        JSON.stringify(this.devicePackages) +
+                        `
+              }`
+                );
+            }
         });
     }
     getPackageInfo(packageName) {
@@ -342,23 +354,27 @@ export class AdbClientService {
                 this.statusService.showStatus(e.message ? e.message : e.toString(), true);
             });
     }
-    installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean) {
+    installAPK(filePath: string, isLocal?: boolean, shouldUninstall?: boolean, number?: number, total?: number) {
         if (this.deviceStatus !== ConnectionStatus.CONNECTED) {
             this.statusService.showStatus('Apk install failed: No device connected!', true);
             return Promise.reject('Apk install failed: No device connected!');
         }
-        this.spinnerService.setMessage('Installing Apk...<br>' + filePath);
+        const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
+        this.spinnerService.setMessage(showTotal + 'Installing Apk...<br>' + filePath);
         this.spinnerService.showLoader();
         return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
             this.spinnerService.setMessage(
                 status.percent === 1
-                    ? 'Installing Apk...<br>' + filePath
-                    : 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + '%'
+                    ? showTotal + 'Installing Apk...<br>' + filePath
+                    : showTotal + 'Downloading APK:<br>' + filePath + '<br>' + Math.round(status.percent * 100) + '%'
             );
         })
             .then(r => {
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus('APK file installed ok!! ' + filePath);
+                if (filePath.indexOf('com.emulamer.beaton') > -1) {
+                    return this.beatonService.setBeatOnPermission(this);
+                }
             })
             .catch(e => {
                 if (e.code && shouldUninstall) {
@@ -565,9 +581,17 @@ export class AdbClientService {
             this.statusService.showStatus(e.toString(), true)
         );
     }
-    installLocalObb(filepath: string, dontCatchError = false, cb = null) {
+    installObb(url, number?: number, total?: number) {
+        return this.appService
+            .downloadFile(url, url, url, downloadUrl => {
+                return this.appService.path.join(this.appService.appData, downloadUrl.split('/').pop());
+            })
+            .then((_path: string) => this.installLocalObb(_path, false, null, number, total));
+    }
+    installLocalObb(filepath: string, dontCatchError = false, cb = null, number?: number, total?: number) {
         let filename = this.appService.path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
+        const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
         let p = this.adbCommand(
             'push',
             {
@@ -577,7 +601,12 @@ export class AdbClientService {
             },
             stats => {
                 this.spinnerService.setMessage(
-                    'File uploading: ' + filename + ' <br>' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB'
+                    showTotal +
+                        'File uploading: ' +
+                        filename +
+                        ' <br>' +
+                        Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 +
+                        'MB'
                 );
             }
         );
