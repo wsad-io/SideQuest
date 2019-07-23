@@ -1,5 +1,3 @@
 https://the-expanse.github.io/SideQuestRepos/vr-games/
 https://the-expanse.github.io/SideQuestRepos/vr-apps/
 https://the-expanse.github.io/SideQuestRepos/nsfw/
-https://the-expanse.github.io/SideQuestRepos/android-games/
-https://the-expanse.github.io/SideQuestRepos/android-apps/
