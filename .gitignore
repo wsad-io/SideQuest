@@ -32,6 +32,7 @@ jspm_packages/
 .env
 .env.test
 
+build/app
 .idea
 platform-tools
 dist
