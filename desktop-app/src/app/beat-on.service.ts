@@ -238,6 +238,19 @@ export class BeatOnService {
                                 this.spinnerService.setMessage('Uploading To Beat On... ' + Math.round(state.percent * 100) + '%');
                             })
                             .on('end', () => {
+                                let dir = this.appService.path.join(this.appService.appData, 'bsaber', name);
+                                this.appService.fs.mkdir(dir, () => {
+                                    this.appService.extract(zipPath, { dir: dir }, error => {
+                                        if (error) {
+                                            this.appService.deleteFolderRecursive(dir);
+                                            reject(error);
+                                        } else {
+                                            this.appService.fs.unlink(zipPath, err => {
+                                                resolve(parts[parts.length - 1].split('.')[0]);
+                                            });
+                                        }
+                                    });
+                                });
                                 resolve(parts[parts.length - 1].split('.')[0]);
                             });
                     })
