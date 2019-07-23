@@ -207,7 +207,7 @@ export class BeatOnService {
         return new Promise((resolve, reject) => {
             if (adbService.deviceIp && this.beatOnEnabled && this.beatOnPID && this.beatOnStatus.CurrentStatus === 'ModInstalled') {
                 this.appService
-                    .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 300 })
+                    .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 50 })
                     .on('error', error => {
                         reject(error);
                     })
@@ -230,7 +230,7 @@ export class BeatOnService {
                             formData: formData,
                         };
                         this.appService
-                            .progress(this.appService.request(options), { throttle: 300 })
+                            .progress(this.appService.request(options), { throttle: 50 })
                             .on('error', error => {
                                 reject(error);
                             })

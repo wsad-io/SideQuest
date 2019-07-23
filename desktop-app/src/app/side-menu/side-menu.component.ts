@@ -11,13 +11,16 @@ import { AppService } from '../app.service';
     styleUrls: ['./side-menu.component.css'],
 })
 export class SideMenuComponent implements OnInit {
+    hideNSFW: boolean;
     constructor(
         public router: Router,
         public repoService: RepoService,
         private webService: WebviewService,
         private adbService: AdbClientService,
-        private appService: AppService
-    ) {}
+        public appService: AppService
+    ) {
+        this.appService.hideNSFW = !!localStorage.getItem('hideNSFW');
+    }
 
     ngOnInit() {}
     openRepo(index) {
@@ -29,7 +32,7 @@ export class SideMenuComponent implements OnInit {
 
     openCategory(category) {
         this.appService.resetTop();
-        this.webService.loadUrl('http://sidequestvr.com/#/apps/' + category);
+        this.webService.loadUrl('https://sidequestvr.com/#/apps/' + category);
         this.webService.isWebviewOpen = true;
         this.appService.showBrowserBar = true;
         this.appService.setTitle('SideQuest');

@@ -25,6 +25,7 @@ export class AppService {
     updateAvailable: boolean;
     showRepo: boolean;
     isFilesOpen: boolean;
+    hideNSFW: boolean;
     filesComponent: FilesComponent;
 
     appData: string;

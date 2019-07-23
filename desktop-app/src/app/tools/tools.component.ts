@@ -64,6 +64,7 @@ export class ToolsComponent implements OnInit {
     ) {
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;
+        this.appService.hideNSFW = !!localStorage.getItem('hideNSFW');
     }
 
     ngOnInit() {
@@ -262,5 +263,12 @@ export class ToolsComponent implements OnInit {
                     return this.inputCharacters();
                 }
             });
+    }
+    setHideNSFW() {
+        if (this.appService.hideNSFW) {
+            localStorage.setItem('hideNSFW', 'true');
+        } else {
+            localStorage.removeItem('hideNSFW');
+        }
     }
 }
