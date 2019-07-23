@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 let mainWindow, open_url, is_loaded;
 const ADB = require('./adbkit');
+const { autoUpdater } = require('electron-updater');
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -24,9 +25,11 @@ function createWindow() {
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
+
     setupMenu();
     mainWindow.webContents.once('dom-ready', async e => {
         parseOpenUrl(process.argv);
+        autoUpdater.checkForUpdates();
     });
 
     const { protocol } = require('electron');
@@ -157,7 +160,27 @@ if (!gotTheLock) {
         }
     });
 }
-
+autoUpdater.on('checking-for-update', () => {
+    mainWindow.webContents.send('update-status', { status: 'Checking for update...' });
+});
+autoUpdater.on('update-available', (ev, info) => {
+    mainWindow.webContents.send('update-status', { status: 'Update available.', info });
+});
+autoUpdater.on('update-not-available', (ev, info) => {
+    mainWindow.webContents.send('update-status', { status: 'No update available.', info });
+});
+autoUpdater.on('error', (ev, err) => {
+    mainWindow.webContents.send('update-status', { status: 'Error in auto-updater.', err });
+});
+autoUpdater.on('download-progress', (ev, progressObj) => {
+    mainWindow.webContents.send('update-status', { status: 'Downloading update.', progressObj });
+});
+autoUpdater.on('update-downloaded', (ev, info) => {
+    mainWindow.webContents.send('update-status', { status: 'Update downloaded; will install in 5 seconds', info });
+    // setTimeout(function() {
+    //     autoUpdater.quitAndInstall();
+    // }, 5000)
+});
 global.receiveMessage = function(text) {
     mainWindow.webContents.send('info', text);
 };

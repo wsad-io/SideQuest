@@ -52,6 +52,9 @@ export class ElectronService {
             this.spinnerService.setMessage('Do you want to install this file?<br><br>' + data);
             this.spinnerService.setupConfirm().then(() => this.adbService.installAPK(data));
         });
+        this.appService.electron.ipcRenderer.on('update-status', (event, data) => {
+            this.statusService.showStatus(JSON.stringify(data), true);
+        });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
             if (data) {
                 let url = data.split('#');
