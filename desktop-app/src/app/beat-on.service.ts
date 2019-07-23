@@ -229,30 +229,31 @@ export class BeatOnService {
                             method: 'POST',
                             formData: formData,
                         };
-                        this.appService
-                            .progress(this.appService.request(options), { throttle: 50 })
-                            .on('error', error => {
-                                reject(error);
-                            })
-                            .on('progress', state => {
-                                this.spinnerService.setMessage('Uploading To Beat On... ' + Math.round(state.percent * 100) + '%');
-                            })
-                            .on('end', () => {
-                                let dir = this.appService.path.join(this.appService.appData, 'bsaber', name);
-                                this.appService.fs.mkdir(dir, () => {
-                                    this.appService.extract(zipPath, { dir: dir }, error => {
-                                        if (error) {
-                                            this.appService.deleteFolderRecursive(dir);
+                        let dir = this.appService.path.join(this.appService.appData, 'bsaber', name);
+                        this.appService.fs.mkdir(dir, () => {
+                            this.appService.extract(zipPath, { dir: dir }, error => {
+                                if (error) {
+                                    this.appService.deleteFolderRecursive(dir);
+                                    reject(error);
+                                } else {
+                                    this.appService
+                                        .progress(this.appService.request(options), { throttle: 50 })
+                                        .on('error', error => {
                                             reject(error);
-                                        } else {
+                                        })
+                                        .on('progress', state => {
+                                            this.spinnerService.setMessage(
+                                                'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%'
+                                            );
+                                        })
+                                        .on('end', () => {
                                             this.appService.fs.unlink(zipPath, err => {
                                                 resolve(parts[parts.length - 1].split('.')[0]);
                                             });
-                                        }
-                                    });
-                                });
-                                resolve(parts[parts.length - 1].split('.')[0]);
+                                        });
+                                }
                             });
+                        });
                     })
                     .pipe(this.appService.fs.createWriteStream(zipPath));
             } else {
