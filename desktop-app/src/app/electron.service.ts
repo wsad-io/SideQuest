@@ -53,7 +53,19 @@ export class ElectronService {
             this.spinnerService.setupConfirm().then(() => this.adbService.installAPK(data));
         });
         this.appService.electron.ipcRenderer.on('update-status', (event, data) => {
-            this.statusService.showStatus(JSON.stringify(data), true);
+            if (data.status === 'checking-for-update') {
+                this.statusService.showStatus('Checking for an update...');
+            } else if (data.status === 'update-available') {
+                this.statusService.showStatus('Update Available to version ' + data.info.version);
+            } else if (data.status === 'no-update') {
+                this.statusService.showStatus('You are on the most recent version of SideQuest.');
+            } else if (data.status === 'error') {
+                this.statusService.showStatus('Error checking for update.', true);
+            } else if (data.status === 'downloading') {
+                console.log(data.status);
+            } else if (data.status === 'update-downloaded') {
+                console.log(data.status);
+            }
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
             if (data) {

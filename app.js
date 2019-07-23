@@ -29,6 +29,7 @@ function createWindow() {
     setupMenu();
     mainWindow.webContents.once('dom-ready', async e => {
         parseOpenUrl(process.argv);
+        autoUpdater.autoDownload = false;
         autoUpdater.checkForUpdates();
     });
 
@@ -161,25 +162,22 @@ if (!gotTheLock) {
     });
 }
 autoUpdater.on('checking-for-update', () => {
-    mainWindow.webContents.send('update-status', { status: 'Checking for update...' });
+    mainWindow.webContents.send('update-status', { status: 'checking-for-update' });
 });
-autoUpdater.on('update-available', (ev, info) => {
-    mainWindow.webContents.send('update-status', { status: 'Update available.', info });
+autoUpdater.on('update-available', info => {
+    mainWindow.webContents.send('update-status', { status: 'update-available', info });
 });
-autoUpdater.on('update-not-available', (ev, info) => {
-    mainWindow.webContents.send('update-status', { status: 'No update available.', info });
+autoUpdater.on('update-not-available', info => {
+    mainWindow.webContents.send('update-status', { status: 'no-update', info });
 });
-autoUpdater.on('error', (ev, err) => {
-    mainWindow.webContents.send('update-status', { status: 'Error in auto-updater.', err });
+autoUpdater.on('error', err => {
+    mainWindow.webContents.send('update-status', { status: 'error', err });
 });
-autoUpdater.on('download-progress', (ev, progressObj) => {
-    mainWindow.webContents.send('update-status', { status: 'Downloading update.', progressObj });
+autoUpdater.on('download-progress', progressObj => {
+    mainWindow.webContents.send('update-status', { status: 'downloading', progressObj });
 });
-autoUpdater.on('update-downloaded', (ev, info) => {
-    mainWindow.webContents.send('update-status', { status: 'Update downloaded; will install in 5 seconds', info });
-    // setTimeout(function() {
-    //     autoUpdater.quitAndInstall();
-    // }, 5000)
+autoUpdater.on('update-downloaded', info => {
+    mainWindow.webContents.send('update-status', { status: 'update-downloaded', info });
 });
 global.receiveMessage = function(text) {
     mainWindow.webContents.send('info', text);
