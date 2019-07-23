@@ -143,6 +143,8 @@ export class ElectronService {
                                 for (let i = 0; i < urls.length; i++) {
                                     await this.beatonService.downloadSong(urls[i], this.adbService);
                                 }
+                                this.statusService.showStatus('Item Downloaded Ok!!');
+                                this.spinnerService.hideLoader();
                             })();
                         } catch (e) {
                             this.statusService.showStatus('Could not parse install url: ' + data, true);
