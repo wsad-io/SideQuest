@@ -56,7 +56,6 @@ function createWindow() {
 
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
         let url = item.getURL();
-        console.log(url);
         let etx = path.extname(url.split('?')[0]).toLowerCase();
         if (~url.indexOf('https://beatsaver.com/cdn')) {
             // beat saber mods /songs
@@ -67,11 +66,8 @@ function createWindow() {
         } else if (~url.indexOf('ssl.hwcdn.net/')) {
             //itch.io
             mainWindow.webContents.send('pre-open-url', url);
-        } else if (~url.indexOf('ssl.hwcdn.net/')) {
-            //itch.io
-            mainWindow.webContents.send('pre-open-url', url);
         }
-        //item.cancel();
+        item.cancel();
     });
 }
 
