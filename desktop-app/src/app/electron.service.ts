@@ -59,6 +59,9 @@ export class ElectronService {
                     case 'sidequest://repo/':
                         this.repoService.addRepo(url[1]);
                         break;
+                    case 'sidequest://unload/':
+                        this.adbService.uninstallAPK(url[1]);
+                        break;
                     case 'sidequest://sideload-multi/':
                         try {
                             let urls = JSON.parse(
