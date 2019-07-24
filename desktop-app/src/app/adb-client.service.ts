@@ -47,6 +47,7 @@ export class AdbClientService {
         this.adbResolves = {};
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
+        this.webService.isLoaded = this.sendPackages.bind(this);
     }
 
     installFile(filepath) {
@@ -86,6 +87,18 @@ export class AdbClientService {
             this.wifiHost = r.toString();
         });
     }
+    sendPackages() {
+        if (this.webService.webView && this.devicePackages && this.deviceStatus === ConnectionStatus.CONNECTED) {
+            this.webService.webView.executeJavaScript(
+                `
+                  window.sideQuest = {
+                    installed: ` +
+                    JSON.stringify(this.devicePackages) +
+                    `
+                  }`
+            );
+        }
+    }
     getIpAddress() {
         return this.adbCommand('shell', { serial: this.deviceSerial, command: 'ip route' })
             .then(res => {
@@ -107,16 +120,7 @@ export class AdbClientService {
                 let textB = b.toUpperCase();
                 return textA < textB ? -1 : textA > textB ? 1 : 0;
             });
-            if (this.webService.webView) {
-                this.webService.webView.executeJavaScript(
-                    `
-              window.sideQuest = {
-                installed: ` +
-                        JSON.stringify(this.devicePackages) +
-                        `
-              }`
-                );
-            }
+            this.sendPackages();
         });
     }
     getPackageInfo(packageName) {
@@ -391,6 +395,18 @@ export class AdbClientService {
             .then(() => {
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus('APK uninstalled!!');
+
+                if (this.webService.webView) {
+                    this.webService.webView.executeJavaScript(
+                        `
+                  if(window.sideQuestRemove) {
+                    window.sideQuestRemove('` +
+                            pkg +
+                            `');
+                  }
+                  `
+                    );
+                }
             })
             .catch(e => {
                 this.spinnerService.hideLoader();
@@ -519,6 +535,7 @@ export class AdbClientService {
         let folderName = this.getFilenameDate();
         let packageBackupPath = this.appService.path.join(this.appService.appData, 'backups', packageName, 'data', folderName);
         this.files = [];
+        await this.makeBackupFolders(packageName);
         await this.adbCommand('stat', { serial: this.deviceSerial, path: '/sdcard/Android/data/' + packageName })
             .then(() =>
                 this.adbCommand('stat', { serial: this.deviceSerial, path: '/sdcard/Android/data/' + packageName + '/files/' })

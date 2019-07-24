@@ -61,7 +61,16 @@ export class ElectronService {
                         break;
                     case 'sidequest://sideload-multi/':
                         try {
-                            let urls = JSON.parse(data.replace('sidequest://sideload-multi/#', ''));
+                            let urls = JSON.parse(
+                                data
+                                    .replace('sidequest://sideload-multi/#', '')
+                                    .split('%22,%22')
+                                    .join('","')
+                                    .split('[%22')
+                                    .join('["')
+                                    .split('%22]')
+                                    .join('"]')
+                            );
                             this.installMultiple(urls);
                         } catch (e) {
                             this.statusService.showStatus('Could not parse install url: ' + data, true);
@@ -136,7 +145,16 @@ export class ElectronService {
                         break;
                     case 'sidequest://bsaber-multi/':
                         try {
-                            let urls = JSON.parse(data.replace('sidequest://bsaber-multi/#', ''));
+                            let urls = JSON.parse(
+                                data
+                                    .replace('sidequest://bsaber-multi/#', '')
+                                    .split('%22,%22')
+                                    .join('","')
+                                    .split('[%22')
+                                    .join('["')
+                                    .split('%22]')
+                                    .join('"]')
+                            );
                             (async () => {
                                 this.spinnerService.showLoader();
                                 this.spinnerService.setMessage('Saving to BeatOn...');
@@ -212,7 +230,6 @@ export class ElectronService {
             !!~this.adbService.devicePackages.indexOf('com.sidequest.launcher');
         return this.isInstalledLauncher;
     }
-
     installLauncher() {
         this.isInstallingLauncher = true;
         return this.adbService
