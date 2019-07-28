@@ -30,7 +30,7 @@
       </div>
     </div>
     <br>
-    <h6 class="white-text center-align top-title">3RD PARTY<div class="apps-title"></div></h6>
+    <h6 class="white-text center-align top-title" *ngIf="repoService.repos && repoService.repos.length">3RD PARTY<div class="apps-title"></div></h6>
     <div class="menu-item" *ngFor="let repo of repoService.repos; let i = index" >
       <div class="menu-item-inner menu no-outline side-sub-menu" mz-tooltip position="right"
            tooltip="{{repo.body.repo.description}}" routerLink="/apps/{{i}}">

@@ -30,9 +30,28 @@
     </span><br>
     <div *ngIf="currentPackage.repoApp">{{currentPackage.package}}</div>
     <br>
-    <h4>Permissions</h4>
-    Manage this apps permissions.<br>
-    <i>Coming soon!</i><br><br>
+    <h4>Game Data Backups</h4>
+    Backup data files from your SD Card for this app/game. <br><br>Warning: some games do not store data on the SD Card and
+    SideQuest <br>cannot access this data which means for some games, this process is <br>not guaranteed.<br>
+    <a class="waves-effect right waves-light btn backup-this-package" (click)="backupData()">Backup Game Data</a><br><br>
+    <div class="row" *ngFor="let backup of dataBackups">
+      <div class="col s1">
+        <div
+          class="chip cursor restore-backup tooltipped"
+          data-position="right"
+          data-tooltip="Restore this backup" (click)="restoreBackup(showBackupFileName(backup))"
+        >
+          <i class="material-icons" >sync</i>
+        </div>
+      </div>
+      <div class="col s11">
+        <div class="chip">
+          <span class="backup-name">{{showBackupFileName(backup)}}</span>
+        </div>
+      </div>
+    </div>
+
+    <br><br>
 
     <h4>Backups</h4>
     Backup your APK file from your device.
@@ -53,28 +72,6 @@
         </div>
       </div>
     </div>
-    <br><br>
-
-    <h4>Data Backups</h4>
-    Backup data files from your SD Card for this app.
-    <a class="waves-effect right waves-light btn backup-this-package" (click)="backupData()">Backup SD Card Data</a><br><br>
-    <div class="row" *ngFor="let backup of dataBackups">
-      <div class="col s1">
-        <div
-          class="chip cursor restore-backup tooltipped"
-          data-position="right"
-          data-tooltip="Restore this backup" (click)="restoreBackup(showBackupFileName(backup))"
-        >
-          <i class="material-icons" >sync</i>
-        </div>
-      </div>
-      <div class="col s11">
-        <div class="chip">
-          <span class="backup-name">{{showBackupFileName(backup)}}</span>
-        </div>
-      </div>
-    </div>
-
   </mz-modal-content>
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>

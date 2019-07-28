@@ -49,10 +49,10 @@ export class CustomLevelsComponent implements OnInit {
     ngOnInit() {
         this.bsaberService.getMySongs().then(() => this.orderSongs(true));
         //this.bsaberService.hasBackup = this.bsaberService.backupExists();
-        this.changes.detectChanges();
-        this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(info => {
-            this.bsaberService.beatSaberVersion = info.trim();
-        });
+        //this.changes.detectChanges();
+        // this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage).then(info => {
+        //     this.bsaberService.beatSaberVersion = info.trim();
+        // });
         if (this.appService.os.platform() === 'darwin' && +this.appService.os.release().split('.')[0] < 16) {
             this.oldMacOsModal.openModal();
         }

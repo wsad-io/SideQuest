@@ -19,6 +19,7 @@ export class LoadingSpinnerComponent implements OnInit {
     confirm() {
         if (this.confirmResolve) {
             this.confirmResolve();
+            this.isConfirm = false;
         }
     }
     cancel() {

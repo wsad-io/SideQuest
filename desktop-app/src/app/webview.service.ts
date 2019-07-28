@@ -9,6 +9,7 @@ export class WebviewService {
     isWebviewOpen: boolean;
     currentAddress: string = 'https://sidequestvr.com';
     isWebviewLoading: boolean = false;
+    isLoaded = () => {};
     constructor(private appService: AppService) {
         appService.setWebviewService(this);
     }
@@ -128,12 +129,13 @@ export class WebviewService {
             this.currentAddress = this.webView.getURL();
             this.isWebviewLoading = false;
             this.webView.insertCSS(customCss);
+            this.isLoaded();
             //if (this.bsaber) {
             //this.webView.executeJavaScript(customJS);
             // this.bsaber.getCurrentDeviceSongs();
             //}
 
-            //this.webView.openDevTools();
+            // this.webView.openDevTools();
         });
     }
     back() {

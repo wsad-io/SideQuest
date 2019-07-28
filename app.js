@@ -62,8 +62,13 @@ function createWindow() {
         let url = item.getURL();
         let etx = path.extname(url.split('?')[0]).toLowerCase();
         if (~url.indexOf('https://beatsaver.com/cdn')) {
+            // beat saber mods /songs
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
         } else if (etx === '.apk') {
+            // any file ending with apk.
+            mainWindow.webContents.send('pre-open-url', url);
+        } else if (~url.indexOf('ssl.hwcdn.net/')) {
+            //itch.io
             mainWindow.webContents.send('pre-open-url', url);
         }
         item.cancel();
