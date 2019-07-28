@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { AdbClientService, ConnectionStatus } from './adb-client.service';
 import { HttpClient } from '@angular/common/http';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
@@ -41,7 +40,7 @@ export class BeatOnService {
         private statusService: StatusBarService,
         private appService: AppService
     ) {}
-    setupBeatOn(adbService: AdbClientService) {
+    setupBeatOn(adbService) {
         this.spinnerService.showLoader();
         return this.beatOnStep(adbService, '1')
             .then(() => this.spinnerService.setMessage('Uninstalling APK'))
@@ -76,10 +75,10 @@ export class BeatOnService {
                 );
             });
     }
-    beatOnRequest(adbService: AdbClientService, endpoint: string, method: string = 'GET') {
+    beatOnRequest(adbService, endpoint: string, method: string = 'GET') {
         return this.http.get('http://' + adbService.deviceIp + ':50000/host/' + endpoint).toPromise();
     }
-    beatOnStep(adbService: AdbClientService, step: string) {
+    beatOnStep(adbService, step: string) {
         return this.http
             .post('http://' + adbService.deviceIp + ':50000/host/mod/install/step' + step, '')
             .toPromise()
@@ -98,7 +97,7 @@ export class BeatOnService {
             .then(() => this.http.post('http://' + adbService.deviceIp + ':50000/host/beatsaber/commitconfig', '').toPromise())
             .then(r => console.log(r));
     }
-    checkIsBeatOnRunning(adbService: AdbClientService) {
+    checkIsBeatOnRunning(adbService) {
         return adbService
             .adbCommand('shell', {
                 serial: adbService.deviceSerial,
@@ -124,7 +123,7 @@ export class BeatOnService {
                 );
             });
     }
-    async syncSongs(adbService: AdbClientService) {
+    async syncSongs(adbService) {
         this.spinnerService.setMessage('Restoring Backup...');
         this.spinnerService.showLoader();
         let packageBackupPath = this.appService.path.join(this.appService.appData, 'bsaber');
@@ -169,7 +168,7 @@ export class BeatOnService {
                 })
             );
     }
-    setupBeatOnSocket(adbService: AdbClientService) {
+    setupBeatOnSocket(adbService) {
         if (!adbService.deviceIp) {
             console.log("Can't connect, no wifi IP.");
             return;
