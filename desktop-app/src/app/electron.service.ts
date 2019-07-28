@@ -36,11 +36,11 @@ export class ElectronService {
                 .pop()
                 .toLowerCase();
             switch (etx) {
-                case 'apk':
-                    await this.adbService.installAPK(urls[i], false, false, i + 1, urls.length);
-                    break;
                 case 'obb':
                     await this.adbService.installObb(urls[i], i + 1, urls.length);
+                    break;
+                default:
+                    await this.adbService.installAPK(urls[i], false, false, i + 1, urls.length);
                     break;
             }
         }
@@ -53,6 +53,7 @@ export class ElectronService {
             this.spinnerService.setupConfirm().then(() => this.adbService.installAPK(data));
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
+            console.log(data);
             if (data) {
                 let url = data.split('#');
                 switch (url[0]) {

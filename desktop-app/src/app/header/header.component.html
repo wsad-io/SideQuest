@@ -23,7 +23,8 @@
     </div>
   </div>
   <div class="title-menu-container">
-    <img mz-tooltip (click)="this.pingHeadset();this.bsaberService.hasBackup = this.bsaberService.backupExists();beatonService.setupBeatOnSocket(this.adbService);beatOnModal.openModal();"
+    <img mz-tooltip
+         (click)="openBeatOn()"
          class="material-icons no-outline beaton-icon"
          src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"
          position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>
@@ -76,6 +77,8 @@
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">
       Home</a>&nbsp;&nbsp;&nbsp;
+    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com/#/account')">
+      Dashboard</a>&nbsp;&nbsp;&nbsp;
     <a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">
       Beat On</a>&nbsp;&nbsp;&nbsp;
     <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">
@@ -224,70 +227,74 @@
   <mz-modal-header>
   </mz-modal-header>
   <mz-modal-content>
-    <div *ngIf="bsaberService.hasBackup">
-      <div class="row">
-        <div class="col s6">
+    <h4>QuestSaberPatch - Support Removed</h4>
+    Due to the recent update of Beat Saber to version 1.2.0 this patcher version is no longer supported. You will now have to use the BeatOn method to patch custom songs onto Oculus Quest. Please click Open BeatOn below to get started.
+    <br><br>
+    <!--<div *ngIf="bsaberService.hasBackup">-->
+      <!--<div class="row">-->
+        <!--<div class="col s6">-->
 
-          <h4>QuestSaberPatch</h4>
-          We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.
-          <br><br>
-          This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.
-          <br><br>
-        </div>
-        <div class="col s6">
-          <h4>Saber Colors</h4>
-          Set the colors of your sabers in game.<br>
-          <div class="btn waves-effect waves-light right" (click)="resetColor(true)">Reset A</div>
-          <div class="btn waves-effect waves-light" [(colorPicker)]="colorA" [cpPositionRelativeToArrow]="true"
-               cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorA">Color A</div>
-          <br><br>
-          <div class="btn waves-effect waves-light right" (click)="resetColor(false)">Reset B</div>
-          <div class="btn waves-effect waves-light" [(colorPicker)]="colorB" [cpPositionRelativeToArrow]="true"
-               cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorB">Color B</div>
-          <br><br>
-          <h4>Replace Game Text</h4>
-          Set some text in game - <app-link url="https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt" text="full list" [isDark]="true"></app-link>.
-          <br><br>
-          <div class="row">
-            <div class="col s4">Key</div>
-            <div class="col s4">Value</div>
-          </div>
-          <div class="row">
-            <div class="col s8"><hr></div>
-          </div>
-          <div class="row" *ngFor="let text of replaceText">
-            <div class="col s4">
-              <input class="input-light-theme" type="text" [(ngModel)]="text.key" placeholder="Key" />
-            </div>
-            <div class="col s4">
-              <input class="input-light-theme" type="text" [(ngModel)]="text.value" placeholder="Value" />
-            </div>
-            <div class="col s4">
-              <div class="btn btn-floating waves-effect waves-light red" (click)="removeText(text)"><i class="material-icons">close</i></div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col s4">
-              <input class="input-light-theme" type="text" [(ngModel)]="addkey" placeholder="Key" />
-            </div>
-            <div class="col s4">
-              <input class="input-light-theme" type="text" [(ngModel)]="addvalue" placeholder="Value" />
-            </div>
-            <div class="col s4">
-              <div class="btn waves-effect waves-light" (click)="replaceText.push({key:addkey,value:addvalue});addkey='';addvalue='';">Add</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div *ngIf="!bsaberService.hasBackup">
-      No backup of beat saber made. Please make a backup now!
-    </div>
+          <!--<h4>QuestSaberPatch</h4>-->
+          <!--We will now attempt to patch your beat saber APK file with the custom levels selected. This process is experimental and can break so we do not accept any liability for any losses incurred. Please make a backup of your APK file and data files before you begin - this way you can restore things if something goes wrong.-->
+          <!--<br><br>-->
+          <!--This patch uses the kind efforts of trishume and also some work done by emulamer. For more information please visit https://github.com/trishume/QuestSaberPatch. Note that they don't provide support so please don't ask them for help with any issues.-->
+          <!--<br><br>-->
+        <!--</div>-->
+        <!--<div class="col s6">-->
+          <!--<h4>Saber Colors</h4>-->
+          <!--Set the colors of your sabers in game.<br>-->
+          <!--<div class="btn waves-effect waves-light right" (click)="resetColor(true)">Reset A</div>-->
+          <!--<div class="btn waves-effect waves-light" [(colorPicker)]="colorA" [cpPositionRelativeToArrow]="true"-->
+               <!--cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorA">Color A</div>-->
+          <!--<br><br>-->
+          <!--<div class="btn waves-effect waves-light right" (click)="resetColor(false)">Reset B</div>-->
+          <!--<div class="btn waves-effect waves-light" [(colorPicker)]="colorB" [cpPositionRelativeToArrow]="true"-->
+               <!--cpOutputFormat="rgba" cpAlphaChannel="disabled" cpPosition="bottom" [style.backgroundColor]="colorB">Color B</div>-->
+          <!--<br><br>-->
+          <!--<h4>Replace Game Text</h4>-->
+          <!--Set some text in game - <app-link url="https://github.com/sc2ad/QuestModdingTools/blob/master/BeatSaberLocale.txt" text="full list" [isDark]="true"></app-link>.-->
+          <!--<br><br>-->
+          <!--<div class="row">-->
+            <!--<div class="col s4">Key</div>-->
+            <!--<div class="col s4">Value</div>-->
+          <!--</div>-->
+          <!--<div class="row">-->
+            <!--<div class="col s8"><hr></div>-->
+          <!--</div>-->
+          <!--<div class="row" *ngFor="let text of replaceText">-->
+            <!--<div class="col s4">-->
+              <!--<input class="input-light-theme" type="text" [(ngModel)]="text.key" placeholder="Key" />-->
+            <!--</div>-->
+            <!--<div class="col s4">-->
+              <!--<input class="input-light-theme" type="text" [(ngModel)]="text.value" placeholder="Value" />-->
+            <!--</div>-->
+            <!--<div class="col s4">-->
+              <!--<div class="btn btn-floating waves-effect waves-light red" (click)="removeText(text)"><i class="material-icons">close</i></div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--<div class="row">-->
+            <!--<div class="col s4">-->
+              <!--<input class="input-light-theme" type="text" [(ngModel)]="addkey" placeholder="Key" />-->
+            <!--</div>-->
+            <!--<div class="col s4">-->
+              <!--<input class="input-light-theme" type="text" [(ngModel)]="addvalue" placeholder="Value" />-->
+            <!--</div>-->
+            <!--<div class="col s4">-->
+              <!--<div class="btn waves-effect waves-light" (click)="replaceText.push({key:addkey,value:addvalue});addkey='';addvalue='';">Add</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+    <!--<div *ngIf="!bsaberService.hasBackup">-->
+      <!--No backup of beat saber made. Please make a backup now!-->
+    <!--</div>-->
   </mz-modal-content>
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
-    <button *ngIf="bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="patchBeatSaber()">Run Patcher</button>
-    <button *ngIf="!bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="bsaberService.backupNewMaster()">Make Backup</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="beatOnModal.openModal()">Open BeatOn</button>
+    <!--<button *ngIf="bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="patchBeatSaber()">Run Patcher</button>-->
+    <!--<button *ngIf="!bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="bsaberService.backupNewMaster()">Make Backup</button>-->
 
   </mz-modal-footer>
 </mz-modal>
@@ -342,24 +349,25 @@
     </h4>
   </mz-modal-header>
   <mz-modal-content>
-    <div class="center-align" *ngIf="isAliveChecking">
-      <br><br>
-      <app-loading-spinner-small></app-loading-spinner-small>
-      <br>
-      <h4>Connecting...</h4>
+    <!--<div class="center-align" *ngIf="isAliveChecking">-->
+      <!--<br><br>-->
+      <!--<app-loading-spinner-small></app-loading-spinner-small>-->
+      <!--<br>-->
+      <!--<h4>Connecting...</h4>-->
 
-    </div>
-    <div class="center-align" *ngIf="!isAlive&&!isAliveChecking">
-      <h4>Cant see headset...</h4>
-      Were sorry but your headset and PC must be on the same Wi-Fi, we tried to ping your headsets IP {{adbService.deviceIp}} and got no response.
-      You will need to make sure that your PC and headset are on the same Wi-Fi network to setup BeatOn, for initial
-      installation of BeatOn you must be plugged in as well as on the same Wi-Fi connection so it may read and save the
-      IP to ping wirelessly from now on, also check if your headset is asleep, Thank you for using SideQuest and BeatOn
-      <br><br>
-      <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
-         (click)="pingHeadset()">Try Again</a>
-    </div>
-    <div class="center-align" *ngIf="isAlive&&!isAliveChecking">
+    <!--</div>-->
+    <!--<div class="center-align" *ngIf="!isAlive&&!isAliveChecking">-->
+      <!--<h4>Cant see headset...</h4>-->
+      <!--Were sorry but your headset and PC must be on the same Wi-Fi, we tried to ping your headsets IP {{adbService.deviceIp}} and got no response.-->
+      <!--You will need to make sure that your PC and headset are on the same Wi-Fi network to setup BeatOn, for initial-->
+      <!--installation of BeatOn you must be plugged in as well as on the same Wi-Fi connection so it may read and save the-->
+      <!--IP to ping wirelessly from now on, also check if your headset is asleep, Thank you for using SideQuest and BeatOn-->
+      <!--<br><br>-->
+      <!--<a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"-->
+         <!--(click)="pingHeadset()">Try Again</a>-->
+    <!--</div>-->
+    <div class="center-align" >
+      <!--*ngIf="isAlive&&!isAliveChecking"-->
       Install / Enable BeatOn on your device.<br>
       Sync songs and other mods on your headset.
       <br>
@@ -375,6 +383,7 @@
               <div *ngIf="beatonService.beatOnStatus">
                 BeatOn Status: {{beatonService.beatOnStatus.CurrentStatus === 'ModInstalled' ? 'Installed' : 'Not Installed'}}<br>
                 Beat Saber Installed: {{beatonService.beatOnStatus.IsBeatSaberInstalled? 'Yes' : 'No'}}
+                <div *ngIf="beatonService.UpgradeRestoreAvailable"><br>BeatOn Restore Available!! Click Restore BeatOn!!</div>
               </div>
             </div>
           </div>
@@ -395,6 +404,12 @@
                 <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                    (click)="beatOnModal.closeModal();router.navigateByUrl('webview');webService.loadUrl('http://'+adbService.deviceIp+':50000');">
                   Open BeatOn
+                </a><br><br>
+              </div>
+              <div *ngIf="beatonService.UpgradeRestoreAvailable">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                   (click)="beatonService.confirmRestore(adbService);">
+                  Restore BeatOn
                 </a><br><br>
               </div>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus !== 'ModInstalled' && beatonService.beatOnStatus.IsBeatSaberInstalled">

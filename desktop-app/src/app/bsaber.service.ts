@@ -535,7 +535,6 @@ export class BsaberService {
                         await this.convertSong(fullpath);
                     }
                     if (!~files.indexOf('info.dat')) {
-                        this.statusService.showStatus('Error, song has no info.dat: ' + fullpath);
                         return resolve();
                     }
                     try {
@@ -568,7 +567,7 @@ export class BsaberService {
                         songs.push(song);
                         resolve();
                     } catch (e) {
-                        return this.statusService.showStatus('Error, cant parse info.dat file: ' + fullpath);
+                        return resolve();
                     }
                 }
             });

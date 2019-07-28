@@ -29,10 +29,10 @@ export class AppComponent {
         private beatonService: BeatOnService
     ) {}
     ngOnInit() {
-        this.bsaberSerivce
-            .downloadConverterBinary()
-            .then(() => this.bsaberSerivce.downloadQSP())
-            .then(() => this.adbService.setupAdb())
+        this.adbService
+            .setupAdb()
+            // .then(() => this.bsaberSerivce.downloadQSP())
+            // .then(() => this.adbService.setupAdb())
             .then(() => this.adbService.connectedStatus())
             .then(() => this.bsaberSerivce.getMySongs())
             .then(() => (this.bsaberSerivce.jSon = this.bsaberSerivce.getAppJson()))

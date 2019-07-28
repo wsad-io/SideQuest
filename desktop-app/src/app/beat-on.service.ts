@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AdbClientService } from './adb-client.service';
+import { AdbClientService, ConnectionStatus } from './adb-client.service';
 import { HttpClient } from '@angular/common/http';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
@@ -27,6 +27,7 @@ export enum SetupEventType {
 })
 export class BeatOnService {
     beatOnEnabled: boolean;
+    UpgradeRestoreAvailable: boolean;
     beatOnPID: string;
     websocket: WebSocket;
     beatOnStatus: BeatOnStatus = {
@@ -83,8 +84,19 @@ export class BeatOnService {
             .post('http://' + adbService.deviceIp + ':50000/host/mod/install/step' + step, '')
             .toPromise()
             .then(r => console.log(r));
-
-        ///host/beatsaber/upload
+    }
+    checkHasRestore(adbService) {
+        this.beatOnRequest(adbService, 'mod/startupstatus').then(
+            (r: any) => (this.UpgradeRestoreAvailable = r.UpgradeRestoreAvailable)
+        );
+    }
+    confirmRestore(adbService) {
+        return this.http
+            .post('http://' + adbService.deviceIp + ':50000/host/beatsaber/config/restore?configtype=committed', '')
+            .toPromise()
+            .then(r => console.log(r))
+            .then(() => this.http.post('http://' + adbService.deviceIp + ':50000/host/beatsaber/commitconfig', '').toPromise())
+            .then(r => console.log(r));
     }
     checkIsBeatOnRunning(adbService: AdbClientService) {
         return adbService
@@ -181,7 +193,7 @@ export class BeatOnService {
                 if (msgEvent.Message) {
                     this.spinnerService.setMessage(msgEvent.Message);
                 } else {
-                    console.log(`Unknown host message: ${msgStr}`);
+                    // console.log(`Unknown host message: ${msgStr}`);
                 }
             };
             reader.readAsText(ev.data);
@@ -229,37 +241,31 @@ export class BeatOnService {
                             method: 'POST',
                             formData: formData,
                         };
-                        let dir = this.appService.path.join(this.appService.appData, 'bsaber', name);
-                        this.appService.fs.mkdir(dir, () => {
-                            this.appService.extract(zipPath, { dir: dir }, error => {
-                                if (error) {
-                                    this.appService.deleteFolderRecursive(dir);
+                        if (this.beatOnStatus.CurrentStatus === 'ModInstalled') {
+                            this.appService
+                                .progress(this.appService.request(options), { throttle: 50 })
+                                .on('error', error => {
                                     reject(error);
-                                } else {
-                                    this.appService
-                                        .progress(this.appService.request(options), { throttle: 50 })
-                                        .on('error', error => {
-                                            reject(error);
-                                        })
-                                        .on('progress', state => {
-                                            this.spinnerService.setMessage(
-                                                'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%'
-                                            );
-                                        })
-                                        .on('end', () => {
-                                            this.appService.fs.unlink(zipPath, err => {
-                                                resolve(parts[parts.length - 1].split('.')[0]);
-                                            });
-                                        });
-                                }
-                            });
-                        });
+                                })
+                                .on('progress', state => {
+                                    this.spinnerService.setMessage(
+                                        'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%'
+                                    );
+                                })
+                                .on('end', () => {
+                                    this.appService.fs.unlink(zipPath, err => {
+                                        resolve(parts[parts.length - 1].split('.')[0]);
+                                    });
+                                });
+                        } else {
+                            reject('Cannot reach BeatOn, it must be enabled and have the patch installed.');
+                        }
                     })
                     .pipe(this.appService.fs.createWriteStream(zipPath));
             } else {
                 reject(
                     new Error(
-                        'BeatOn not installed / enabled. Please enable Beat On and ensure yore on the safe wifi as your headset.'
+                        'BeatOn not installed / enabled. Please enable Beat On and ensure your on the safe wifi as your headset.'
                     )
                 );
             }

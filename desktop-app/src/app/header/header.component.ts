@@ -31,8 +31,8 @@ export class HeaderComponent implements OnInit {
     colorA: string;
     colorB: string;
     beatOnLoading: boolean;
-    isAlive: boolean;
-    isAliveChecking: boolean;
+    isAlive: boolean = true;
+    isAliveChecking: boolean = false;
     replaceText: ReplaceText[] = [];
     addkey: string;
     addvalue: string;
@@ -69,12 +69,13 @@ export class HeaderComponent implements OnInit {
         this.appService.remote.getCurrentWindow().close();
     }
     pingHeadset() {
-        this.isAliveChecking = true;
-        this.appService.ping.sys.probe(this.adbService.deviceIp, isAlive => {
-            console.log(isAlive);
-            this.isAlive = isAlive;
-            this.isAliveChecking = false;
-        });
+        this.isAlive = true;
+        // this.isAliveChecking = true;
+        // this.appService.ping.sys.probe(this.adbService.deviceIp, isAlive => {
+        //     console.log(isAlive);
+        //     this.isAlive = isAlive;
+        //     this.isAliveChecking = false;
+        // });
     }
     minimizeApp() {
         this.appService.remote.getCurrentWindow().minimize();
@@ -128,9 +129,9 @@ export class HeaderComponent implements OnInit {
             return this.statusService.showStatus('No device connected!', true);
         }
 
-        this.bsaberService.beatSaberVersion = (
-            (await this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage)) || ('' as any)
-        ).trim();
+        // this.bsaberService.beatSaberVersion = (
+        //     (await this.adbService.getPackageInfo(this.bsaberService.beatSaberPackage)) || ('' as any)
+        // ).trim();
         if (!this.bsaberService.beatSaberVersion) {
             return this.statusService.showStatus('Beat Saber version not found!! ', true);
         }
@@ -255,8 +256,8 @@ export class HeaderComponent implements OnInit {
         }
     }
     openSyncSongs() {
-        this.bsaberService.hasBackup = this.bsaberService.backupExists();
-        this.getReplaceAndColors();
+        // this.bsaberService.hasBackup = this.bsaberService.backupExists();
+        // this.getReplaceAndColors();
         this.syncSongsModal.openModal();
     }
     launchBeatOn() {
@@ -311,6 +312,7 @@ export class HeaderComponent implements OnInit {
         } else {
             if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
                 await this.launchBeatOn();
+                this.beatonService.checkHasRestore(this.adbService);
             } else {
                 this.beatOnModal.closeModal();
                 const beatOnApps = await fetch('https://api.github.com/repos/emulamer/BeatOn/releases/latest')
@@ -336,6 +338,7 @@ export class HeaderComponent implements OnInit {
                             await this.launchBeatOn();
                             setTimeout(() => {
                                 this.beatOnLoading = false;
+                                this.beatonService.checkHasRestore(this.adbService);
                             }, 3000);
                         } else {
                             this.statusService.showStatus('Could not launch Beat On. Please try again...', true);
@@ -344,5 +347,19 @@ export class HeaderComponent implements OnInit {
                 }, 2000);
             }
         }
+    }
+
+    openBeatOn() {
+        if (
+            this.adbService.deviceIp &&
+            this.beatonService.beatOnEnabled &&
+            this.beatonService.beatOnPID &&
+            this.beatonService.beatOnStatus.CurrentStatus === 'ModInstalled'
+        ) {
+            this.beatonService.checkHasRestore(this.adbService);
+        }
+        this.bsaberService.hasBackup = this.bsaberService.backupExists();
+        this.beatonService.setupBeatOnSocket(this.adbService);
+        this.beatOnModal.openModal();
     }
 }
