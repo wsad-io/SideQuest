@@ -107,37 +107,38 @@ export class BsaberService {
     }
 
     async getBSandQSPVersions() {
-        const jsonUrl = 'https://raw.githubusercontent.com/the-expanse/SideQuest/master/vendor_versions.txt';
-        return new Promise((resolve, reject) => {
-            this.appService.request(jsonUrl, (error, response, body) => {
-                if (error) {
-                    return reject(error);
-                } else {
-                    try {
-                        let repo_body = JSON.parse(body);
-                        resolve(repo_body);
-                    } catch (e) {
-                        return reject('JSON parse Error');
-                    }
-                }
-            });
-        })
-            .then(resp => {
-                if (resp['beat-saber'] && resp['beat-saber'].length) {
-                    this.supportedBeatSaberVersions = resp['beat-saber'];
-                    localStorage.setItem('beat-saber-version', JSON.stringify(resp['beat-saber']));
-                }
-                if (resp['quest-saber-patch']) {
-                    this.questSaberPatchVersion = resp['quest-saber-patch'];
-                    localStorage.setItem('quest-saber-patch-version', resp['quest-saber-patch']);
-                }
-                if (resp['sidequest']) {
-                    this.appService.updateAvailable = resp['sidequest'] !== this.appService.versionName;
-                }
-            })
-            .catch(e => {
-                console.warn(e);
-            });
+        return Promise.resolve();
+        // const jsonUrl = 'https://raw.githubusercontent.com/the-expanse/SideQuest/master/vendor_versions.txt';
+        // return new Promise((resolve, reject) => {
+        //     this.appService.request(jsonUrl, (error, response, body) => {
+        //         if (error) {
+        //             return reject(error);
+        //         } else {
+        //             try {
+        //                 let repo_body = JSON.parse(body);
+        //                 resolve(repo_body);
+        //             } catch (e) {
+        //                 return reject('JSON parse Error');
+        //             }
+        //         }
+        //     });
+        // })
+        //     .then(resp => {
+        // if (resp['beat-saber'] && resp['beat-saber'].length) {
+        //     this.supportedBeatSaberVersions = resp['beat-saber'];
+        //     localStorage.setItem('beat-saber-version', JSON.stringify(resp['beat-saber']));
+        // }
+        // if (resp['quest-saber-patch']) {
+        //     this.questSaberPatchVersion = resp['quest-saber-patch'];
+        //     localStorage.setItem('quest-saber-patch-version', resp['quest-saber-patch']);
+        // }
+        // if (resp['sidequest']) {
+        //     this.appService.updateAvailable = resp['sidequest'] !== this.appService.versionName;
+        // }
+        // })
+        // .catch(e => {
+        //     console.warn(e);
+        // });
     }
     async downloadQSP() {
         await this.getBSandQSPVersions();

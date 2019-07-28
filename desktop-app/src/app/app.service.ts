@@ -92,7 +92,6 @@ export class AppService {
         this.showSearch = false;
         this.showBrowserBar = false;
         this.showCustomActions = false;
-        this.updateAvailable = false;
         this.showRepo = false;
         this.isFilesOpen = false;
     }

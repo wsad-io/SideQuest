@@ -57,8 +57,10 @@ export class ElectronService {
                 this.statusService.showStatus('Checking for an update...');
             } else if (data.status === 'update-available') {
                 this.statusService.showStatus('Update Available to version ' + data.info.version);
+                this.appService.updateAvailable = true;
             } else if (data.status === 'no-update') {
                 this.statusService.showStatus('You are on the most recent version of SideQuest.');
+                this.appService.updateAvailable = false;
             } else if (data.status === 'error') {
                 this.statusService.showStatus('Error checking for update.', true);
             } else if (data.status === 'downloading') {
