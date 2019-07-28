@@ -93,9 +93,7 @@ export class BeatOnService {
         return this.http
             .post('http://' + adbService.deviceIp + ':50000/host/beatsaber/config/restore?configtype=committed', '')
             .toPromise()
-            .then(r => console.log(r))
-            .then(() => this.http.post('http://' + adbService.deviceIp + ':50000/host/beatsaber/commitconfig', '').toPromise())
-            .then(r => console.log(r));
+            .then(() => this.http.post('http://' + adbService.deviceIp + ':50000/host/beatsaber/commitconfig', '').toPromise());
     }
     checkIsBeatOnRunning(adbService) {
         return adbService

@@ -406,12 +406,6 @@
                   Open BeatOn
                 </a><br><br>
               </div>
-              <div *ngIf="beatonService.UpgradeRestoreAvailable">
-                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
-                   (click)="beatonService.confirmRestore(adbService);">
-                  Restore BeatOn
-                </a><br><br>
-              </div>
               <div *ngIf="beatonService.beatOnStatus.CurrentStatus !== 'ModInstalled' && beatonService.beatOnStatus.IsBeatSaberInstalled">
                 <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
                    (click)="beatonService.setupBeatOn(adbService);beatOnModal.closeModal();">
@@ -430,6 +424,12 @@
                    routerLink="packages/com.beatgames.beatsaber">
                   Backup BeatSaber
                 </a>
+              </div>
+              <div *ngIf="beatonService.UpgradeRestoreAvailable">
+                <a class="waves-effect waves-light btn search-button-margin pink-button small-button no-wrap"
+                   (click)="confirmRestore();beatOnModal.closeModal();">
+                  Restore BeatOn
+                </a><br><br>
               </div>
             </div>
           </div>

@@ -124,6 +124,18 @@ export class HeaderComponent implements OnInit {
                 this.statusService.showStatus(e.toString(), true);
             });
     }
+
+    confirmRestore() {
+        this.spinnerService.showLoader();
+        this.spinnerService.setMessage('Restoring BeatOn<br>Please Wait...');
+        this.beatonService.confirmRestore(this.adbService).then(r => {
+            this.spinnerService.hideLoader();
+            this.statusService.showStatus('BeatOn Restored Successfully!!');
+            this.beatOnModal.openModal();
+            this.beatonService.checkHasRestore(this.adbService);
+        });
+    }
+
     async patchBeatSaber() {
         if (this.adbService.deviceStatus !== ConnectionStatus.CONNECTED) {
             return this.statusService.showStatus('No device connected!', true);
