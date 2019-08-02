@@ -704,9 +704,11 @@ export class AdbClientService {
                 let attribute = element.replace(/\s/g, '').split(':');
                 const matcher = /true|false|[0-9].{0,}/g;
                 if (attribute[1].match(matcher)) {
-                    attribute[1] = JSON.parse(attribute[1]);
+                    try {
+                        attribute[1] = JSON.parse(attribute[1]);
+                        Object.assign(batteryObject, { [attribute[0]]: attribute[1] });
+                    } catch (e) {}
                 }
-                Object.assign(batteryObject, { [attribute[0]]: attribute[1] });
             });
             this.isBatteryCharging = batteryObject['USBpowered'] || batteryObject['ACpowered'];
             this.batteryLevel = batteryObject['level'];
