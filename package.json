@@ -28,14 +28,14 @@
         "win": {
             "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
             "target": [
+                "nsis",
                 {
-                    "target": "nsis",
+                    "target": "zip",
                     "arch": [
                         "x64",
                         "ia32"
                     ]
-                },
-                "zip"
+                }
             ]
         },
         "linux": {
@@ -44,7 +44,6 @@
             ]
         },
         "nsis": {
-            "artifactName": "${productName} Setup ${version}-${os}-${arch}.${ext}",
             "oneClick": false,
             "allowToChangeInstallationDirectory": true
         },
