@@ -8,7 +8,7 @@ import { RepoService } from '../repo.service';
     styleUrls: ['./package-item.component.css'],
 })
 export class PackageItemComponent implements OnInit {
-    @Input('package') package: string;
+    @Input('package') package: any;
     @Output('settings') settings = new EventEmitter();
     repoApp: JSONApp;
     constructor(public repoService: RepoService) {}
