@@ -262,7 +262,7 @@ export class BeatOnService {
             } else {
                 reject(
                     new Error(
-                        'BeatOn not installed / enabled. Please enable Beat On and ensure your on the safe wifi as your headset.'
+                        'BeatOn not installed / enabled. Please enable Beat On and ensure your on the same wifi as your headset.'
                     )
                 );
             }

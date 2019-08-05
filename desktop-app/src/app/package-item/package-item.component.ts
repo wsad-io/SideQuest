@@ -3,23 +3,19 @@ import { JSONApp, RepoItem } from '../repo-item/repo-item.component';
 import { RepoService } from '../repo.service';
 
 @Component({
-  selector: 'app-package-item',
-  templateUrl: './package-item.component.html',
-  styleUrls: ['./package-item.component.css']
+    selector: 'app-package-item',
+    templateUrl: './package-item.component.html',
+    styleUrls: ['./package-item.component.css'],
 })
 export class PackageItemComponent implements OnInit {
-  @Input('package') package:string;
-  @Output('settings') settings = new EventEmitter();
-  repoApp:JSONApp;
-  constructor(public repoService:RepoService) { }
+    @Input('package') package: string;
+    @Output('settings') settings = new EventEmitter();
+    repoApp: JSONApp;
+    constructor(public repoService: RepoService) {}
 
-  ngOnInit() {
-    if(this.repoService.allApps[this.package]){
-      this.repoApp = this.repoService.allApps[this.package];
+    ngOnInit() {}
+
+    openSettings() {
+        this.settings.emit({ package: this.package });
     }
-  }
-
-  openSettings(){
-    this.settings.emit({package:this.package,repoApp:this.repoApp})
-  }
 }

@@ -17,9 +17,11 @@ export class PackagesComponent implements OnInit {
     @ViewChild('appSettingsModal', { static: false }) appSettingsModal;
 
     folder = FolderType;
-    currentPackage: any = { appRepo: {}, package: '' };
+    currentPackage: any = { package: { packageName: '', name: '', icon: '' } };
+    routerPackage: string;
     backups: string[];
     dataBackups: string[];
+    myApps: any[];
     isBackingUp: boolean;
     isOpen: boolean;
     sub: Subscription;
@@ -38,14 +40,7 @@ export class PackagesComponent implements OnInit {
         this.appService.setTitle('Installed Apps');
         this.sub = router.events.subscribe(val => {
             if (val instanceof NavigationEnd) {
-              console.log(val.url);
-                let currentPackage = route.snapshot.paramMap.get('packageName');
-                if (currentPackage) {
-                    this.currentPackage.package = currentPackage;
-                    if (this.repoService.allApps[currentPackage]) {
-                        this.currentPackage.repoApp = this.repoService.allApps[currentPackage];
-                    }
-                }
+                this.routerPackage = route.snapshot.paramMap.get('packageName');
             }
         });
     }
@@ -56,11 +51,38 @@ export class PackagesComponent implements OnInit {
         if (isConnected && !this.isOpen) {
             this.isOpen = true;
             this.adbService.getPackages().then(() => {
-                if (this.currentPackage.package && ~this.adbService.devicePackages.indexOf(this.currentPackage.package)) {
+                this.myApps = this.adbService.devicePackages
+                    .map(p => {
+                        if (this.repoService.allApps[p]) {
+                            return {
+                                name: this.repoService.allApps[p].name,
+                                icon: this.repoService.allApps[p].icon,
+                                packageName: p,
+                            };
+                        }
+                        return {
+                            packageName: p,
+                        };
+                    })
+                    .sort((a, b) => {
+                        let textA = (a.name || a.packageName).toUpperCase();
+                        let textB = (b.name || b.packageName).toUpperCase();
+                        return textA < textB ? -1 : textA > textB ? 1 : 0;
+                    });
+                this.myApps.forEach(p => {
+                    if (this.routerPackage && p.packageName === this.routerPackage) {
+                        this.currentPackage.package = p;
+                    }
+                });
+
+                if (
+                    this.currentPackage.package.packageName &&
+                    ~this.adbService.devicePackages.indexOf(this.currentPackage.package.packageName)
+                ) {
                     this.appSettingsModal.openModal();
-                } else if (this.currentPackage.package) {
+                } else if (this.currentPackage.package.packageName) {
                     this.statusService.showStatus(
-                        'App not installed...' + (this.currentPackage.package ? this.currentPackage.package : ''),
+                        'App not installed...' + (this.currentPackage.package ? this.currentPackage.package.packageName : ''),
                         true
                     );
                 }
@@ -71,17 +93,20 @@ export class PackagesComponent implements OnInit {
     ngAfterViewInit() {}
     getCurrentInstalledInfo() {
         this.adbService
-            .getPackageInfo(this.currentPackage.package)
-            .then(() => this.adbService.getBackups(this.currentPackage.package))
+            .getPackageInfo(this.currentPackage.package.packageName)
+            .then(() => this.adbService.getBackups(this.currentPackage.package.packageName))
             .then(backups => (this.backups = backups))
-            .then(() => this.adbService.getDataBackups(this.currentPackage.package))
+            .then(() => this.adbService.getDataBackups(this.currentPackage.package.packageName))
             .then(dataBackups => (this.dataBackups = dataBackups));
     }
     async backupApk() {
         this.appSettingsModal.closeModal();
-        let location = await this.adbService.getPackageLocation(this.currentPackage.package);
-        this.adbService.backupPackage(location, this.currentPackage.package).then(savePath => {
-            if (this.currentPackage.package === this.bsaberService.beatSaberPackage && !this.bsaberService.backupExists()) {
+        let location = await this.adbService.getPackageLocation(this.currentPackage.package.packageName);
+        this.adbService.backupPackage(location, this.currentPackage.package.packageName).then(savePath => {
+            if (
+                this.currentPackage.package.packageName === this.bsaberService.beatSaberPackage &&
+                !this.bsaberService.backupExists()
+            ) {
                 this.appService.fs.copyFileSync(savePath, this.appService.path.join(this.appService.appData, 'bsaber-base.apk'));
                 this.appService.fs.copyFileSync(
                     savePath,
@@ -92,7 +117,7 @@ export class PackagesComponent implements OnInit {
     }
     backupData() {
         this.appSettingsModal.closeModal();
-        this.adbService.makeDataBackup(this.currentPackage.package);
+        this.adbService.makeDataBackup(this.currentPackage.package.packageName);
     }
     showBackupFileName(file) {
         return this.appService.path.basename(file);
@@ -100,7 +125,7 @@ export class PackagesComponent implements OnInit {
     restoreBackup(backup: string) {
         this.appSettingsModal.closeModal();
         this.adbService
-            .restoreDataBackup(this.currentPackage.package, backup)
+            .restoreDataBackup(this.currentPackage.package.packageName, backup)
             .then(() => this.statusService.showStatus('Backup restored ok!!'));
     }
     installBackupApk(filePath) {
@@ -109,13 +134,13 @@ export class PackagesComponent implements OnInit {
     }
     uninstallApk() {
         this.appSettingsModal.closeModal();
-        this.adbService.uninstallAPK(this.currentPackage.package);
+        this.adbService.uninstallAPK(this.currentPackage.package.packageName);
     }
     forceClose() {
         this.adbService
             .adbCommand('shell', {
                 serial: this.adbService.deviceSerial,
-                command: 'am force-stop ' + this.currentPackage.package,
+                command: 'am force-stop ' + this.currentPackage.package.packageName,
             })
             .then(r => {
                 this.statusService.showStatus('Force Close Sent!!');
@@ -125,7 +150,7 @@ export class PackagesComponent implements OnInit {
         this.adbService
             .adbCommand('clear', {
                 serial: this.adbService.deviceSerial,
-                packageName: this.currentPackage.package,
+                packageName: this.currentPackage.package.packageName,
             })
             .then(r => {
                 console.log(r);

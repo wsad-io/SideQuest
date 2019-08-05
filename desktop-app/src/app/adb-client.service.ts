@@ -123,15 +123,16 @@ export class AdbClientService {
                 })
                 .filter((p: string) => {
                     return (
-                        p.substr(0, 10) !== 'com.oculus' &&
-                        p.substr(0, 11) !== 'com.android' &&
-                        p.substr(0, 11) !== 'android.ext' &&
-                        p !== 'android' &&
-                        p.substr(0, 12) !== 'com.qualcomm' &&
-                        p !== 'com.facebook.system' &&
-                        p !== 'oculus.platform' &&
-                        p !== 'com.svox.pico' &&
-                        p !== 'org.codeaurora.bluetooth'
+                        (p.substr(0, 10) !== 'com.oculus' &&
+                            p.substr(0, 11) !== 'com.android' &&
+                            p.substr(0, 11) !== 'android.ext' &&
+                            p !== 'android' &&
+                            p.substr(0, 12) !== 'com.qualcomm' &&
+                            p !== 'com.facebook.system' &&
+                            p !== 'oculus.platform' &&
+                            p !== 'com.svox.pico' &&
+                            p !== 'org.codeaurora.bluetooth') ||
+                        p === 'com.oculus.DogCorp'
                     );
                 });
             this.sendPackages();
