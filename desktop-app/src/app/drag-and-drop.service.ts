@@ -39,7 +39,7 @@ export class DragAndDropService {
             return false;
         };
 
-        ele.ondrop = e => {
+        ele.ondrop = async e => {
             if (!this.isDragging) return;
             this.isDragging = false;
             e.preventDefault();
@@ -48,19 +48,20 @@ export class DragAndDropService {
                     Object.keys(e.dataTransfer.files).map(i => e.dataTransfer.files[i].path)
                 );
             }
-            [].slice.call(e.dataTransfer.files).forEach(file => {
+            for (let i = 0; i < e.dataTransfer.files.length; i++) {
+                let file = e.dataTransfer.files[i];
                 let filepath = file.path;
                 if (['.apk', '.obb'].includes(this.appService.path.extname(filepath))) {
                     if (this.appService.path.extname(filepath) === '.apk') {
-                        this.adbService.installAPK(filepath, true);
+                        await this.adbService.installAPK(filepath, true);
                     } else {
-                        this.adbService.installLocalObb(filepath);
+                        await this.adbService.installLocalObb(filepath);
                     }
                 } else {
-                    this.spinnerService.hideLoader();
                     this.statusService.showStatus('Unrecognised File: ' + filepath, true);
                 }
-            });
+            }
+            this.spinnerService.hideLoader();
             return false;
         };
     }

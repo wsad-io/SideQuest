@@ -19,7 +19,7 @@ export class SideMenuComponent implements OnInit {
         private adbService: AdbClientService,
         public appService: AppService
     ) {
-        this.appService.hideNSFW = !!localStorage.getItem('hideNSFW');
+        this.appService.hideNSFW = !localStorage.getItem('hideNSFW');
     }
 
     ngOnInit() {}

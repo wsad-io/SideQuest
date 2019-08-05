@@ -138,10 +138,21 @@ module.exports = class ADB {
     push(serial, path, savePath, cb, scb, ecb) {
         if (!this.client) return ecb('Not connected.');
         this.client.push(serial, fs.createReadStream(path), savePath).then(transfer => {
+            let _stats, autocancel;
+            const interval = setInterval(() => {
+                scb(_stats);
+            }, 1000);
             transfer.on('progress', stats => {
-                scb(stats);
+                clearTimeout(autocancel);
+                _stats = stats;
+                autocancel = setTimeout(() => {
+                    clearInterval(interval);
+                    cb();
+                }, 40000);
             });
             transfer.on('end', () => {
+                clearTimeout(autocancel);
+                clearInterval(interval);
                 cb();
             });
             transfer.on('error', e => {

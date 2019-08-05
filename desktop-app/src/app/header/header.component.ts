@@ -26,7 +26,7 @@ export class HeaderComponent implements OnInit {
     @ViewChild('beatOnModal', { static: false }) beatOnModal;
     @ViewChild('mainLogo', { static: false }) mainLogo;
     folder = FolderType;
-    isMaximized: boolean = false;
+    isMaximized: boolean = true;
     addrepoUrl: string = '';
     colorA: string;
     colorB: string;
@@ -97,7 +97,7 @@ export class HeaderComponent implements OnInit {
                 files.forEach(f => {
                     let filepath = f;
                     this.spinnerService.setMessage(`Installing ${filepath}, Please wait...`);
-                    let install = this.adbService.installFile(filepath);
+                    let install = this.adbService.installMultiFile(filepath);
                     if (install) {
                         install
                             .then(() => {

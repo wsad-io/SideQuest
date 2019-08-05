@@ -50,7 +50,7 @@ export class AdbClientService {
         this.webService.isLoaded = this.sendPackages.bind(this);
     }
 
-    installFile(filepath) {
+    installMultiFile(filepath) {
         this.spinnerService.showLoader();
         this.spinnerService.setMessage('Installing...');
         let extention = this.appService.path.extname(filepath);
@@ -394,6 +394,9 @@ export class AdbClientService {
                 if (filePath.indexOf('com.emulamer.beaton') > -1) {
                     return this.beatonService.setBeatOnPermission(this);
                 }
+                if (filePath.indexOf('Pavlov-Android-Shipping') > -1) {
+                    this.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
+                }
             })
             .catch(e => {
                 if (e.code && shouldUninstall) {
@@ -613,7 +616,59 @@ export class AdbClientService {
             this.statusService.showStatus(e.toString(), true)
         );
     }
+    installFile(url, destinationFolder: string, number?: number, total?: number) {
+        this.spinnerService.showLoader();
+        return this.appService
+            .downloadFile(url, url, url, downloadUrl => {
+                return this.appService.path.join(this.appService.appData, downloadUrl.split('/').pop());
+            })
+            .then((_path: string) => this.installLocalFile(_path, destinationFolder, false, null, number, total));
+    }
+    installLocalFile(
+        filepath: string,
+        destinationFolder: string,
+        dontCatchError = false,
+        cb = null,
+        number?: number,
+        total?: number
+    ) {
+        let filename = this.appService.path.basename(filepath);
+        const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
+        this.spinnerService.showLoader();
+        let p = this.adbCommand(
+            'push',
+            {
+                serial: this.deviceSerial,
+                path: filepath,
+                savePath: `${destinationFolder}${filename}`,
+            },
+            stats => {
+                this.spinnerService.setMessage(
+                    showTotal +
+                        'File uploading: ' +
+                        filename +
+                        ' <br>' +
+                        Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 +
+                        'MB'
+                );
+            }
+        );
+        p = p.then(() => {
+            this.statusService.showStatus('File transferred successfully!');
+        });
+        if (cb) {
+            cb();
+        }
+        if (!dontCatchError) {
+            p = p.catch(e => {
+                this.spinnerService.hideLoader();
+                this.statusService.showStatus(e.toString(), true);
+            });
+        }
+        return p;
+    }
     installObb(url, number?: number, total?: number) {
+        this.spinnerService.showLoader();
         return this.appService
             .downloadFile(url, url, url, downloadUrl => {
                 return this.appService.path.join(this.appService.appData, downloadUrl.split('/').pop());
@@ -624,6 +679,8 @@ export class AdbClientService {
         let filename = this.appService.path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
         const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
+
+        this.spinnerService.showLoader();
         let p = this.adbCommand(
             'push',
             {
@@ -645,6 +702,9 @@ export class AdbClientService {
         if (cb) {
             cb();
         }
+        p = p.then(() => {
+            this.statusService.showStatus('File transferred successfully!');
+        });
         if (!dontCatchError) {
             p = p.catch(e => {
                 console.log('here');

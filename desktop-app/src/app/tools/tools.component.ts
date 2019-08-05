@@ -64,7 +64,7 @@ export class ToolsComponent implements OnInit {
     ) {
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;
-        this.appService.hideNSFW = !!localStorage.getItem('hideNSFW');
+        this.appService.hideNSFW = !localStorage.getItem('hideNSFW');
     }
 
     ngOnInit() {

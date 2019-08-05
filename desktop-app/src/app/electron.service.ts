@@ -28,6 +28,17 @@ export class ElectronService {
     ) {
         this.setupIPC();
     }
+    async installFirefoxMultiple(urls) {
+        for (let i = 0; i < urls.length; i++) {
+            await this.adbService.installFile(
+                urls[i],
+                '/sdcard/Android/data/org.mozilla.vrbrowser/files/skybox/',
+                i + 1,
+                urls.length
+            );
+        }
+        this.spinnerService.hideLoader();
+    }
     async installMultiple(urls) {
         for (let i = 0; i < urls.length; i++) {
             const etx = urls[i]
@@ -44,6 +55,7 @@ export class ElectronService {
                     break;
             }
         }
+        this.spinnerService.hideLoader();
     }
 
     setupIPC() {
@@ -163,6 +175,24 @@ export class ElectronService {
                                 this.statusService.showStatus(e.toString(), true);
                                 this.spinnerService.hideLoader();
                             });
+                        break;
+                    case 'sidequest://firefox-skybox/':
+                        try {
+                            let urls = JSON.parse(
+                                data
+                                    .replace('sidequest://firefox-skybox/#', '')
+                                    .split('%22,%22')
+                                    .join('","')
+                                    .split('[%22')
+                                    .join('["')
+                                    .split('%22]')
+                                    .join('"]')
+                            );
+                            this.installFirefoxMultiple(urls);
+                        } catch (e) {
+                            this.statusService.showStatus('Could not parse install url: ' + data, true);
+                        }
+                        this.webviewService.isWebviewLoading = false;
                         break;
                     case 'sidequest://bsaber-multi/':
                         try {
