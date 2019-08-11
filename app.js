@@ -179,7 +179,11 @@ autoUpdater.on('update-not-available', info => {
     mainWindow.webContents.send('update-status', { status: 'no-update', info });
 });
 autoUpdater.on('error', err => {
-    mainWindow.webContents.send('update-status', { status: 'error', err });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'error', err });
+    } else {
+        console.log(err);
+    }
 });
 autoUpdater.on('download-progress', progressObj => {
     mainWindow.webContents.send('update-status', { status: 'downloading', progressObj });
