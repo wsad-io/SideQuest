@@ -30,7 +30,7 @@ function createWindow() {
     mainWindow.webContents.once('dom-ready', async e => {
         parseOpenUrl(process.argv);
         autoUpdater.autoDownload = false;
-        autoUpdater.checkForUpdates();
+        if (process.platform !== 'linux') autoUpdater.checkForUpdates();
     });
 
     const { protocol } = require('electron');
