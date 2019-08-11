@@ -37,7 +37,6 @@ export class ElectronService {
                 urls.length
             );
         }
-        this.spinnerService.hideLoader();
     }
     async installMultiple(urls) {
         for (let i = 0; i < urls.length; i++) {
@@ -55,7 +54,6 @@ export class ElectronService {
                     break;
             }
         }
-        this.spinnerService.hideLoader();
     }
 
     setupIPC() {
@@ -68,7 +66,9 @@ export class ElectronService {
             if (data.status === 'checking-for-update') {
                 this.statusService.showStatus('Checking for an update...');
             } else if (data.status === 'update-available') {
-                this.statusService.showStatus('Update Available to version ' + data.info.version);
+                this.statusService.showStatus(
+                    'Update Available to version ' + data.info.version + '. Restarting to install the new version...'
+                );
                 this.appService.updateAvailable = true;
             } else if (data.status === 'no-update') {
                 this.statusService.showStatus('You are on the most recent version of SideQuest.');
@@ -82,7 +82,6 @@ export class ElectronService {
             }
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
-            console.log(data);
             if (data) {
                 let url = data.split('#');
                 switch (url[0]) {
@@ -105,24 +104,14 @@ export class ElectronService {
                                     .join('"]')
                             );
                             this.installMultiple(urls);
+                            this.statusService.showStatus('Installing app... See the tasks screen for more info.');
                         } catch (e) {
                             this.statusService.showStatus('Could not parse install url: ' + data, true);
                         }
                         this.webviewService.isWebviewLoading = false;
                         break;
                     case 'sidequest://sideload/':
-                        this.spinnerService.showLoader();
-                        this.spinnerService.setMessage('Installing APK...');
-                        this.adbService
-                            .installAPK(url[1])
-                            .then(() => {
-                                this.spinnerService.hideLoader();
-                                this.statusService.showStatus('APK installed!! ' + url[1]);
-                            })
-                            .catch(e => {
-                                this.spinnerService.hideLoader();
-                                this.statusService.showStatus(e.message ? e.message : e.code ? e.code : e.toString(), true);
-                            });
+                        this.adbService.installAPK(url[1]);
                         break;
                     case 'sidequest://launcher/':
                         if (!this.isLauncherInstalled()) {
@@ -165,18 +154,13 @@ export class ElectronService {
                         // }
                         break;
                     case 'sidequest://bsaber/':
-                        this.spinnerService.showLoader();
-                        this.spinnerService.setMessage('Saving to BeatOn...');
-                        this.beatonService
-                            .downloadSong(url[1], this.adbService)
-                            .then(() => this.spinnerService.hideLoader())
-                            .then(() => this.statusService.showStatus('Item Downloaded Ok!!'))
-                            .catch(e => {
-                                this.statusService.showStatus(e.toString(), true);
-                                this.spinnerService.hideLoader();
-                            });
+                        this.statusService.showStatus('Song download started... See the tasks screen for more info.');
+                        this.beatonService.downloadSong(url[1], this.adbService);
                         break;
                     case 'sidequest://firefox-skybox/':
+                        this.statusService.showStatus(
+                            'Firefox Reality Skybox download started... See the tasks screen for more info.'
+                        );
                         try {
                             let urls = JSON.parse(
                                 data
@@ -283,14 +267,10 @@ export class ElectronService {
     }
     installLauncher() {
         this.isInstallingLauncher = true;
-        return this.adbService
-            .installAPK('https://cdn.theexpanse.app/SideQuestWrapper.apk')
-            .then(() => this.adbService.installAPK('https://cdn.theexpanse.app/SideQuestWrapper2.apk'))
-            .then(() => this.adbService.installAPK('https://cdn.theexpanse.app/SideQuestLauncher.apk'))
-            .then(() => this.adbService.getPackages())
-            .then(() => {
-                this.isInstallingLauncher = false;
-                this.isInstalledLauncher = true;
-            });
+        this.adbService.installAPK('https://cdn.theexpanse.app/SideQuestWrapper.apk');
+        this.adbService.installAPK('https://cdn.theexpanse.app/SideQuestWrapper2.apk');
+        this.adbService.installAPK('https://cdn.theexpanse.app/SideQuestLauncher.apk');
+        this.isInstallingLauncher = false;
+        this.isInstalledLauncher = true;
     }
 }

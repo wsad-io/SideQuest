@@ -171,6 +171,9 @@ autoUpdater.on('checking-for-update', () => {
 });
 autoUpdater.on('update-available', info => {
     mainWindow.webContents.send('update-status', { status: 'update-available', info });
+    setTimeout(() => {
+        autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(true, true));
+    }, 5000);
 });
 autoUpdater.on('update-not-available', info => {
     mainWindow.webContents.send('update-status', { status: 'no-update', info });

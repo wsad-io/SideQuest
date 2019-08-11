@@ -8,6 +8,7 @@
   right: 5px;
   top: 5px;
   -webkit-app-region: no-drag;
+  vertical-align: middle;
   z-index: 999;
 }
 .title-menu-container i{
@@ -24,6 +25,17 @@
   display: inline-block;
   margin-right: 13px;
   margin-left: 13px
+}
+.process-badge{
+  border-radius: 4px;
+  padding: 0 3px;
+  color: white;
+  display: inline-block;
+  margin-right: 10px;
+  margin-left: -34px;
+  vertical-align: super;
+  width: 25px;
+  text-align: center;
 }
 #browser-bar {
   position: absolute;
@@ -159,10 +171,11 @@
   top: 45px;
 }
 .beaton-icon{
-  height: 18px;
-  margin-top: -2px;
+  height: 22px;
   margin-right: 8px;
   cursor: pointer;
+  vertical-align: initial;
+
 }
 .update-repo,
 .delete-repo,

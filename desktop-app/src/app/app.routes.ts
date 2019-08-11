@@ -8,10 +8,12 @@ import { SideQuestDetailComponent } from './side-quest-detail/side-quest-detail.
 import { WebviewComponent } from './webview/webview.component';
 import { FilesComponent } from './files/files.component';
 import { CustomLevelsComponent } from './custom-levels/custom-levels.component';
+import { CurrentTasksComponent } from './current-tasks/current-tasks.component';
 
 export const AppRoutes: Routes = [
     { path: 'setup', component: SetupComponent },
     { path: 'repos', component: ReposComponent },
+    { path: 'tasks', component: CurrentTasksComponent },
     { path: 'packages', component: PackagesComponent },
     { path: 'packages/:packageName', component: PackagesComponent },
     { path: 'tools', component: ToolsComponent },

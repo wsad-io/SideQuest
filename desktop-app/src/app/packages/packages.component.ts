@@ -25,6 +25,7 @@ export class PackagesComponent implements OnInit {
     isBackingUp: boolean;
     isOpen: boolean;
     sub: Subscription;
+    show_all: boolean;
     constructor(
         public adbService: AdbClientService,
         public appService: AppService,
@@ -43,6 +44,16 @@ export class PackagesComponent implements OnInit {
                 this.routerPackage = route.snapshot.paramMap.get('packageName');
             }
         });
+        this.show_all = !!localStorage.getItem('packages_show_all');
+    }
+
+    setShowAll() {
+        if (this.show_all) {
+            localStorage.setItem('packages_show_all', 'true');
+        } else {
+            localStorage.removeItem('packages_show_all');
+        }
+        this.isOpen = false;
     }
 
     ngOnInit() {}
@@ -50,7 +61,7 @@ export class PackagesComponent implements OnInit {
         let isConnected = this.adbService.deviceStatus === ConnectionStatus.CONNECTED;
         if (isConnected && !this.isOpen) {
             this.isOpen = true;
-            this.adbService.getPackages().then(() => {
+            this.adbService.getPackages(this.show_all).then(() => {
                 this.myApps = this.adbService.devicePackages
                     .map(p => {
                         if (this.repoService.allApps[p]) {

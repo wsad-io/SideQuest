@@ -9,6 +9,7 @@ import { BsaberService, QuestSaberPatchResponseJson } from '../bsaber.service';
 import { BeatOnService } from '../beat-on.service';
 import { DragAndDropService } from '../drag-and-drop.service';
 import { Router } from '@angular/router';
+import { ProcessBucketService } from '../process-bucket.service';
 interface ReplaceText {
     key: string;
     value: string;
@@ -47,7 +48,8 @@ export class HeaderComponent implements OnInit {
         public repoService: RepoService,
         public beatonService: BeatOnService,
         public dragAndDropService: DragAndDropService,
-        public router: Router
+        public router: Router,
+        public processService: ProcessBucketService
     ) {}
     ngOnInit() {}
     isConnected() {

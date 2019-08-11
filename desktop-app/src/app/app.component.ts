@@ -27,7 +27,9 @@ export class AppComponent {
         electronService: ElectronService,
         private bsaberSerivce: BsaberService,
         private beatonService: BeatOnService
-    ) {}
+    ) {
+        this.appService.hideNSFW = !!localStorage.getItem('hideNSFW');
+    }
     ngOnInit() {
         this.adbService
             .setupAdb()

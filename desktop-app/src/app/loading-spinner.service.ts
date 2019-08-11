@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 
 @Injectable({
@@ -12,6 +12,9 @@ export class LoadingSpinnerService {
     }
     setMessage(message) {
         if (this.spinner) {
+            // if(this.processService.tasks.length){
+            //   this.processService.tasks[0].status = message;
+            // }
             this.spinner.loadingMessage = message;
         }
     }

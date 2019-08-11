@@ -38,6 +38,9 @@
     <i routerLink="packages" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Currently Installed Apps">
       apps
     </i>
+    <i routerLink="tasks" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Running {{processService.tasks.length}} tasks.">
+      playlist_add_check
+    </i><span routerLink="tasks" mz-tooltip *ngIf="processService.tasks.length" position="bottom" tooltip="Running {{processService.tasks.length}} tasks." class="process-badge pink-button">{{processService.tasks.length}}</span>
     <i id="device-settings" routerLink="tools" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Device Settings & Tools">
       build
     </i>
@@ -89,6 +92,25 @@
     <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
   </div>
 
+  <div class="sync-songs" *ngIf="appService.showTaskActions">
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Open your custom levels folder." (click)="processService.clearDone()">
+      Clear Done
+    </div>
+    &nbsp;&nbsp;
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Open your custom levels folder." (click)="processService.retryFailed()">
+      Retry Failed
+    </div>
+    &nbsp;&nbsp;
+
+  </div>
   <div class="sync-songs" *ngIf="appService.showCustomActions">
     <span class="beat-saber-version"></span>&nbsp;&nbsp;
     <div

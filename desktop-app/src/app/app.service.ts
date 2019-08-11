@@ -22,6 +22,7 @@ export class AppService {
     showSearch: boolean;
     showBrowserBar: boolean;
     showCustomActions: boolean;
+    showTaskActions: boolean;
     updateAvailable: boolean;
     showRepo: boolean;
     isFilesOpen: boolean;
@@ -50,7 +51,7 @@ export class AppService {
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.6.4';
+    versionName: string = '0.6.5';
     showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
@@ -92,6 +93,7 @@ export class AppService {
         this.showSearch = false;
         this.showBrowserBar = false;
         this.showCustomActions = false;
+        this.showTaskActions = false;
         this.showRepo = false;
         this.isFilesOpen = false;
     }
@@ -193,7 +195,7 @@ export class AppService {
             });
         });
     }
-    async downloadFile(winUrl, linUrl, macUrl, getPath) {
+    async downloadFile(winUrl, linUrl, macUrl, getPath, task?) {
         const requestOptions = {
             timeout: 30000,
             'User-Agent': this.getUserAgent(),
@@ -219,11 +221,19 @@ export class AppService {
                     reject(error);
                 })
                 .on('progress', state => {
-                    this.spinnerService.setMessage('Downloading... ' + Math.round(state.percent * 100) + '%');
-                    this.spinnerService.spinner.changes.detectChanges();
+                    if (task) {
+                        task.status = 'Downloading... ' + Math.round(state.percent * 100) + '%';
+                    } else {
+                        this.spinnerService.setMessage('Downloading... ' + Math.round(state.percent * 100) + '%');
+                        this.spinnerService.spinner.changes.detectChanges();
+                    }
                 })
                 .on('end', () => {
-                    this.spinnerService.setMessage('Processing... <br>This might take 10 - 30 seconds.');
+                    if (task) {
+                        task.status = 'Processing... This might take 10 - 30 seconds.';
+                    } else {
+                        this.spinnerService.setMessage('Processing... <br>This might take 10 - 30 seconds.');
+                    }
                     return resolve(downloadPath);
                 })
                 .pipe(this.fs.createWriteStream(downloadPath));

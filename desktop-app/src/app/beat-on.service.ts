@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { LoadingSpinnerService } from './loading-spinner.service';
 import { StatusBarService } from './status-bar.service';
 import { AppService } from './app.service';
+import { ProcessBucketService } from './process-bucket.service';
 
 interface BeatOnStatus {
     CurrentStatus: string;
@@ -38,7 +39,8 @@ export class BeatOnService {
         private http: HttpClient,
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService,
-        private appService: AppService
+        private appService: AppService,
+        private processService: ProcessBucketService
     ) {}
     setupBeatOn(adbService) {
         this.spinnerService.showLoader();
@@ -206,66 +208,73 @@ export class BeatOnService {
     }
 
     downloadSong(downloadUrl, adbService) {
-        let parts = downloadUrl.split('/');
-        let zipPath = this.appService.path.join(this.appService.appData, parts[parts.length - 1]);
-        let name = parts[parts.length - 1].split('.')[0];
-        const requestOptions = {
-            timeout: 30000,
-            'User-Agent': this.appService.getUserAgent(),
-        };
-        return new Promise((resolve, reject) => {
-            if (adbService.deviceIp && this.beatOnEnabled && this.beatOnPID && this.beatOnStatus.CurrentStatus === 'ModInstalled') {
-                this.appService
-                    .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 50 })
-                    .on('error', error => {
-                        reject(error);
-                    })
-                    .on('progress', state => {
-                        this.spinnerService.setMessage('Saving to BeatOn... ' + Math.round(state.percent * 100) + '%');
-                    })
-                    .on('end', () => {
-                        let formData = {
-                            file: {
-                                value: this.appService.fs.createReadStream(zipPath),
-                                options: {
-                                    filename: parts[parts.length - 1],
-                                    contentType: 'application/zip',
+        return this.processService.addItem('song_download', async task => {
+            let parts = downloadUrl.split('/');
+            let zipPath = this.appService.path.join(this.appService.appData, parts[parts.length - 1]);
+            //let name = parts[parts.length - 1].split('.')[0];
+            const requestOptions = {
+                timeout: 30000,
+                'User-Agent': this.appService.getUserAgent(),
+            };
+            task.status = 'Saving to BeatOn...';
+            return new Promise((resolve, reject) => {
+                if (
+                    adbService.deviceIp &&
+                    this.beatOnEnabled &&
+                    this.beatOnPID &&
+                    this.beatOnStatus.CurrentStatus === 'ModInstalled'
+                ) {
+                    this.appService
+                        .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 50 })
+                        .on('error', error => {
+                            reject(error);
+                        })
+                        .on('progress', state => {
+                            task.status = 'Saving to BeatOn... ' + Math.round(state.percent * 100) + '%';
+                        })
+                        .on('end', () => {
+                            let formData = {
+                                file: {
+                                    value: this.appService.fs.createReadStream(zipPath),
+                                    options: {
+                                        filename: parts[parts.length - 1],
+                                        contentType: 'application/zip',
+                                    },
                                 },
-                            },
-                        };
-                        let options = {
-                            url: 'http://' + adbService.deviceIp + ':50000/host/beatsaber/upload',
-                            method: 'POST',
-                            formData: formData,
-                        };
-                        if (this.beatOnStatus.CurrentStatus === 'ModInstalled') {
-                            this.appService
-                                .progress(this.appService.request(options), { throttle: 50 })
-                                .on('error', error => {
-                                    reject(error);
-                                })
-                                .on('progress', state => {
-                                    this.spinnerService.setMessage(
-                                        'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%'
-                                    );
-                                })
-                                .on('end', () => {
-                                    this.appService.fs.unlink(zipPath, err => {
-                                        resolve(parts[parts.length - 1].split('.')[0]);
+                            };
+                            let options = {
+                                url: 'http://' + adbService.deviceIp + ':50000/host/beatsaber/upload',
+                                method: 'POST',
+                                formData: formData,
+                            };
+                            if (this.beatOnStatus.CurrentStatus === 'ModInstalled') {
+                                this.appService
+                                    .progress(this.appService.request(options), { throttle: 50 })
+                                    .on('error', error => {
+                                        reject(error);
+                                    })
+                                    .on('progress', state => {
+                                        task.status = 'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%';
+                                    })
+                                    .on('end', () => {
+                                        this.appService.fs.unlink(zipPath, err => {
+                                            task.status = 'Saved! ' + downloadUrl;
+                                            resolve(parts[parts.length - 1].split('.')[0]);
+                                        });
                                     });
-                                });
-                        } else {
-                            reject('Cannot reach BeatOn, it must be enabled and have the patch installed.');
-                        }
-                    })
-                    .pipe(this.appService.fs.createWriteStream(zipPath));
-            } else {
-                reject(
-                    new Error(
-                        'BeatOn not installed / enabled. Please enable Beat On and ensure your on the same wifi as your headset.'
-                    )
-                );
-            }
+                            } else {
+                                reject('Cannot reach BeatOn, it must be enabled and have the patch installed.');
+                            }
+                        })
+                        .pipe(this.appService.fs.createWriteStream(zipPath));
+                } else {
+                    reject(
+                        new Error(
+                            'BeatOn not installed / enabled. Please enable Beat On and ensure your on the same wifi as your headset.'
+                        )
+                    );
+                }
+            });
         });
     }
 }

@@ -115,9 +115,8 @@ export class SideQuestDetailComponent implements OnInit {
         return output;
     }
     uninstallApk() {
-        this.adbService.uninstallAPK(this.app.packageName).then(() => {
-            this.app = null;
-            this.getRepo();
-        });
+        this.adbService.uninstallAPK(this.app.packageName);
+        this.app = null;
+        this.getRepo();
     }
 }
