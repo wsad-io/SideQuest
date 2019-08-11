@@ -250,10 +250,18 @@ export class BeatOnService {
                                 formData: formData,
                             };
                             let timeoutCheck = setTimeout(() => {
-                                task.failed = true;
-                                task.status = 'Failed to save song... Timeout';
-                                reject(task.status);
-                            }, 60000);
+                                if (task.fail_once) {
+                                    task.fail_once = false;
+                                    task.failed = true;
+                                    task.status = 'Failed to save song... Timeout';
+                                    reject(task.status);
+                                } else {
+                                    task.fail_once = true;
+                                    task.running = false;
+                                    task.status = 'Waiting...';
+                                    resolve();
+                                }
+                            }, 30000);
                             this.appService
                                 .progress(this.appService.request(options), { throttle: 50 })
                                 .on('error', error => {

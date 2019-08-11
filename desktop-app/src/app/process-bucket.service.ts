@@ -6,6 +6,7 @@ export interface ProcessTask {
     icon: string;
     status?: string;
     running?: boolean;
+    fail_once?: boolean;
     percent?: string;
     failed?: boolean;
     succeeded?: boolean;
@@ -68,11 +69,12 @@ export class ProcessBucketService {
             status,
             resolve,
         });
+        this.left_length = this.tasks.filter(t => t.status === 'Waiting...').length;
     }
 
     async processBucket() {
         const objects = this.tasks.filter(t => t.status === 'Waiting...');
-        const timeout = new Promise(resolve => setTimeout(() => resolve(), 1000));
+        const timeout = new Promise(resolve => setTimeout(() => resolve(), 1500));
         this.left_length = objects.length;
         if (objects.length) {
             this.is_running = true;
