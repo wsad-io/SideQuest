@@ -10,7 +10,6 @@ import { AppService } from '../app.service';
 })
 export class CurrentTasksComponent implements OnInit {
     constructor(public processService: ProcessBucketService, public appService: AppService) {
-        console.log('here');
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;
         this.appService.showTaskActions = true;

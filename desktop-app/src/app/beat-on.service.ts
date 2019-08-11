@@ -210,7 +210,7 @@ export class BeatOnService {
     downloadSong(downloadUrl, adbService) {
         return this.processService.addItem('song_download', async task => {
             let parts = downloadUrl.split('/');
-            let zipPath = this.appService.path.join(this.appService.appData, parts[parts.length - 1]);
+            let zipPath = this.appService.path.join(this.appService.appData, this.appService.uuidv4() + '.zip');
             //let name = parts[parts.length - 1].split('.')[0];
             const requestOptions = {
                 timeout: 30000,
@@ -249,28 +249,30 @@ export class BeatOnService {
                                 method: 'POST',
                                 formData: formData,
                             };
-                            if (this.beatOnStatus.CurrentStatus === 'ModInstalled') {
-                                this.appService
-                                    .progress(this.appService.request(options), { throttle: 50 })
-                                    .on('error', error => {
-                                        task.failed = true;
-                                        task.status = 'Failed to save song... ' + error.toString();
-                                        reject(error);
-                                    })
-                                    .on('progress', state => {
-                                        task.status = 'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%';
-                                    })
-                                    .on('end', () => {
-                                        this.appService.fs.unlink(zipPath, err => {
-                                            task.status = 'Saved! ' + downloadUrl;
-                                            resolve(parts[parts.length - 1].split('.')[0]);
-                                        });
-                                    });
-                            } else {
+                            let timeoutCheck = setTimeout(() => {
                                 task.failed = true;
-                                task.status = 'Cannot reach BeatOn, it must be enabled and have the patch installed.';
-                                reject('Cannot reach BeatOn, it must be enabled and have the patch installed.');
-                            }
+                                task.status = 'Failed to save song... Timeout';
+                                reject(task.status);
+                            }, 60000);
+                            this.appService
+                                .progress(this.appService.request(options), { throttle: 50 })
+                                .on('error', error => {
+                                    clearTimeout(timeoutCheck);
+                                    task.failed = true;
+                                    task.status = 'Failed to save song... ' + error.toString();
+                                    reject(error);
+                                })
+                                .on('progress', state => {
+                                    clearTimeout(timeoutCheck);
+                                    task.status = 'Uploading To Beat On... ' + Math.round(state.percent * 100) + '%';
+                                })
+                                .on('end', () => {
+                                    clearTimeout(timeoutCheck);
+                                    this.appService.fs.unlink(zipPath, err => {
+                                        task.status = 'Saved! ' + downloadUrl;
+                                        resolve(parts[parts.length - 1].split('.')[0]);
+                                    });
+                                });
                         })
                         .pipe(this.appService.fs.createWriteStream(zipPath));
                 } else {
