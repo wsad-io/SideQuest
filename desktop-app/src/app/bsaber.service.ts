@@ -533,7 +533,7 @@ export class BsaberService {
                         files = this.migrateSong(fullpath, directories, fullpath) || files;
                     }
                     if (~files.indexOf('info.json')) {
-                        await this.convertSong(fullpath);
+                        //await this.convertSong(fullpath);
                     }
                     if (!~files.indexOf('info.dat')) {
                         return resolve();
@@ -641,7 +641,7 @@ export class BsaberService {
                 if (err || !name.length) return reject(err || 'Song directory empty! - ' + beatsaber.dir);
                 let innerDir = this.appService.path.join(beatsaber.dir, name[0]);
                 if (this.appService.fs.existsSync(this.appService.path.join(innerDir, 'info.json'))) {
-                    await this.convertSong(innerDir);
+                    //await this.convertSong(innerDir);
                 }
                 resolve();
             });
