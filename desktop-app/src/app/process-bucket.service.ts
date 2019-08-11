@@ -91,8 +91,12 @@ export class ProcessBucketService {
                 });
             this.tasks = this.tasks.filter(t => t !== task);
         } else {
+            let hasFailed = this.tasks.filter(t => t.failed).length;
             if (this.is_running) {
-                this.statusService.showStatus('All tasks completed! See the tasks screen for more info.');
+                this.statusService.showStatus(
+                    (hasFailed ? 'Some tasks failed. ' : 'All tasks completed! ') + 'See the tasks screen for more info.',
+                    hasFailed
+                );
             }
             this.is_running = false;
             await timeout.then(() => this.processBucket());
@@ -110,5 +114,9 @@ export class ProcessBucketService {
 
     clearDone() {
         this.tasks = this.tasks.filter(t => !t.succeeded);
+    }
+
+    clearFailed() {
+        this.tasks = this.tasks.filter(t => !t.failed);
     }
 }

@@ -227,6 +227,8 @@ export class BeatOnService {
                     this.appService
                         .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 50 })
                         .on('error', error => {
+                            task.failed = true;
+                            task.status = 'Failed to save song... ' + error.toString();
                             reject(error);
                         })
                         .on('progress', state => {
@@ -251,6 +253,8 @@ export class BeatOnService {
                                 this.appService
                                     .progress(this.appService.request(options), { throttle: 50 })
                                     .on('error', error => {
+                                        task.failed = true;
+                                        task.status = 'Failed to save song... ' + error.toString();
                                         reject(error);
                                     })
                                     .on('progress', state => {
@@ -263,6 +267,8 @@ export class BeatOnService {
                                         });
                                     });
                             } else {
+                                task.failed = true;
+                                task.status = 'Cannot reach BeatOn, it must be enabled and have the patch installed.';
                                 reject('Cannot reach BeatOn, it must be enabled and have the patch installed.');
                             }
                         })

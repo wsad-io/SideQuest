@@ -36,6 +36,7 @@
   vertical-align: super;
   width: 25px;
   text-align: center;
+  cursor: pointer;
 }
 #browser-bar {
   position: absolute;

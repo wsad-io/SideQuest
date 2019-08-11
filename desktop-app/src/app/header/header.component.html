@@ -97,7 +97,7 @@
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
       position="bottom"
-      tooltip="Open your custom levels folder." (click)="processService.clearDone()">
+      tooltip="Clear out the finished items." (click)="processService.clearDone()">
       Clear Done
     </div>
     &nbsp;&nbsp;
@@ -105,8 +105,16 @@
       class="waves-effect waves-light btn small-button pink-button"
       mz-tooltip
       position="bottom"
-      tooltip="Open your custom levels folder." (click)="processService.retryFailed()">
+      tooltip="Restart the failed items." (click)="processService.retryFailed()">
       Retry Failed
+    </div>
+    &nbsp;&nbsp;
+    <div
+      class="waves-effect waves-light btn small-button pink-button"
+      mz-tooltip
+      position="bottom"
+      tooltip="Clear out the failed items." (click)="processService.clearFailed()">
+      Clear Failed
     </div>
     &nbsp;&nbsp;
 

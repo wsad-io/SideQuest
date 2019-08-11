@@ -31,10 +31,11 @@ export class SideMenuComponent implements OnInit {
     }
 
     openCategory(category) {
-        this.appService.resetTop();
-        this.webService.loadUrl('https://sidequestvr.com/#/apps/' + category);
-        this.webService.isWebviewOpen = true;
-        this.appService.showBrowserBar = true;
-        this.appService.setTitle('SideQuest');
+        this.router.navigateByUrl('/webview').then(() => this.webService.loadUrl('https://sidequestvr.com/#/apps/' + category));
+        //  this.appService.resetTop();
+        // this.webService.loadUrl('https://sidequestvr.com/#/apps/' + category);
+        //  this.webService.isWebviewOpen = true;
+        //  this.appService.showBrowserBar = true;
+        //  this.appService.setTitle('SideQuest');
     }
 }
