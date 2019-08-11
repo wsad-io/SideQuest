@@ -637,14 +637,15 @@ export class BsaberService {
 
     convertSongCheck(beatsaber) {
         return new Promise((resolve, reject) => {
-            this.appService.fs.readdir(beatsaber.dir, async (err, name) => {
-                if (err || !name.length) return reject(err || 'Song directory empty! - ' + beatsaber.dir);
-                let innerDir = this.appService.path.join(beatsaber.dir, name[0]);
-                if (this.appService.fs.existsSync(this.appService.path.join(innerDir, 'info.json'))) {
-                    //await this.convertSong(innerDir);
-                }
-                resolve();
-            });
+            // this.appService.fs.readdir(beatsaber.dir, async (err, name) => {
+            //     if (err || !name.length) return reject(err || 'Song directory empty! - ' + beatsaber.dir);
+            //     let innerDir = this.appService.path.join(beatsaber.dir, name[0]);
+            //     if (this.appService.fs.existsSync(this.appService.path.join(innerDir, 'info.json'))) {
+            //         //await this.convertSong(innerDir);
+            //     }
+            //     resolve();
+            // });
+            resolve();
         });
     }
 }
