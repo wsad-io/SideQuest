@@ -91,7 +91,7 @@ export class ProcessBucketService {
                 });
             this.tasks = this.tasks.filter(t => t !== task);
         } else {
-            let hasFailed = this.tasks.filter(t => t.failed).length;
+            let hasFailed = !!this.tasks.filter(t => t.failed).length;
             if (this.is_running) {
                 this.statusService.showStatus(
                     (hasFailed ? 'Some tasks failed. ' : 'All tasks completed! ') + 'See the tasks screen for more info.',
