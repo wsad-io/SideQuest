@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ProcessBucketService } from '../process-bucket.service';
 
 @Component({
     selector: 'app-current-task-item',
@@ -7,7 +8,11 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class CurrentTaskItemComponent implements OnInit {
     @Input() task;
-    constructor() {}
+    constructor(private processService: ProcessBucketService) {}
 
     ngOnInit() {}
+
+    deleteItem() {
+        this.processService.tasks = this.processService.tasks.filter(t => t !== this.task);
+    }
 }

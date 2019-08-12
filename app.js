@@ -167,16 +167,22 @@ if (!gotTheLock) {
     });
 }
 autoUpdater.on('checking-for-update', () => {
-    mainWindow.webContents.send('update-status', { status: 'checking-for-update' });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'checking-for-update' });
+    }
 });
 autoUpdater.on('update-available', info => {
-    mainWindow.webContents.send('update-status', { status: 'update-available', info });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'update-available', info });
+    }
     setTimeout(() => {
         autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(true, true));
     }, 5000);
 });
 autoUpdater.on('update-not-available', info => {
-    mainWindow.webContents.send('update-status', { status: 'no-update', info });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'no-update', info });
+    }
 });
 autoUpdater.on('error', err => {
     if (mainWindow) {
@@ -186,10 +192,14 @@ autoUpdater.on('error', err => {
     }
 });
 autoUpdater.on('download-progress', progressObj => {
-    mainWindow.webContents.send('update-status', { status: 'downloading', progressObj });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'downloading', progressObj });
+    }
 });
 autoUpdater.on('update-downloaded', info => {
-    mainWindow.webContents.send('update-status', { status: 'update-downloaded', info });
+    if (mainWindow) {
+        mainWindow.webContents.send('update-status', { status: 'update-downloaded', info });
+    }
 });
 global.receiveMessage = function(text) {
     mainWindow.webContents.send('info', text);
