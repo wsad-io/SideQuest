@@ -30,7 +30,7 @@ function createWindow() {
     mainWindow.webContents.once('dom-ready', async e => {
         parseOpenUrl(process.argv);
         autoUpdater.autoDownload = false;
-        if (process.platform !== 'linux' && process.platform !== 'darwin') autoUpdater.checkForUpdates();
+        if (process.platform !== 'linux') autoUpdater.checkForUpdates();
     });
 
     const { protocol } = require('electron');
@@ -175,9 +175,11 @@ autoUpdater.on('update-available', info => {
     if (mainWindow) {
         mainWindow.webContents.send('update-status', { status: 'update-available', info });
     }
-    setTimeout(() => {
-        autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(false, false));
-    }, 5000);
+    if (process.platform !== 'darwin') {
+        setTimeout(() => {
+            autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(false, false));
+        }, 5000);
+    }
 });
 autoUpdater.on('update-not-available', info => {
     if (mainWindow) {

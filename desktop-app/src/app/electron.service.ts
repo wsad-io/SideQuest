@@ -67,7 +67,11 @@ export class ElectronService {
                 this.statusService.showStatus('Checking for an update...');
             } else if (data.status === 'update-available') {
                 this.statusService.showStatus(
-                    'Update Available to version ' + data.info.version + '. Restarting to install the new version...'
+                    this.appService.os.platform() === 'win32'
+                        ? 'Update Available to version ' + data.info.version + '. Restarting to install the new version...'
+                        : 'Update Available to version ' +
+                              data.info.version +
+                              '. Click Update Available at the top to get the latest version.'
                 );
                 this.appService.updateAvailable = true;
             } else if (data.status === 'no-update') {
