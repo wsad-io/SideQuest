@@ -47,10 +47,9 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 ('Setup' tab was moved to the 'Setup & How-To' tab, inside the 'Web' tab)
 
 ## App Developers: 
+We now have a really easy and powerful app manager portal to be able to manage your app listings on SideQuest. 
 
-Until we create a Developer portal, you can contact me directly on my [discord server](https://discord.gg/Q2a5BkZ) if you want to distribute your app via SideQuest.
-
-If you want to distribute via SideQuest, but need to link your users directly to the latest SideQuest releases on your website, here's some [sample code](https://jsfiddle.net/uagx31ps/).
+[Submit Apps To SideQuest](https://github.com/the-expanse/SideQuest/wiki/Submit-Games)
 
 ## Build Steps
 
