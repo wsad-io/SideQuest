@@ -5,6 +5,15 @@
 
   </div>
   <div *ngIf="isConnected()">
+    <div class="right-align show-all">
+      <div class="switch">
+        <label>
+          <input type="checkbox" [(ngModel)]="show_all" (change)="setShowAll()"/>
+          <span class="lever"></span>
+          Show All
+        </label>
+      </div>
+    </div>
     <div class="row">
       <app-package-item *ngFor="let package of myApps;" [package]="package"
                         (settings)="currentPackage = $event;appSettingsModal.openModal();getCurrentInstalledInfo()"></app-package-item>
