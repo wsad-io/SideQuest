@@ -78,6 +78,7 @@ export class AppService {
         if (theme && theme === 'light') {
             this.currentTheme = 'light';
         }
+        this.hideNSFW = !!localStorage.getItem('hideNSFW');
     }
 
     getBase64Image(imagePath: string) {
