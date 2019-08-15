@@ -51,7 +51,7 @@ export class AppService {
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.6.5';
+    versionName: string = '0.6.6';
     showBack: boolean = false;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
