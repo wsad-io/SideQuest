@@ -695,8 +695,7 @@ export class AdbClientService {
         let filename = this.appService.path.basename(filepath);
         let packageId = filename.match(/main.[0-9]{1,}.([a-z]{1,}.[A-z]{1,}.[A-z]{1,}).obb/)[1];
         const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
-
-        this.spinnerService.showLoader();
+        if (!task) this.spinnerService.showLoader();
         let p = this.adbCommand(
             'push',
             {
