@@ -49,7 +49,7 @@ Check your antivirus hasn't blocked some parts of the ADB download - this has ha
 ## App Developers: 
 We now have a really easy and powerful app manager portal to be able to manage your app listings on SideQuest. 
 
-[Submit Apps To SideQuest](https://github.com/the-expanse/SideQuest/wiki/Submit-Games)
+[Submit Apps To SideQuest](https://github.com/the-expanse/SideQuest/wiki/How-To-Submit-Games)
 
 ## Build Steps
 
