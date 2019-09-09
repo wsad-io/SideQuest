@@ -113,7 +113,7 @@ export class AppService {
     }
     setTitle(title: string) {
         if (this.titleEle) {
-            this.titleEle.innerText = title;
+            this.titleEle.innerHTML = title;
         }
     }
     isTheme(theme: string) {

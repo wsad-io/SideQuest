@@ -7,8 +7,7 @@
       <span class="spinner-loading-message" [innerHTML]="dragAndDropService.message"></span>
     </div>
     <div class="logo no-outline" (click)="webService.webView.loadURL('https://sidequestvr.com');" routerLink="webview"></div>
-    <div class="header-title" #header>SideQuest</div>
-    <div class="apk-install" *ngIf="webService.isWebviewOpen">by <app-link url="https://theexpanse.app" text="@TheExpanseVR"></app-link></div>
+    <div class="header-title" #header><img src="../../assets/images/logo-textual.png" class="responsive-img"/></div>
     <div class="apk-install" *ngIf="!appService.showBrowserBar&&!appService.showCustomActions&&!appService.isFilesOpen">Drag and drop your APK/OBB files <br>over this message to install!</div>
     <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files over this message to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
     <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
