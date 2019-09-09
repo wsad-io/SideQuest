@@ -164,22 +164,6 @@
           </label>
         </div>
       </div>
-      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Run ADB Command</div>
-      Run an adb command from here to be able to see the output. Use this to troubleshoot issues or perform advanced operations.
-      <div class="button-section">
-        <div class="input-field">
-          <input id="adbCommand" [ngClass]="{'input-dark-theme':appService.currentTheme === 'dark','input-light-theme':appService.currentTheme === 'light'}" [type]="isPassword?'password':'text'" [(ngModel)]="adbCommandToRun"/>
-          <label for="adbCommand" [ngClass]="{'label-dark-theme':appService.currentTheme === 'dark','label-light-theme':appService.currentTheme === 'light'}">Command To Run</label>
-        </div>
-        <div class="waves-effect waves-light btn paste-text-button right pink-button"
-             (click)="runAdbCommand()"
-             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}">Run</div>
-
-        <code><pre *ngIf="adbResponse">
-          {{adbResponse}}
-        </pre></code>
-      </div>
-      <br><br>
     </div>
   </div>
 
