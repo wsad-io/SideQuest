@@ -55,6 +55,8 @@ export class ToolsComponent implements OnInit {
     SSO = SSO;
     CA = CA;
     GPU = GPU;
+    adbCommandToRun: string;
+    adbResponse: string;
     constructor(
         public appService: AppService,
         public adbService: AdbClientService,
@@ -64,6 +66,32 @@ export class ToolsComponent implements OnInit {
     ) {
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;
+    }
+
+    runAdbCommand() {
+        this.adbResponse = 'Loading...';
+        let command = this.adbCommandToRun.trim();
+        if (command.substr(0, 3).toLowerCase() === 'adb') {
+            command = command.substr(3);
+        }
+        new Promise((resolve, reject) => {
+            this.appService.exec(
+                '"' + this.appService.path.join(this.adbService.adbPath, this.adbService.getAdbBinary()) + '" ' + command,
+                function(err, stdout, stderr) {
+                    if (err) {
+                        return reject(err);
+                    }
+                    if (stderr) return reject(stderr);
+                    return resolve(stdout);
+                }
+            );
+        })
+            .then((resp: string) => {
+                this.adbResponse = resp;
+            })
+            .catch(e => {
+                this.statusService.showStatus(e, true);
+            });
     }
 
     ngOnInit() {

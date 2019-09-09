@@ -70,7 +70,7 @@
     mz-tooltip
     position="bottom"
     tooltip="{{ isConnected() ? 'Battery: ' + adbService.batteryLevel + '%' : 'No device is currently connected'}}">
-    <div id="connection-status-message">{{adbService.deviceStatusMessage}}</div>
+    <div id="connection-status-message">v{{appService.versionName}}&nbsp;&nbsp;{{adbService.deviceStatusMessage}}</div>
   </div>
   <div *ngIf="appService.showRepo" (click)="addRepoModal.openModal()" class="waves-effect waves-light btn-flat add-repo small-button white-text">
     Add Repo
