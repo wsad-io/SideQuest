@@ -50,6 +50,8 @@ export class AdbClientService {
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
         this.webService.isLoaded = this.sendPackages.bind(this);
+
+        this.deviceIp = localStorage.getItem('deviceIp');
     }
 
     installMultiFile(filepath) {
@@ -103,6 +105,7 @@ export class AdbClientService {
             .then(res => {
                 let output_parts = res.trim().split(' ');
                 this.deviceIp = output_parts[output_parts.length - 1];
+                localStorage.setItem('deviceIp', this.deviceIp);
             })
             .catch(e => {});
     }
