@@ -170,10 +170,14 @@ export class AdbClientService {
                 this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
-                this.deviceStatusMessage = 'Disconnected: Connect/Reconnect your headset via USB';
+                this.deviceStatusMessage =
+                    'Disconnected: Connect/Reconnect your headset via USB. ' +
+                    (this.deviceIp ? 'Last Wifi IP: ' + this.deviceIp : '');
                 break;
             case ConnectionStatus.UNAUTHORIZED:
-                this.deviceStatusMessage = 'Unauthorized: Put your headset on and click always allow and then OK';
+                this.deviceStatusMessage =
+                    'Unauthorized: Put your headset on and click always allow and then OK. ' +
+                    (this.deviceIp ? 'Last Wifi IP: ' + this.deviceIp : '');
                 break;
         }
     }

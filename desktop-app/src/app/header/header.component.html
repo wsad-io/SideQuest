@@ -260,12 +260,12 @@
   <mz-modal-content>
     Run an ADB command from here to be able to see the output. Use this to troubleshoot issues or perform advanced operations. Please note wireless ADB is not supported but we provide the following example commands for you to experiment with.
     <br><br>
-    <div class="chip pointer" (click)="adbCommandToRun = 'adb devices';runAdbCommand()">List Devices (adb devices)</div>
-    <div class="chip pointer" (click)="adbCommandToRun = 'adb tcpip 5555';runAdbCommand()">Enable Wifi ADB (adb tcpip 5555)</div>
-    <div *ngIf="isConnected()&&adbService.deviceIp" class="chip pointer" (click)="adbCommandToRun = 'adb connect '+adbService.deviceIp+':5555';runAdbCommand()">Connect to Wifi ADB (adb connect {{adbService.deviceIp}}:5555)</div>
-    <div class="chip pointer" (click)="adbCommandToRun = 'adb disconnect';runAdbCommand()">Disconnect Everything (adb disconnect)</div>
-    <div class="chip pointer" (click)="adbCommandToRun = 'adb usb';runAdbCommand()">Enable USB ADB (adb usb)</div>
-    <div class="chip pointer" (click)="adbCommandToRun = 'adb kill-server';runAdbCommand()">Reset ADB (adb kill-server)</div>
+    <div class="chip pointer green white-text" (click)="adbCommandToRun = 'adb devices';runAdbCommand()">List Devices (adb devices)</div><br>
+    <div class="chip pointer purple white-text" (click)="adbCommandToRun = 'adb tcpip 5555';runAdbCommand()">Enable Wifi ADB (adb tcpip 5555)</div>
+    <div *ngIf="adbService.deviceIp" class="chip pointer purple white-text" (click)="adbCommandToRun = 'adb connect '+adbService.deviceIp+':5555';runAdbCommand()">Connect to Wifi ADB (adb connect {{adbService.deviceIp}}:5555)</div><br>
+    <div class="chip pointer blue white-text" (click)="adbCommandToRun = 'adb usb';runAdbCommand()">Enable USB ADB (adb usb)</div><br>
+    <div class="chip pointer orange white-text" (click)="adbCommandToRun = 'adb disconnect';runAdbCommand()">Disconnect Everything (adb disconnect)</div>
+    <div class="chip pointer orange white-text" (click)="adbCommandToRun = 'adb kill-server';runAdbCommand()">Reset ADB (adb kill-server)</div>
     <div class="button-section">
       <div class="input-field">
         <input id="adbCommand"  type="text" [(ngModel)]="adbCommandToRun" placeholder="Command To Run..."/>
