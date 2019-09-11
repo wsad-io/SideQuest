@@ -260,12 +260,27 @@
   <mz-modal-content>
     Run an ADB command from here to be able to see the output. Use this to troubleshoot issues or perform advanced operations. Please note wireless ADB is not supported but we provide the following example commands for you to experiment with.
     <br><br>
-    <div class="chip pointer green white-text" (click)="adbCommandToRun = 'adb devices';runAdbCommand()">List Devices (adb devices)</div><br>
-    <div class="chip pointer purple white-text" (click)="adbCommandToRun = 'adb tcpip 5555';runAdbCommand()">Enable Wifi ADB (adb tcpip 5555)</div>
-    <div *ngIf="adbService.deviceIp" class="chip pointer purple white-text" (click)="adbCommandToRun = 'adb connect '+adbService.deviceIp+':5555';runAdbCommand()">Connect to Wifi ADB (adb connect {{adbService.deviceIp}}:5555)</div><br>
-    <div class="chip pointer blue white-text" (click)="adbCommandToRun = 'adb usb';runAdbCommand()">Enable USB ADB (adb usb)</div><br>
-    <div class="chip pointer orange white-text" (click)="adbCommandToRun = 'adb disconnect';runAdbCommand()">Disconnect Everything (adb disconnect)</div>
-    <div class="chip pointer orange white-text" (click)="adbCommandToRun = 'adb kill-server';runAdbCommand()">Reset ADB (adb kill-server)</div>
+    To enable wifi click "Enable Wifi ADB" then "Connect to Wifi ADB" and finally disconnect your usb cable.
+    <br><br>
+    <div class="chip pointer purple white-text"
+         mzTooltip tooltip="adb tcpip 5555" position="bottom"
+         (click)="adbCommandToRun = 'adb tcpip 5555';runAdbCommand()">Enable Wifi ADB</div>
+    <div *ngIf="adbService.deviceIp"
+         mzTooltip tooltip="adb connect {{adbService.deviceIp}}:5555" position="bottom"
+         class="chip pointer purple white-text"
+         (click)="adbCommandToRun = 'adb connect '+adbService.deviceIp+':5555';runAdbCommand()">Connect to Wifi ADB</div><br><br>
+    <div class="chip pointer green white-text"
+         mzTooltip tooltip="adb devices" position="bottom"
+         (click)="adbCommandToRun = 'adb devices';runAdbCommand()">List Devices</div>
+    <div class="chip pointer blue white-text"
+         mzTooltip tooltip="adb usb" position="bottom"
+         (click)="adbCommandToRun = 'adb usb';runAdbCommand()">Enable USB ADB</div>
+    <div class="chip pointer orange white-text"
+         mzTooltip tooltip="adb disconnect" position="bottom"
+         (click)="adbCommandToRun = 'adb disconnect';runAdbCommand()">Disconnect Everything</div>
+    <div class="chip pointer orange white-text"
+         mzTooltip tooltip="adb kill-server" position="bottom"
+         (click)="adbCommandToRun = 'adb kill-server';runAdbCommand()">Reset ADB</div>
     <div class="button-section">
       <div class="input-field">
         <input id="adbCommand"  type="text" [(ngModel)]="adbCommandToRun" placeholder="Command To Run..."/>
