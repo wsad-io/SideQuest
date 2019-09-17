@@ -333,7 +333,8 @@ export class AdbClientService {
         return this.appService.fs
             .readdirSync(backupPath)
             .map(file => this.appService.path.join(backupPath, file))
-            .filter(file => !this.appService.fs.lstatSync(file).isDirectory() && this.appService.path.extname(file) === '.apk');
+            .filter(file => !this.appService.fs.lstatSync(file).isDirectory() && this.appService.path.extname(file) === '.apk')
+            .reverse();
     }
     async getDataBackups(packageName: string) {
         await this.makeBackupFolders(packageName);
@@ -341,7 +342,8 @@ export class AdbClientService {
         return this.appService.fs
             .readdirSync(backupPath)
             .map(folder => this.appService.path.join(backupPath, folder))
-            .filter(folder => this.appService.fs.lstatSync(folder).isDirectory());
+            .filter(folder => this.appService.fs.lstatSync(folder).isDirectory())
+            .reverse();
     }
     async backupPackage(apkPath, packageName) {
         return this.processService.addItem('backup_package', async task => {
@@ -484,6 +486,7 @@ export class AdbClientService {
     async uploadFile(files, task) {
         if (!files.length) return;
         let f: any = files.shift();
+        task.status = 'Uploading: ' + this.appService.path.basename(f.name);
         return this.adbCommand('push', { serial: this.deviceSerial, path: f.name, savePath: f.savePath }, stats => {
             task.status = 'File uploading: ' + f.name + ' ' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB';
         }).then(r => this.uploadFile(files, task));
@@ -514,7 +517,8 @@ export class AdbClientService {
                         });
                         return this.uploadFile(this.localFiles.filter(f => f.__isFile), task);
                     })
-                    .then(() => this.spinnerService.hideLoader());
+                    .then(() => this.spinnerService.hideLoader())
+                    .then(() => (task.status = 'Restored game data backup OK!! ' + packageName + ' | ' + folderName));
             }
             let obbBackupPath = this.appService.path.join(
                 this.appService.appData,
@@ -563,6 +567,10 @@ export class AdbClientService {
                         path: '/sdcard/Android/data/' + packageName + '/files/',
                     })
                 )
+                .catch(e => {
+                    task.status = 'Skipped: ' + e;
+                    task.failed = false;
+                })
                 .then(() => {
                     return this.getFoldersRecursive('/sdcard/Android/data/' + packageName + '/files/')
                         .then(() => this.appService.mkdir(packageBackupPath))
@@ -581,10 +589,11 @@ export class AdbClientService {
                         .then(() => this.downloadFile(this.files.filter(f => f.__isFile), task));
                 });
             return this.adbCommand('stat', { serial: this.deviceSerial, path: '/sdcard/Android/obb/' + packageName })
+                .catch(e => console.log(e))
                 .then(() => this.appService.mkdir(this.appService.path.join(packageBackupPath, 'obb')))
                 .then(() => this.getFolders('/sdcard/Android/obb/' + packageName))
-                .then(files =>
-                    files
+                .then(files => {
+                    return files
                         .map(f => {
                             f.name = this.appService.path.posix.join('/sdcard/Android/obb/' + packageName, f.name);
                             f.saveName = this.appService.path.join(
@@ -594,8 +603,8 @@ export class AdbClientService {
                             );
                             return f;
                         })
-                        .filter(f => f.__isFile)
-                )
+                        .filter(f => f.__isFile);
+                })
                 .then(files => this.downloadFile(files, task))
                 .then(() => {
                     task.status = 'Data for app ' + packageName + ' backed up to ' + packageBackupPath;
@@ -608,7 +617,7 @@ export class AdbClientService {
     }
     async getFolders(root) {
         return this.adbCommand('readdir', { serial: this.deviceSerial, path: root }).catch(e =>
-            this.statusService.showStatus(e.toString(), true)
+            this.statusService.showStatus('Error: ' + e.toString() + ' while reading path ' + root, true)
         );
     }
     installFile(url, destinationFolder: string, number?: number, total?: number) {

@@ -42,7 +42,7 @@
     </i>
     <i routerLink="tasks" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Running {{processService.left_length}} tasks.">
       playlist_add_check
-    </i><span routerLink="tasks" mz-tooltip *ngIf="processService.left_length" position="bottom" tooltip="Running {{processService.left_length}} tasks." class="process-badge pink-button">{{processService.left_length}}</span>
+    </i><span routerLink="tasks" mz-tooltip *ngIf="processService.left_length" position="bottom" tooltip="Running {{processService.left_length}} tasks." class="process-badge pink-button">{{processService.left_length>100?'99+':processService.left_length}}</span>
     <i id="device-settings" routerLink="tools" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Device Settings & Tools">
       build
     </i>

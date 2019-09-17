@@ -82,7 +82,9 @@ body {
   display: inline-block;
   margin-bottom: 20px;
 }
-
+.modal, .modal-content, .modal-overlay{
+  -webkit-app-region: no-drag;
+}
 
 ::-webkit-scrollbar {
   height: 16px;

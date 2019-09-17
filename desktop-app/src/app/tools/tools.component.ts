@@ -258,7 +258,7 @@ export class ToolsComponent implements OnInit {
                 command: 'input text "' + character + '"',
             })
             .then(res => {
-                if (this.textToSend.length) {
+                if (this._textToSend.length) {
                     return this.inputCharacters();
                 }
             });
