@@ -78,8 +78,7 @@ export class PackagesComponent implements OnInit {
         this.myApps
             .filter(d => d.backupAll)
             .forEach(d => {
-                this.backupApk(d.packageName);
-                this.backupData(d.packageName);
+                this.backupApk(d.packageName).then(() => this.backupData(d.packageName));
             });
         this.statusService.showStatus('Backing up all the selected apps. Check the Tasks screen for more information.');
     }

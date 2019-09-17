@@ -383,11 +383,11 @@ export class AdbClientService {
                 return Promise.reject('Apk install failed: No device connected! ' + filePath);
             }
             const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
-            task.status = showTotal + 'Installing Apk...<br>' + filePath;
+            task.status = showTotal + 'Installing Apk... ' + filePath;
             return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
                 task.status =
                     (status.percent === 1
-                        ? showTotal + 'Installing Apk... : '
+                        ? showTotal + 'Installing Apk... ' + filePath
                         : showTotal + 'Downloading APK... ' + Math.round(status.percent * 100) + '%') +
                     '<span style="font-style:italic">' +
                     filePath +
