@@ -321,7 +321,7 @@ export class AdbClientService {
         });
     }
     async makeBackupFolders(packageName: string) {
-        let mainBackupPath = this.appService.path.join(this.appService.appData, 'backups', packageName);
+        let mainBackupPath = this.appService.path.join(this.appService.backupPath, packageName);
         return this.appService
             .mkdir(mainBackupPath)
             .then(() => this.appService.mkdir(this.appService.path.join(mainBackupPath, 'apks')))
@@ -329,7 +329,7 @@ export class AdbClientService {
     }
     async getBackups(packageName: string) {
         await this.makeBackupFolders(packageName);
-        let backupPath = this.appService.path.join(this.appService.appData, 'backups', packageName, 'apks');
+        let backupPath = this.appService.path.join(this.appService.backupPath, packageName, 'apks');
         return this.appService.fs
             .readdirSync(backupPath)
             .map(file => this.appService.path.join(backupPath, file))
@@ -338,7 +338,7 @@ export class AdbClientService {
     }
     async getDataBackups(packageName: string) {
         await this.makeBackupFolders(packageName);
-        let backupPath = this.appService.path.join(this.appService.appData, 'backups', packageName, 'data');
+        let backupPath = this.appService.path.join(this.appService.backupPath, packageName, 'data');
         return this.appService.fs
             .readdirSync(backupPath)
             .map(folder => this.appService.path.join(backupPath, folder))
@@ -354,8 +354,7 @@ export class AdbClientService {
                 return Promise.reject('APK not found, is the app installed? ' + packageName);
             }
             let savePath = this.appService.path.join(
-                this.appService.appData,
-                'backups',
+                this.appService.backupPath,
                 packageName,
                 'apks',
                 this.getFilenameDate() + '_' + version.trim() + '.apk'
@@ -494,14 +493,7 @@ export class AdbClientService {
     async restoreDataBackup(packageName: string, folderName: string) {
         return this.processService.addItem('restore_files', async task => {
             task.status = 'Restoring Files...';
-            let packageBackupPath = this.appService.path.join(
-                this.appService.appData,
-                'backups',
-                packageName,
-                'data',
-                folderName,
-                'files'
-            );
+            let packageBackupPath = this.appService.path.join(this.appService.backupPath, packageName, 'data', folderName, 'files');
             if (this.appService.fs.existsSync(packageBackupPath)) {
                 this.localFiles = [];
                 await this.getLocalFoldersRecursive(packageBackupPath)
@@ -520,14 +512,7 @@ export class AdbClientService {
                     .then(() => this.spinnerService.hideLoader())
                     .then(() => (task.status = 'Restored game data backup OK!! ' + packageName + ' | ' + folderName));
             }
-            let obbBackupPath = this.appService.path.join(
-                this.appService.appData,
-                'backups',
-                packageName,
-                'data',
-                folderName,
-                'obb'
-            );
+            let obbBackupPath = this.appService.path.join(this.appService.backupPath, packageName, 'data', folderName, 'obb');
             if (this.appService.fs.existsSync(obbBackupPath)) {
                 this.appService.fs.readdir(obbBackupPath, async (err, entries) => {
                     for (let i = 0; i < entries.length; i++) {
@@ -557,7 +542,7 @@ export class AdbClientService {
         return this.processService.addItem('save_files', async task => {
             task.status = 'Starting Backup...';
             let folderName = this.getFilenameDate();
-            let packageBackupPath = this.appService.path.join(this.appService.appData, 'backups', packageName, 'data', folderName);
+            let packageBackupPath = this.appService.path.join(this.appService.backupPath, packageName, 'data', folderName);
             this.files = [];
             await this.makeBackupFolders(packageName);
             await this.adbCommand('stat', { serial: this.deviceSerial, path: '/sdcard/Android/data/' + packageName })

@@ -53,6 +53,7 @@ export class AppService {
     currentTheme: string = 'dark';
     versionName: string = '0.7.1';
     showBack: boolean = false;
+    backupPath: string;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
         this.fs = (<any>window).require('fs');
@@ -79,6 +80,11 @@ export class AppService {
             this.currentTheme = 'light';
         }
         this.hideNSFW = !!localStorage.getItem('hideNSFW');
+        this.backupPath = localStorage.getItem('backup-path');
+        if (!this.backupPath) {
+            this.backupPath = this.path.join(this.appData, 'backups');
+            localStorage.setItem('backup-path', this.backupPath);
+        }
     }
 
     getBase64Image(imagePath: string) {
@@ -157,7 +163,7 @@ export class AppService {
                 this.electron.shell.openItem(this.path.join(this.appData, 'saber-quest-patch', 'questsaberpatch'));
                 break;
             case FolderType.APP_BACKUP:
-                this.electron.shell.openItem(this.path.join(this.appData, 'backups', packageName));
+                this.electron.shell.openItem(this.path.join(this.backupPath, packageName));
                 break;
             case FolderType.SONG_FOLDER:
                 this.electron.shell.openItem(this.path.join(this.appData, 'bsaber', packageName));

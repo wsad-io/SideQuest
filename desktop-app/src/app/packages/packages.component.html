@@ -20,6 +20,10 @@
       </div>
     </div>
     <div class="right waves-effect waves-light btn pink-button small-button" (click)="backupEverything.openModal()">Backup/Restore All</div>
+    <div class="right waves-effect waves-light btn pink-button small-button margin-right"
+         mzTooltip [tooltip]="'Current Backup Location: '+appService.backupPath"
+         position="bottom"
+         (click)="pickLocation.openModal()">Change Backup Location</div>
     <br><br>
     <div class="row">
       <ng-container *ngFor="let package of myApps;">
@@ -158,3 +162,19 @@
   </mz-modal-footer>
 </mz-modal>
 
+
+<mz-modal #pickLocation [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Set the save location for backup data.</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <ng-container >
+      Pick a location on your PC to save backup files:<br><br>
+      <button mz-button class="pink-button" (click)="pickBackupLocation()">Select Location</button><br><br>
+      Current Location: {{appService.backupPath}}
+    </ng-container>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Done</button>
+  </mz-modal-footer>
+</mz-modal>

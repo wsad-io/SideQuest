@@ -28,6 +28,7 @@ export class PackagesComponent implements OnInit {
     sub: Subscription;
     show_all: boolean;
     search: string;
+    savePath: string;
     constructor(
         public adbService: AdbClientService,
         public appService: AppService,
@@ -72,6 +73,22 @@ export class PackagesComponent implements OnInit {
         } else {
             this.myBackups.forEach(a => (a.isRestore = true));
         }
+    }
+
+    pickBackupLocation() {
+        console.log('here', this.appService.electron);
+        this.appService.electron.remote.dialog.showOpenDialog(
+            {
+                properties: ['openDirectory'],
+                defaultPath: this.appService.backupPath,
+            },
+            files => {
+                if (files !== undefined && files.length === 1) {
+                    this.appService.backupPath = files[0];
+                    localStorage.setItem('backup-path', this.appService.backupPath);
+                }
+            }
+        );
     }
 
     backupAll() {
@@ -154,7 +171,7 @@ export class PackagesComponent implements OnInit {
 
     getMyBackups() {
         if (this.isBackingUp) return;
-        let backupPath = this.appService.path.join(this.appService.appData, 'backups');
+        let backupPath = this.appService.path.join(this.appService.backupPath);
         let backups = this.appService.fs
             .readdirSync(backupPath)
             .map(file => ({ name: file, path: this.appService.path.join(backupPath, file), isRestore: false }));

@@ -21,9 +21,10 @@
     </div>
     <div *ngFor="let file of files" class="vertical-align cursor" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">
       <div class="right">
-        <span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}
 
-        <i class="material-icons cursor orange-text drag-indicator right" (click)="currentFileDelete = file;confirmDeleteFile(currentFileDelete);confirmModal.openModal()">close</i>
+        <span *ngIf="file.icon !== 'folder'" >{{file.size|number:'1.2-2'}}MB | </span>{{file.time|date:'short'}}
+        <i class="material-icons cursor white-text drag-indicator save-icon"  (click)="currentFile = file;filesModal.openModal();">save</i>
+        <i class="material-icons cursor orange-text drag-indicator" (click)="currentFileDelete = file;confirmDeleteFile(currentFileDelete);confirmModal.openModal()">close</i>
       </div>
       <div (click)="openFile(file)">
         <i class="material-icons medium vertical-align" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">{{file.icon}}</i>{{file.name}}
@@ -63,15 +64,15 @@
     <h4>Save this file to your PC</h4>
   </mz-modal-header>
   <mz-modal-content>
-    Pick a location on your PC to save this file:<br><br>
-    <button mz-button class="pink-button" (click)="pickLocation()">Select Location</button><br><br>
-    Current Location: {{adbService.savePath}}
-
-
+    <ng-container *ngIf="currentFile" >
+      Pick a location on your PC to save this {{currentFile.icon === 'folder'?'folder':'file'}}:<br><br>
+      <button mz-button class="pink-button" (click)="pickLocation()">Select Location</button><br><br>
+      Current Location: {{adbService.savePath}}
+    </ng-container>
   </mz-modal-content>
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
-    <button mz-button class="pink-button" mz-modal-close (click)="saveFile()">Save To PC</button>
+    <button *ngIf="currentFile" mz-button class="pink-button" mz-modal-close (click)="currentFile.icon === 'folder'?saveFolder():saveFile()">Save To PC</button>
   </mz-modal-footer>
 </mz-modal>
 
