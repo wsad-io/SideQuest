@@ -76,7 +76,6 @@ export class PackagesComponent implements OnInit {
     }
 
     pickBackupLocation() {
-        console.log('here', this.appService.electron);
         this.appService.electron.remote.dialog.showOpenDialog(
             {
                 properties: ['openDirectory'],
