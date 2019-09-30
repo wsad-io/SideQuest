@@ -45,12 +45,10 @@ export class AdbClientService {
     ) {
         this.lastConnectionCheck = performance.now() - 2500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
-
         this.adbResolves = {};
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
         this.setSavePath();
         this.webService.isLoaded = this.sendPackages.bind(this);
-
         this.deviceIp = localStorage.getItem('deviceIp');
     }
 
