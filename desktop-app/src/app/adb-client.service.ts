@@ -400,6 +400,9 @@ export class AdbClientService {
                     if (filePath.indexOf('Pavlov-Android-Shipping') > -1) {
                         return this.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
                     }
+                    if (filePath.indexOf('yur.fit')) {
+                        return this.launchYurOverlay();
+                    }
                 })
                 .catch(e => {
                     if (e.code && shouldUninstall) {
@@ -489,6 +492,16 @@ export class AdbClientService {
         return this.adbCommand('push', { serial: this.deviceSerial, path: f.name, savePath: f.savePath }, stats => {
             task.status = 'File uploading: ' + f.name + ' ' + Math.round((stats.bytesTransferred / 1024 / 1024) * 100) / 100 + 'MB';
         }).then(r => this.uploadFile(files, task));
+    }
+    async launchYurOverlay() {
+        await this.adbCommand('shell', {
+            serial: this.deviceSerial,
+            command: 'am force-stop com.oculus.vrshell',
+        });
+        await this.adbCommand('shell', {
+            serial: this.deviceSerial,
+            command: 'am startservice com.yur.fit/.service.YURCounterService',
+        });
     }
     async restoreDataBackup(packageName: string, folderName: string) {
         return this.processService.addItem('restore_files', async task => {
