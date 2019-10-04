@@ -79,20 +79,20 @@
   </div>
   <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
             url="https://sidequestvr.com/#/download" text="Update Available"></app-link>
-  <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
-    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">
-      Home</a>&nbsp;&nbsp;&nbsp;
-    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com/#/account')">
-      Dashboard</a>&nbsp;&nbsp;&nbsp;
-    <a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">
-      Beat On</a>&nbsp;&nbsp;&nbsp;
-    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">
-      Beast Saber</a>&nbsp;&nbsp;&nbsp;
-    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">
-      Beat Saver</a>&nbsp;&nbsp;&nbsp;
-    <!--<a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">-->
-    <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
-  </div>
+  <!--<div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">-->
+      <!--Home</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com/#/account')">-->
+      <!--Dashboard</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">-->
+      <!--Beat On</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">-->
+      <!--Beast Saber</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">-->
+      <!--Beat Saver</a>&nbsp;&nbsp;&nbsp;-->
+    <!--&lt;!&ndash;<a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">&ndash;&gt;-->
+    <!--&lt;!&ndash;<i class="material-icons left">queue_music</i>My Downloads</a>&ndash;&gt;-->
+  <!--</div>-->
 
   <div class="sync-songs" *ngIf="appService.showTaskActions">
     <div
