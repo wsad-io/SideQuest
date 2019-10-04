@@ -393,13 +393,13 @@ export class AdbClientService {
                 .then(r => {
                     task.status = 'APK file installed ok!! ' + filePath;
                     if (filePath.indexOf('com.emulamer.beaton') > -1) {
-                        return this.beatonService.setBeatOnPermission(this);
+                        // return this.beatonService.setBeatOnPermission(this);
                     }
                     if (filePath.indexOf('Pavlov-Android-Shipping') > -1) {
                         return this.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
                     }
-                    if (filePath.indexOf('yur.fit')) {
-                        return this.launchYurOverlay();
+                    if (filePath.indexOf('yur.overlay')) {
+                        //return this.launchYurOverlay();
                     }
                 })
                 .catch(e => {
@@ -495,11 +495,11 @@ export class AdbClientService {
         await this.adbCommand('shell', {
             serial: this.deviceSerial,
             command: 'am force-stop com.oculus.vrshell',
-        });
+        }).then(r => console.log('here', r));
         await this.adbCommand('shell', {
             serial: this.deviceSerial,
-            command: 'am startservice com.yur.fit/.service.YURCounterService',
-        });
+            command: 'am startservice com.yur.fitquest/.service.YURCounterService',
+        }).then(r => console.log(r));
     }
     async restoreDataBackup(packageName: string, folderName: string) {
         return this.processService.addItem('restore_files', async task => {

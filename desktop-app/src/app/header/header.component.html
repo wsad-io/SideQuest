@@ -22,11 +22,11 @@
     </div>
   </div>
   <div class="title-menu-container">
-    <img mz-tooltip
-         (click)="openBeatOn()"
-         class="material-icons no-outline beaton-icon"
-         src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"
-         position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>
+    <!--<img mz-tooltip-->
+         <!--(click)="openBeatOn()"-->
+         <!--class="material-icons no-outline beaton-icon"-->
+         <!--src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"-->
+         <!--position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>-->
 
     <i mz-tooltip (click)="adbModal.openModal()" class="material-icons white-text no-outline" position="bottom" tooltip="Run ADB commands">
       input
@@ -445,8 +445,7 @@
     <!--</div>-->
     <div class="center-align" >
       <!--*ngIf="isAlive&&!isAliveChecking"-->
-      Install / Enable BeatOn on your device.<br>
-      Sync songs and other mods on your headset.
+      WARNING: BeatOn is no longer supported and may be removed from SideQuest soon.
       <br>
       <br>
       <br>
