@@ -57,7 +57,7 @@ export class BeatOnService {
                         adbService
                             .adbCommand('installRemote', {
                                 serial: adbService.deviceSerial,
-                                path: '/sdcard/Android/data/com.emulamer.beaton/cache/beatsabermod.apk',
+                                path: '/sdcard/Android/data/com.weloveoculus.BMBF/cache/beatsabermod.apk',
                             })
                             .then(() =>
                                 adbService.setPermission('com.beatgame.beatsaber', 'android.permission.WRITE_EXTERNAL_STORAGE')
@@ -101,7 +101,7 @@ export class BeatOnService {
         return adbService
             .adbCommand('shell', {
                 serial: adbService.deviceSerial,
-                command: 'pidof com.emulamer.beaton',
+                command: 'pidof com.weloveoculus.BMBF',
             })
             .then(res => {
                 this.beatOnEnabled = !!res;
@@ -159,12 +159,12 @@ export class BeatOnService {
         return adbService
             .adbCommand('shell', {
                 serial: adbService.deviceSerial,
-                command: 'pm grant com.emulamer.beaton android.permission.READ_EXTERNAL_STORAGE',
+                command: 'pm grant com.weloveoculus.BMBF android.permission.READ_EXTERNAL_STORAGE',
             })
             .then(() =>
                 adbService.adbCommand('shell', {
                     serial: adbService.deviceSerial,
-                    command: 'pm grant com.emulamer.beaton android.permission.WRITE_EXTERNAL_STORAGE',
+                    command: 'pm grant com.weloveoculus.BMBF android.permission.WRITE_EXTERNAL_STORAGE',
                 })
             );
     }
@@ -216,7 +216,7 @@ export class BeatOnService {
                 timeout: 30000,
                 'User-Agent': this.appService.getUserAgent(),
             };
-            task.status = 'Saving to BeatOn...';
+            task.status = 'Saving to BMBF...';
             return new Promise((resolve, reject) => {
                 if (
                     adbService.deviceIp &&
@@ -232,7 +232,7 @@ export class BeatOnService {
                             reject(error);
                         })
                         .on('progress', state => {
-                            task.status = 'Saving to BeatOn... ' + Math.round(state.percent * 100) + '%';
+                            task.status = 'Saving to BMBF... ' + Math.round(state.percent * 100) + '%';
                         })
                         .on('end', () => {
                             let formData = {

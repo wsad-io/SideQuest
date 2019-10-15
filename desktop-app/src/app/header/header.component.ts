@@ -14,6 +14,7 @@ interface ReplaceText {
     key: string;
     value: string;
 }
+declare const process;
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
@@ -83,6 +84,16 @@ export class HeaderComponent implements OnInit {
     isConnected() {
         return this.adbService.deviceStatus === ConnectionStatus.CONNECTED;
     }
+    updateAvailable() {
+        if (process.platform == 'win32') {
+            this.spinnerService.setMessage('Downloading update...');
+            this.spinnerService.showLoader();
+            this.appService.electron.ipcRenderer.send('automatic-update', {});
+        } else {
+            this.appService.opn('https://sidequestvr.com/#/download');
+        }
+    }
+
     ngAfterViewInit() {
         this.appService.setTitleEle(this.header.nativeElement);
         this.dragAndDropService.setupDragAndDrop(this.mainLogo.nativeElement);
@@ -157,10 +168,10 @@ export class HeaderComponent implements OnInit {
 
     confirmRestore() {
         this.spinnerService.showLoader();
-        this.spinnerService.setMessage('Restoring BeatOn<br>Please Wait...');
+        this.spinnerService.setMessage('Restoring BMBF<br>Please Wait...');
         this.beatonService.confirmRestore(this.adbService).then(r => {
             this.spinnerService.hideLoader();
-            this.statusService.showStatus('BeatOn Restored Successfully!!');
+            this.statusService.showStatus('BMBF Restored Successfully!!');
             this.beatOnModal.openModal();
             this.beatonService.checkHasRestore(this.adbService);
         });
@@ -307,13 +318,13 @@ export class HeaderComponent implements OnInit {
             this.adbService
                 .adbCommand('shell', {
                     serial: this.adbService.deviceSerial,
-                    command: 'am startservice com.emulamer.beaton/com.emulamer.BeatOnService',
+                    command: 'am startservice com.weloveoculus.BMBF/com.weloveoculus.BMBFService',
                 })
                 // .then(() =>
                 //   this.adbService.adbCommand('shell', {
                 //     serial: this.adbService.deviceSerial,
                 //     command:
-                //       'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.emulamer.beaton/com.emulamer.beaton.MainActivity"',
+                //       'am start -S -W -a android.intent.action.VIEW -c android.intent.category.LEANBACK_LAUNCHER -n com.oculus.vrshell/com.oculus.vrshell.MainActivity -d com.oculus.tv --es "uri" "com.weloveoculus.BMBF/com.weloveoculus.BMBF.MainActivity"',
                 //   })
                 // )
                 .then(r => {
@@ -337,7 +348,7 @@ export class HeaderComponent implements OnInit {
                 .then(() =>
                     this.adbService.adbCommand('shell', {
                         serial: this.adbService.deviceSerial,
-                        command: 'am force-stop com.emulamer.beaton',
+                        command: 'am force-stop com.weloveoculus.BMBF',
                     })
                 )
                 .then(r => {})
@@ -352,7 +363,7 @@ export class HeaderComponent implements OnInit {
                 return this.beatonService.checkIsBeatOnRunning(this.adbService);
             }, 5000);
         } else {
-            if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
+            if (~this.adbService.devicePackages.indexOf('com.weloveoculus.BMBF')) {
                 await this.launchBeatOn();
                 this.beatonService.checkHasRestore(this.adbService);
             } else {
@@ -375,7 +386,7 @@ export class HeaderComponent implements OnInit {
                 this.beatOnLoading = true;
                 setTimeout(() => {
                     this.adbService.getPackages().then(async () => {
-                        if (~this.adbService.devicePackages.indexOf('com.emulamer.beaton')) {
+                        if (~this.adbService.devicePackages.indexOf('com.weloveoculus.BMBF')) {
                             await this.setBeatOnPermission();
                             await this.launchBeatOn();
                             setTimeout(() => {

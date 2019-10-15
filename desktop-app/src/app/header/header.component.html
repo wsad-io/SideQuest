@@ -12,7 +12,6 @@
     <div class="apk-install" *ngIf="appService.isFilesOpen">Drag and drop your files over this message to upload them to the current folder.<br>Special thanks to <app-link url="https://twitter.com/Mitch_s3" text="@Mitch"></app-link></div>
     <div class="apk-install" *ngIf="appService.showCustomActions">Special thanks to
       <app-link url="https://github.com/trishume/QuestSaberPatch" text="@trishume"></app-link>,
-      <app-link url="https://github.com/emulamer/BeatOn" text="@emulamer"></app-link>,
       <app-link url="https://github.com/ATechAdventurer" text="@ATechAdventurer"></app-link>,<br>
       <app-link url="https://www.reddit.com/u/drewbaumann/" text="@drewbaumann"></app-link>,
       <app-link url="https://www.reddit.com/u/motokochan/" text="@motokochan"></app-link>
@@ -27,7 +26,9 @@
          <!--class="material-icons no-outline beaton-icon"-->
          <!--src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"-->
          <!--position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>-->
-
+    <i mz-tooltip (click)="selectAppToInstall()" class="material-icons white-text no-outline" position="bottom" tooltip="Install APK file from folder.">
+      archive
+    </i>
     <i mz-tooltip (click)="adbModal.openModal()" class="material-icons white-text no-outline" position="bottom" tooltip="Run ADB commands">
       input
     </i>
@@ -78,7 +79,7 @@
     Add Repo
   </div>
   <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
-            url="https://sidequestvr.com/#/download" text="Update Available"></app-link>
+            (click)="updateAvailable()" text="Update Available"></app-link>
   <!--<div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">-->
     <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com')">-->
       <!--Home</a>&nbsp;&nbsp;&nbsp;-->
@@ -369,7 +370,7 @@
   </mz-modal-content>
   <mz-modal-footer>
     <button mz-button [flat]="true" mz-modal-close>Close</button>
-    <button mz-button class="pink-button" mz-modal-close (click)="beatOnModal.openModal()">Open BeatOn</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="beatOnModal.openModal()">Open BMBF</button>
     <!--<button *ngIf="bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="patchBeatSaber()">Run Patcher</button>-->
     <!--<button *ngIf="!bsaberService.hasBackup" mz-button class="pink-button" mz-modal-close (click)="bsaberService.backupNewMaster()">Make Backup</button>-->
 

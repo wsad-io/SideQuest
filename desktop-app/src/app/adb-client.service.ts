@@ -168,6 +168,7 @@ export class AdbClientService {
                 await this.getIpAddress();
                 this.deviceStatusMessage =
                     'Connected -  Wifi IP: ' + (this.deviceIp || 'Not found...') + ', Battery: ' + this.batteryLevel + '% ';
+                console.log('here');
                 this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
@@ -392,8 +393,8 @@ export class AdbClientService {
             })
                 .then(r => {
                     task.status = 'APK file installed ok!! ' + filePath;
-                    if (filePath.indexOf('com.emulamer.beaton') > -1) {
-                        // return this.beatonService.setBeatOnPermission(this);
+                    if (filePath.indexOf('com.weloveoculus.BMBF') > -1) {
+                        return this.beatonService.setBeatOnPermission(this);
                     }
                     if (filePath.indexOf('Pavlov-Android-Shipping') > -1) {
                         return this.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');

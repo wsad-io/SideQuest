@@ -3,6 +3,7 @@ const path = require('path');
 let mainWindow, open_url, is_loaded;
 const ADB = require('./adbkit');
 const { autoUpdater } = require('electron-updater');
+let hasUpdate = false;
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -173,11 +174,7 @@ autoUpdater.on('checking-for-update', () => {
 autoUpdater.on('update-available', info => {
     if (mainWindow) {
         mainWindow.webContents.send('update-status', { status: 'update-available', info });
-    }
-    if (process.platform !== 'darwin') {
-        setTimeout(() => {
-            autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(false, false));
-        }, 5000);
+        hasUpdate = true;
     }
 });
 autoUpdater.on('update-not-available', info => {
@@ -207,6 +204,13 @@ global.receiveMessage = function(text) {
 };
 const { ipcMain } = require('electron');
 const adb = new ADB();
+ipcMain.on('automatic-update', (event, arg) => {
+    if (process.platform !== 'darwin' && hasUpdate) {
+        setTimeout(() => {
+            autoUpdater.downloadUpdate().then(() => autoUpdater.quitAndInstall(false, false));
+        }, 5000);
+    }
+});
 ipcMain.on('adb-command', (event, arg) => {
     const success = d => {
         if (!event.sender.isDestroyed()) {
