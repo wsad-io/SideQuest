@@ -135,15 +135,11 @@ export class HeaderComponent implements OnInit {
                 defaultPath: this.adbService.savePath,
             },
             files => {
-                files.forEach(f => {
-                    let filepath = f;
-                    this.spinnerService.setMessage(`Installing ${filepath}, Please wait...`);
+                files.forEach(filepath => {
                     let install = this.adbService.installMultiFile(filepath);
                     if (install) {
                         install
-                            .then(() => {
-                                this.statusService.showStatus('Installed APK File: ' + filepath, false);
-                            })
+                            .then(() => {})
                             .catch(e => {
                                 this.statusService.showStatus(e.toString(), true);
                             });

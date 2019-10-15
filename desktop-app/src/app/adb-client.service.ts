@@ -53,8 +53,6 @@ export class AdbClientService {
     }
 
     installMultiFile(filepath) {
-        this.spinnerService.showLoader();
-        this.spinnerService.setMessage('Installing...');
         let extention = this.appService.path.extname(filepath);
         switch (extention) {
             case '.apk':
@@ -63,7 +61,6 @@ export class AdbClientService {
                 if (this.appService.path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)) {
                     return this.installLocalObb(filepath).then(() => this.spinnerService.hideLoader());
                 } else {
-                    this.spinnerService.hideLoader();
                     return Promise.reject('Invalid OBB');
                 }
             case '.zip':
