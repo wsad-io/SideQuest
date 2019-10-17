@@ -52,6 +52,20 @@ export class AdbClientService {
         this.deviceIp = localStorage.getItem('deviceIp');
     }
 
+    launchApp(packageName) {
+        return this.adbCommand('shell', {
+            serial: this.deviceSerial,
+            command: 'dumpsys package ' + packageName + " | grep -A 1 'filter' | head -n 1 | cut -d ' ' -f 10",
+        }).then(res =>
+            res
+                ? this.adbCommand('shell', {
+                      serial: this.deviceSerial,
+                      command: 'am start -n ' + res.trim(),
+                  })
+                : Promise.reject('Could not find activity name for ' + packageName)
+        );
+    }
+
     installMultiFile(filepath) {
         let extention = this.appService.path.extname(filepath);
         switch (extention) {

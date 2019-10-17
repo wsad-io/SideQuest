@@ -226,6 +226,9 @@ export class PackagesComponent implements OnInit {
         this.appSettingsModal.closeModal();
         this.adbService.uninstallAPK(this.currentPackage.package.packageName);
     }
+    launchApp() {
+        this.adbService.launchApp(this.currentPackage.package.packageName);
+    }
     forceClose() {
         this.adbService
             .adbCommand('shell', {
