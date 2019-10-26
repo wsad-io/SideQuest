@@ -51,7 +51,7 @@ export class AppService {
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.7.4';
+    versionName: string = '0.8.0';
     showBack: boolean = false;
     backupPath: string;
     constructor(private spinnerService: LoadingSpinnerService) {
