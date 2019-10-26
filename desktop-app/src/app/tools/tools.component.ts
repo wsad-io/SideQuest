@@ -232,7 +232,7 @@ export class ToolsComponent implements OnInit {
             });
     }
     setPavlovPermission() {
-        this.adbService.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
+        this.adbService.setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO');
     }
     pasteToDevice() {
         this._textToSend = this.textToSend.split('');
