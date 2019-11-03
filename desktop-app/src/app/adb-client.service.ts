@@ -179,7 +179,6 @@ export class AdbClientService {
                 await this.getIpAddress();
                 this.deviceStatusMessage =
                     'Connected -  Wifi IP: ' + (this.deviceIp || 'Not found...') + ', Battery: ' + this.batteryLevel + '% ';
-                console.log('here');
                 this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
@@ -507,11 +506,11 @@ export class AdbClientService {
         await this.adbCommand('shell', {
             serial: this.deviceSerial,
             command: 'am force-stop com.oculus.vrshell',
-        }).then(r => console.log('here', r));
+        });
         await this.adbCommand('shell', {
             serial: this.deviceSerial,
             command: 'am startservice com.yur.fitquest/.service.YURCounterService',
-        }).then(r => console.log(r));
+        });
     }
     async restoreDataBackup(packageName: string, folderName: string) {
         return this.processService.addItem('restore_files', async task => {

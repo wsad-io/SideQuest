@@ -45,10 +45,13 @@
   position: absolute;
   top: 65px;
   left: 400px;
-  width: calc(100% - 450px);
+  width: calc(100% - 495px);
   -webkit-app-region: no-drag;
 }
-
+.synthrideerz{
+  width: 40px;
+  height: 40px;
+}
 .topper{
   background: #202225;
   height: 35px;
@@ -160,7 +163,7 @@
 .back-webserver{
   position: absolute;
   top: 115px;
-  right: 20px;
+  right: 120px;
   text-decoration:none;
   -webkit-app-region: no-drag;
 }
@@ -172,7 +175,8 @@
   right: 15px;
 }
 .sync-songs-now,.beast-saber-buttons {
-  top: 45px;
+  top: 83px;
+  right: 10px;
 }
 .beaton-icon{
   height: 22px;

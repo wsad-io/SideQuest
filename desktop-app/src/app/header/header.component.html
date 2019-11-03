@@ -81,8 +81,8 @@
   <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
             (click)="updateAvailable()" text="Update Available"></app-link>
   <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
-    <a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://synthriderz.com/beatmaps/recent')">
-      SynthRiderz</a>&nbsp;&nbsp;&nbsp;
+    <a class="waves-effect waves-light synthrideerz" (click)="webService.loadUrl('https://synthriderz.com/beatmaps/recent')">
+      <img src="assets/images/Synth.png" class="responsive-img"/></a>&nbsp;&nbsp;&nbsp;
     <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com/#/account')">-->
       <!--Dashboard</a>&nbsp;&nbsp;&nbsp;-->
     <!--<a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">-->

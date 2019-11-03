@@ -50,7 +50,6 @@ export class SynthriderService {
                     .on('end', async () => {
                         let ext = this.appService.path.extname(zipPath).toLowerCase();
                         let basename = this.appService.path.basename(zipPath);
-                        console.log(zipPath, ext, basename);
                         switch (ext) {
                             case '.synth':
                                 await adbService.uploadFile(
@@ -63,11 +62,13 @@ export class SynthriderService {
                                     task
                                 );
                                 task.status = 'Saved! ' + basename;
+                                this.appService.fs.unlink(zipPath, err => {
+                                    if (err) console.warn(err);
+                                });
                                 resolve();
                                 break;
                         }
                     });
-                //.pipe(ws);
             });
         });
     }
