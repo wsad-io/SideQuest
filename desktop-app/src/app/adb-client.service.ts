@@ -30,6 +30,7 @@ export class AdbClientService {
     adbResolves: any;
     files: any;
     localFiles: any;
+    hasSynthRiderz: any;
     deviceIp: string;
     wifiEnabled: boolean;
     wifiHost: string;

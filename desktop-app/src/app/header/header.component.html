@@ -94,7 +94,20 @@
     <!--<a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">-->
     <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
   </div>
-
+  <div *ngIf="appService.isFilesOpen" class="beast-saber-buttons">
+    <a class="waves-effect waves-light synthrideerz" (click)="appService.filesComponent.open('/sdcard/Android/data/com.kluge.SynthRiders/files/CustomSongs/')">
+      <img src="assets/images/Synth.png" class="responsive-img"/></a>&nbsp;&nbsp;&nbsp;
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://sidequestvr.com/#/account')">-->
+    <!--Dashboard</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a *ngIf="beatonService.beatOnEnabled&&adbService.deviceIp" class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('http://'+adbService.deviceIp+':50000')">-->
+    <!--Beat On</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://bsaber.com')">-->
+    <!--Beast Saber</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a class="waves-effect waves-light btn-flat no-outline small-button white-text" (click)="webService.loadUrl('https://beatsaver.com/browse/latest')">-->
+    <!--Beat Saver</a>&nbsp;&nbsp;&nbsp;-->
+    <!--<a routerLink="custom-levels" class="waves-effect waves-light btn pink-button no-outline small-button">-->
+    <!--<i class="material-icons left">queue_music</i>My Downloads</a>-->
+  </div>
   <div class="sync-songs" *ngIf="appService.showTaskActions">
     <div
       class="waves-effect waves-light btn small-button pink-button"

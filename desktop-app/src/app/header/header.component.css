@@ -45,7 +45,7 @@
   position: absolute;
   top: 65px;
   left: 400px;
-  width: calc(100% - 495px);
+  width: calc(100% - 487px);
   -webkit-app-region: no-drag;
 }
 .synthrideerz{
@@ -176,7 +176,7 @@
 }
 .sync-songs-now,.beast-saber-buttons {
   top: 83px;
-  right: 10px;
+  right: 73px;
 }
 .beaton-icon{
   height: 22px;
@@ -196,7 +196,7 @@
 .browser-loading {
   top: 15px;
   position: relative;
-  left: 15px;
+  left: 60px;
 }
 .logo {
   background: transparent url('../../assets/images/score-logo.png') center center no-repeat;
