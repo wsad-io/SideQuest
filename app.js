@@ -62,9 +62,13 @@ function createWindow() {
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
         let url = item.getURL();
         let etx = path.extname(url.split('?')[0]).toLowerCase();
+        console.log(url, item.getFilename());
         if (~url.indexOf('https://beatsaver.com/cdn')) {
             // beat saber mods /songs
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
+        } else if (~url.indexOf('https://synthriderz.com/')) {
+            // synthriderz mods /songs
+            mainWindow.webContents.send('open-url', 'sidequest://synthriderz/#' + url);
         } else if (etx === '.apk') {
             // any file ending with apk.
             mainWindow.webContents.send('pre-open-url', url);
@@ -134,7 +138,6 @@ let parseOpenUrl = argv => {
         mainWindow.webContents.send('open-url', argv[1].toString());
     }
 };
-
 if (!gotTheLock) {
     app.quit();
 } else {
@@ -163,6 +166,15 @@ if (!gotTheLock) {
             mainWindow.webContents.send('open-url', url);
         } else {
             open_url = url;
+        }
+    });
+
+    app.on('web-contents-created', (e, contents) => {
+        if (contents.getType() === 'webview') {
+            contents.on('new-window', (e, url) => {
+                e.preventDefault();
+                contents.loadURL(url);
+            });
         }
     });
 }

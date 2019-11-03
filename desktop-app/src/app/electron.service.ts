@@ -8,6 +8,7 @@ import { AdbClientService } from './adb-client.service';
 import { WebviewService } from './webview.service';
 import { Router } from '@angular/router';
 import { BeatOnService } from './beat-on.service';
+import { SynthriderService } from './synthrider.service';
 
 @Injectable({
     providedIn: 'root',
@@ -24,7 +25,8 @@ export class ElectronService {
         private adbService: AdbClientService,
         private webviewService: WebviewService,
         private beatonService: BeatOnService,
-        private router: Router
+        private router: Router,
+        private synthriderService: SynthriderService
     ) {
         this.setupIPC();
     }
@@ -157,6 +159,10 @@ export class ElectronService {
                         //   console.log(parts, service, method);
                         //   this[service][method].call.apply(parts);
                         // }
+                        break;
+                    case 'sidequest://synthriderz/':
+                        this.statusService.showStatus('SynthRiderz download started... See the tasks screen for more info.');
+                        this.synthriderService.downloadSong(url[1], this.adbService);
                         break;
                     case 'sidequest://bsaber/':
                         this.statusService.showStatus('Song download started... See the tasks screen for more info.');

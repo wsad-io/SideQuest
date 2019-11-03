@@ -760,7 +760,6 @@ export class AdbClientService {
         });
         if (!dontCatchError && !task) {
             p = p.catch(e => {
-                console.log('here');
                 this.spinnerService.hideLoader();
                 this.statusService.showStatus(e.toString(), true);
             });
