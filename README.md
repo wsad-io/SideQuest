@@ -41,13 +41,6 @@ If you have any problems you can hit the bug icon on the top right and then open
 
 Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
 
-
-## Video Tutorial
-
-[![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
-
-('Setup' tab was moved to the 'Setup & How-To' tab, inside the 'Web' tab)
-
 ## App Developers: 
 We now have a really easy and powerful app manager portal to be able to manage your app listings on SideQuest. 
 
