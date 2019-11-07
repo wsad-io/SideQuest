@@ -95,6 +95,24 @@ To reset things
 yarn reset
 ```
 
+## ChromeBook Install
+
+Thanks to [u/przecin/](https://www.reddit.com/user/przecin/) for figuring this out!
+
+
+```bash 
+cd SideQuest-0.7.4
+chmod u+x sidequest (applies permissions)
+sudo apt-get install libnss3 (installs libnss3.so library)
+./sidequest # (execute)
+```
+
+
+If you get error: "sidequest: sidequest: cannot execute binary file" this means you didn't apply permissions
+
+
+If you get error ./sidequest: error while loading shared libraries: libnss3.so: cannot open shared object file: No such file or directory" this means you need to install libnss3.so
+
 ## Contribution Guidelines
 
 We are pretty relaxed at this point, in that we will accept arbitrary PRs, but all collaborators must agree on a way forward. We live by the [Contributor Covenant](https://www.contributor-covenant.org/)
