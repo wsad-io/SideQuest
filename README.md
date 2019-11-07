@@ -101,9 +101,9 @@ Thanks to [u/przecin/](https://www.reddit.com/user/przecin/) for figuring this o
 
 
 ```bash 
-cd SideQuest-0.7.4
-chmod u+x sidequest (applies permissions)
-sudo apt-get install libnss3 (installs libnss3.so library)
+cd SideQuest-0.7.4 # (or the latest version)
+chmod u+x sidequest # (applies permissions)
+sudo apt-get install libnss3 # (installs libnss3.so library)
 ./sidequest # (execute)
 ```
 
