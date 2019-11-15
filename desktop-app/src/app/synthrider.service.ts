@@ -42,11 +42,8 @@ export class SynthriderService {
                     .on('response', response => {
                         var regexp = /filename=\"(.*)\"/gi;
                         var _regResult = regexp.exec(response.headers['content-disposition']);
-                        if (_regResult.length > 1) {
-                            zipPath = this.appService.path.join(
-                                this.appService.appData,
-                                regexp.exec(response.headers['content-disposition'])[1]
-                            );
+                        if (_regResult && _regResult.length) {
+                            zipPath = this.appService.path.join(this.appService.appData, _regResult[1]);
                         }
                         request.pipe(this.appService.fs.createWriteStream(zipPath));
                     })
