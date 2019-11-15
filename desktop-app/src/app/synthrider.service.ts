@@ -20,7 +20,7 @@ export class SynthriderService {
     downloadSong(downloadUrl, adbService) {
         return this.processService.addItem('song_download', async task => {
             let parts = downloadUrl.split('/');
-            let zipPath = this.appService.path.join(this.appService.appData, this.appService.uuidv4() + '.zip');
+            let zipPath = this.appService.path.join(this.appService.appData, this.appService.path.basename(downloadUrl));
             let ws = this.appService.fs.createWriteStream(zipPath);
             //let name = parts[parts.length - 1].split('.')[0];
             const requestOptions = {
@@ -41,10 +41,13 @@ export class SynthriderService {
                     })
                     .on('response', response => {
                         var regexp = /filename=\"(.*)\"/gi;
-                        zipPath = this.appService.path.join(
-                            this.appService.appData,
-                            regexp.exec(response.headers['content-disposition'])[1]
-                        );
+                        var _regResult = regexp.exec(response.headers['content-disposition']);
+                        if (_regResult.length > 1) {
+                            zipPath = this.appService.path.join(
+                                this.appService.appData,
+                                regexp.exec(response.headers['content-disposition'])[1]
+                            );
+                        }
                         request.pipe(this.appService.fs.createWriteStream(zipPath));
                     })
                     .on('end', async () => {
