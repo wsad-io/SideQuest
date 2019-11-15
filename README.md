@@ -42,11 +42,24 @@ If you have any problems you can hit the bug icon on the top right and then open
 Check your antivirus hasn't blocked some parts of the ADB download - this has happened for some with Avast antivirus in particular. 
 
 
-## Video Tutorial
+## ChromeBook Setup
 
-[![video Tutorial](https://img.youtube.com/vi/HspVa4i9rPg/0.jpg)](https://www.youtube.com/watch?v=HspVa4i9rPg)
+Thanks to [u/przecin/](https://www.reddit.com/user/przecin/) for figuring this out!
 
-('Setup' tab was moved to the 'Setup & How-To' tab, inside the 'Web' tab)
+
+```bash 
+cd SideQuest-0.7.4 # (or the latest version)
+chmod u+x sidequest # (applies permissions)
+sudo apt-get install libnss3 # (installs libnss3.so library)
+./sidequest # (execute)
+```
+
+
+If you get error: "sidequest: sidequest: cannot execute binary file" this means you didn't apply permissions
+
+
+If you get error ./sidequest: error while loading shared libraries: libnss3.so: cannot open shared object file: No such file or directory" this means you need to install libnss3.so
+
 
 ## App Developers: 
 We now have a really easy and powerful app manager portal to be able to manage your app listings on SideQuest. 
