@@ -54,6 +54,7 @@ export class AppService {
     versionName: string = '0.7.6';
     showBack: boolean = false;
     backupPath: string;
+
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
         this.fs = (<any>window).require('fs');
