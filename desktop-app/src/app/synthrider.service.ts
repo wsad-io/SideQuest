@@ -27,17 +27,17 @@ export class SynthriderService {
                 timeout: 30000,
                 'User-Agent': this.appService.getUserAgent(),
             };
-            task.status = 'Saving to CustomSongs...';
+            task.status = 'Saving to SynthRiders...';
             return new Promise((resolve, reject) => {
                 let request = this.appService
                     .progress(this.appService.request(downloadUrl, requestOptions), { throttle: 50 })
                     .on('error', error => {
                         task.failed = true;
-                        task.status = 'Failed to save song... ' + error.toString();
+                        task.status = 'Failed to save item... ' + error.toString();
                         reject(error);
                     })
                     .on('progress', state => {
-                        task.status = 'Saving to CustomSongs... ' + Math.round(state.percent * 100) + '%';
+                        task.status = 'Saving to SynthRiders... ' + Math.round(state.percent * 100) + '%';
                     })
                     .on('response', response => {
                         var regexp = /filename=\"(.*)\"/gi;
@@ -50,24 +50,27 @@ export class SynthriderService {
                     .on('end', async () => {
                         let ext = this.appService.path.extname(zipPath).toLowerCase();
                         let basename = this.appService.path.basename(zipPath);
-                        switch (ext) {
-                            case '.synth':
-                                await adbService.uploadFile(
-                                    [
-                                        {
-                                            name: zipPath,
-                                            savePath: '/sdcard/Android/data/com.kluge.SynthRiders/files/CustomSongs/' + basename,
-                                        },
-                                    ],
-                                    task
-                                );
-                                task.status = 'Saved! ' + basename;
-                                this.appService.fs.unlink(zipPath, err => {
-                                    if (err) console.warn(err);
-                                });
-                                resolve();
-                                break;
-                        }
+                        await adbService.uploadFile(
+                            [
+                                {
+                                    name: zipPath,
+                                    savePath:
+                                        '/sdcard/Android/data/com.kluge.SynthRiders/files/' +
+                                        (ext.toLowerCase() === '.synth'
+                                            ? 'CustomSongs/'
+                                            : ext.toLowerCase() === '.stagequest'
+                                            ? 'CustomStages/'
+                                            : 'Mods/') +
+                                        basename,
+                                },
+                            ],
+                            task
+                        );
+                        task.status = 'Saved! ' + basename;
+                        this.appService.fs.unlink(zipPath, err => {
+                            if (err) console.warn(err);
+                        });
+                        resolve();
                     });
             });
         });

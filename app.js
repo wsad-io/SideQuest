@@ -68,7 +68,7 @@ function createWindow() {
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
         } else if (~url.indexOf('https://synthriderz.com/')) {
             // synthriderz mods /songs
-            mainWindow.webContents.send('open-url', 'sidequest://synthriderz/#' + url);
+            mainWindow.webContents.send('open-url', 'sidequest://synthriders/#' + url);
         } else if (etx === '.apk') {
             // any file ending with apk.
             mainWindow.webContents.send('pre-open-url', url);

@@ -40,6 +40,11 @@ export class ElectronService {
             );
         }
     }
+    async installSynthridersMultiple(urls) {
+        for (let i = 0; i < urls.length; i++) {
+            await this.synthriderService.downloadSong(urls[i], this.adbService);
+        }
+    }
     async installMultiple(urls) {
         for (let i = 0; i < urls.length; i++) {
             const etx = urls[i]
@@ -160,9 +165,31 @@ export class ElectronService {
                         //   this[service][method].call.apply(parts);
                         // }
                         break;
-                    case 'sidequest://synthriderz/':
-                        this.statusService.showStatus('SynthRiderz download started... See the tasks screen for more info.');
+                    case 'sidequest://synthriders/':
+                        this.statusService.showStatus('SynthRiders download started... See the tasks screen for more info.');
                         this.synthriderService.downloadSong(url[1], this.adbService);
+
+                        break;
+
+                    case 'sidequest://synthriders-multi/':
+                        this.statusService.showStatus('SynthRiders download started... See the tasks screen for more info.');
+                        try {
+                            let urls = JSON.parse(
+                                data
+                                    .replace('sidequest://synthriders-multi/#', '')
+                                    .split('%22,%22')
+                                    .join('","')
+                                    .split('[%22')
+                                    .join('["')
+                                    .split('%22]')
+                                    .join('"]')
+                            );
+
+                            this.installSynthridersMultiple(urls);
+                        } catch (e) {
+                            this.statusService.showStatus('Could not parse install url: ' + data, true);
+                        }
+                        this.webviewService.isWebviewLoading = false;
                         break;
                     case 'sidequest://bsaber/':
                         this.statusService.showStatus('Song download started... See the tasks screen for more info.');
