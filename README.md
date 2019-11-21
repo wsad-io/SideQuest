@@ -93,9 +93,14 @@ yarn build --mac
 yarn build --wlm
 ```
 
-To build the app & angular app
+To build the app & angular app (NOT for Raspberry Pi)
 ```
 yarn dist
+```
+
+To build the app & angular app on a Raspberry Pi
+```
+yarn dist --armv7l
 ```
 
 To re-launch electron if you accidentally close it
