@@ -26,6 +26,9 @@ export class AppService {
     updateAvailable: boolean;
     showRepo: boolean;
     isFilesOpen: boolean;
+    isPackagesOpen: boolean;
+    isSettingsOpen: boolean;
+    isTasksOpen: boolean;
     hideNSFW: boolean;
     filesComponent: FilesComponent;
 
@@ -51,10 +54,10 @@ export class AppService {
     titleEle: HTMLElement;
     webService: WebviewService;
     currentTheme: string = 'dark';
-    versionName: string = '0.7.6';
+    versionName: string = '0.8.0';
     showBack: boolean = false;
     backupPath: string;
-
+    scrcpyBinaryPath: string;
     constructor(private spinnerService: LoadingSpinnerService) {
         this.path = (<any>window).require('path');
         this.fs = (<any>window).require('fs');
@@ -75,7 +78,9 @@ export class AppService {
         this.execSync = (<any>window).require('child_process').execSync;
         this.uuidv4 = (<any>window).require('uuid/v4');
         this.ping = (<any>window).require('ping');
-        this.makeFolders().then(() => this.spinnerService.hideLoader());
+        this.makeFolders()
+            .then(() => this.downloadScrCpyBinary())
+            .then(() => this.spinnerService.hideLoader());
         let theme = localStorage.getItem('theme');
         if (theme && theme === 'light') {
             this.currentTheme = 'light';
@@ -104,6 +109,9 @@ export class AppService {
         this.showTaskActions = false;
         this.showRepo = false;
         this.isFilesOpen = false;
+        this.isPackagesOpen = false;
+        this.isSettingsOpen = false;
+        this.isTasksOpen = false;
     }
     doesFileExist(path) {
         try {
@@ -188,6 +196,7 @@ export class AppService {
             .then(() => this.mkdir(this.path.join(this.appData, 'bsaber-data-backups')))
             .then(() => this.mkdir(this.path.join(this.appData, 'bsaber')))
             .then(() => this.mkdir(this.path.join(this.appData, 'saber-quest-patch')))
+            .then(() => this.mkdir(this.path.join(this.appData, 'scrcpy')))
             .then(() => {});
     }
     async mkdir(path) {
@@ -252,6 +261,41 @@ export class AppService {
         const packageString = 'OpenStoreVR';
         const computerString = `Hostname/${this.os.hostname()} Platform/${this.os.platform()} PlatformVersion/${this.os.release()}`;
         return `${packageString} ${nodeString} ${computerString}`;
+    }
+
+    runScrCpy() {
+        this.exec('' + this.scrcpyBinaryPath + ' -c 1280:720:1500:550 -n -b 10M', function(err, stdout, stderr) {
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    downloadScrCpyBinary() {
+        if (this.os.platform() === 'win32') {
+            let url = 'https://github.com/Genymobile/scrcpy/releases/download/v1.11/scrcpy-win64-v1.11.zip';
+            let downloadPath = this.path.join(this.appData, 'scrcpy', 'scrcpy.exe');
+            if (this.doesFileExist(downloadPath)) {
+                this.scrcpyBinaryPath = downloadPath;
+                return Promise.resolve();
+            }
+            return new Promise<void>((resolve, reject) => {
+                this.downloadFile(url, url, url, () => {
+                    return this.path.join(this.appData, 'scrcpy.zip');
+                }).then(path => {
+                    let callback = error => {
+                        if (error) return reject(error);
+                        this.fs.unlink(path, err => {
+                            // if(err) return reject(err);
+                            resolve(path.split('.')[0]);
+                        });
+                    };
+
+                    this.extract(path, { dir: this.path.join(this.appData, 'scrcpy') }, callback);
+                    this.scrcpyBinaryPath = downloadPath;
+                });
+            });
+        }
     }
     deleteFolderRecursive(path) {
         if (this.fs.existsSync(path)) {

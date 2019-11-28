@@ -41,6 +41,7 @@ export class HeaderComponent implements OnInit {
     qspResponse: QuestSaberPatchResponseJson;
     adbCommandToRun: string;
     adbResponse: string;
+    osPlatform: string;
     constructor(
         public adbService: AdbClientService,
         public appService: AppService,
@@ -53,8 +54,20 @@ export class HeaderComponent implements OnInit {
         public dragAndDropService: DragAndDropService,
         public router: Router,
         public processService: ProcessBucketService
-    ) {}
+    ) {
+        this.osPlatform = this.appService.os.platform();
+    }
     ngOnInit() {}
+
+    connectWifi() {
+        this.adbCommandToRun = 'adb tcpip 5555';
+        this.runAdbCommand().then(() => {
+            setTimeout(() => {
+                this.adbCommandToRun = 'adb connect ' + this.adbService.deviceIp + ':5555';
+                this.runAdbCommand();
+            }, 5000);
+        });
+    }
 
     runAdbCommand() {
         this.adbResponse = 'Loading...';
@@ -62,7 +75,7 @@ export class HeaderComponent implements OnInit {
         if (command.substr(0, 3).toLowerCase() === 'adb') {
             command = command.substr(3);
         }
-        new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.appService.exec(
                 '"' + this.appService.path.join(this.adbService.adbPath, this.adbService.getAdbBinary()) + '" ' + command,
                 function(err, stdout, stderr) {
@@ -95,8 +108,8 @@ export class HeaderComponent implements OnInit {
     }
 
     ngAfterViewInit() {
-        this.appService.setTitleEle(this.header.nativeElement);
-        this.dragAndDropService.setupDragAndDrop(this.mainLogo.nativeElement);
+        //this.appService.setTitleEle(this.header.nativeElement);
+        //this.dragAndDropService.setupDragAndDrop(this.mainLogo.nativeElement);
     }
     getConnectionCssClass() {
         return {

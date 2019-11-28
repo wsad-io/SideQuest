@@ -64,6 +64,7 @@ export class ToolsComponent implements OnInit {
     ) {
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;
+        appService.isSettingsOpen = true;
     }
 
     ngOnInit() {

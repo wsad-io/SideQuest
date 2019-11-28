@@ -45,6 +45,8 @@ export class AppComponent {
                         'Thanks for downloading SideQuest! Please check the Setup & How To on the top right for a one time setup!'
                     );
                 }
+
+                this.dragService.setupDragAndDrop(this.webview.nativeElement);
             });
     }
     ngAfterViewInit() {

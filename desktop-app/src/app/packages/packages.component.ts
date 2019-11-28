@@ -41,6 +41,7 @@ export class PackagesComponent implements OnInit {
     ) {
         appService.webService.isWebviewOpen = false;
         appService.resetTop();
+        appService.isPackagesOpen = true;
         this.appService.setTitle('Installed Apps');
         this.sub = router.events.subscribe(val => {
             if (val instanceof NavigationEnd) {
