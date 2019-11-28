@@ -282,7 +282,7 @@ export class AppService {
             return new Promise<void>((resolve, reject) => {
                 this.downloadFile(url, url, url, () => {
                     return this.path.join(this.appData, 'scrcpy.zip');
-                }).then(path => {
+                }).then((path: any) => {
                     let callback = error => {
                         if (error) return reject(error);
                         this.fs.unlink(path, err => {
