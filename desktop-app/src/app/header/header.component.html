@@ -42,14 +42,14 @@
          <!--src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"-->
          <!--position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>-->
 
-    <i mz-tooltip  (click)="webService.back()" class="material-icons white-text no-outline" position="bottom" tooltip="Back">
+    <i mz-tooltip routerLink="/webview" (click)="webService.back()" class="material-icons white-text no-outline" position="bottom" tooltip="Back">
       arrow_back
     </i>
     <i mz-tooltip *ngIf="!webService.isWebviewLoading" (click)="bookmarksModal.openModal()" class="material-icons white-text no-outline" position="bottom" tooltip="Web Browser">
       public
     </i>
     <div mz-tooltip *ngIf="webService.isWebviewLoading" class="loader-tiny" position="bottom" tooltip="Web Browser Loading..."></div>
-    <i mz-tooltip  (click)="webService.forward()" class="material-icons white-text no-outline" position="bottom" tooltip="Forward">
+    <i mz-tooltip routerLink="/webview" (click)="webService.forward()" class="material-icons white-text no-outline" position="bottom" tooltip="Forward">
       arrow_forward
     </i>
     <i mz-tooltip *ngIf="isConnected()&&osPlatform === 'win32'" (click)="appService.runScrCpy()" class="material-icons white-text no-outline" position="bottom" tooltip="Stream from your headset to your PC with ScrCpy.">
@@ -293,6 +293,8 @@
          (click)="webService.loadUrl('https://beatsaver.com');" mz-modal-close>BeatSaver</a>
       <a class="waves-effect waves-dark btn bookmark white black-text" routerLink="/webview"
          (click)="webService.loadUrl('https://github.com');" mz-modal-close>Github</a>
+      <a class="waves-effect waves-dark btn bookmark white black-text" routerLink="/webview"
+         (click)="webService.loadUrl('https://itch.io');" mz-modal-close>Itch.io</a>
       <a class="waves-effect waves-dark btn bookmark white black-text" routerLink="/webview"
          (click)="webService.loadUrl('https://google.com');" mz-modal-close>Google</a>
     </div>
