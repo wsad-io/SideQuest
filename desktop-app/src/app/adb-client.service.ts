@@ -179,8 +179,12 @@ export class AdbClientService {
                 await this.getBatteryLevel();
                 await this.getIpAddress();
                 this.deviceStatusMessage =
-                    'Connected -  Wifi IP: ' + (this.deviceIp || 'Not found...') + ', Battery: ' + this.batteryLevel + '% ' +
-                  (this.isBatteryCharging ? ' Charging' : '');
+                    'Connected -  Wifi IP: ' +
+                    (this.deviceIp || 'Not found...') +
+                    ', Battery: ' +
+                    this.batteryLevel +
+                    '% ' +
+                    (this.isBatteryCharging ? ' Charging' : '');
                 this.beatonService.checkIsBeatOnRunning(this);
                 break;
             case ConnectionStatus.DISCONNECTED:
@@ -393,12 +397,12 @@ export class AdbClientService {
                 return Promise.reject('Apk install failed: No device connected! ' + filePath);
             }
             const showTotal = number && total ? '(' + number + '/' + total + ') ' : '';
-            task.status = showTotal + 'Installing Apk... ' + filePath;
+            task.status = showTotal + 'Installing Apk... ';
             return this.adbCommand('install', { serial: this.deviceSerial, path: filePath, isLocal: !!isLocal }, status => {
                 task.status =
                     (status.percent === 1
-                        ? showTotal + 'Installing Apk... ' + filePath
-                        : showTotal + 'Downloading APK... ' + Math.round(status.percent * 100) + '%') +
+                        ? showTotal + 'Installing Apk... '
+                        : showTotal + 'Downloading APK... ' + Math.round(status.percent * 100) + '% ') +
                     '<span style="font-style:italic">' +
                     filePath +
                     '</span>';
@@ -408,18 +412,8 @@ export class AdbClientService {
                     if (filePath.indexOf('com.weloveoculus.BMBF') > -1) {
                         return this.beatonService.setBeatOnPermission(this);
                     }
-                    if (filePath.indexOf('Pavlov-Android-Shipping') > -1) {
-                        return this.setPermission('com.davevillz.pavlov', 'android.permission.RECORD_AUDIO');
-                    }
-                    if (filePath.indexOf('yur.overlay')) {
-                        //return this.launchYurOverlay();
-                    }
                 })
                 .catch(e => {
-                    if (e.code && shouldUninstall) {
-                        this.uninstallAPK('com.beatgames.beatsaber');
-                        this.installAPK(filePath, isLocal);
-                    }
                     return Promise.reject(e.message ? e.message : e.code ? e.code : e.toString() + ' ' + filePath);
                 });
         });
@@ -709,7 +703,14 @@ export class AdbClientService {
                     url,
                     url,
                     downloadUrl => {
-                        return this.appService.path.join(this.appService.appData, downloadUrl.split('/').pop());
+                        return this.appService.path.join(
+                            this.appService.appData,
+                            downloadUrl
+                                .split('/')
+                                .pop()
+                                .split('?')
+                                .shift()
+                        );
                     },
                     task
                 )

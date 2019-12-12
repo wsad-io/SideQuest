@@ -42,6 +42,15 @@ export class HeaderComponent implements OnInit {
     adbCommandToRun: string;
     adbResponse: string;
     osPlatform: string;
+    scrcpy_options: any = {
+        always_on_top: false,
+        bit_rate: '8000000',
+        crop: '1280:720:1500:550',
+        no_control: true,
+        fullscreen: false,
+        max_size: '0',
+        max_fps: '0',
+    };
     constructor(
         public adbService: AdbClientService,
         public appService: AppService,

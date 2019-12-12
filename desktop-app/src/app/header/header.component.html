@@ -41,7 +41,9 @@
          <!--class="material-icons no-outline beaton-icon"-->
          <!--src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"-->
          <!--position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>-->
-
+    <i mz-tooltip routerLink="/webview" (click)="webService.loadUrl('https://sidequestvr.com')" class="material-icons white-text no-outline" position="bottom" tooltip="Home">
+      home
+    </i>
     <i mz-tooltip routerLink="/webview" (click)="webService.back()" class="material-icons white-text no-outline" position="bottom" tooltip="Back">
       arrow_back
     </i>
@@ -52,7 +54,7 @@
     <i mz-tooltip routerLink="/webview" (click)="webService.forward()" class="material-icons white-text no-outline" position="bottom" tooltip="Forward">
       arrow_forward
     </i>
-    <i mz-tooltip *ngIf="isConnected()&&osPlatform === 'win32'" (click)="appService.runScrCpy()" class="material-icons white-text no-outline" position="bottom" tooltip="Stream from your headset to your PC with ScrCpy.">
+    <i mz-tooltip *ngIf="isConnected()&&osPlatform === 'win32'" (click)="scrcpyModal.openModal();" class="material-icons white-text no-outline" position="bottom" tooltip="Stream from your headset to your PC with ScrCpy.">
       live_tv
     </i>
     <i mz-tooltip *ngIf="isConnected()" (click)="wifiModal.openModal()" class="material-icons no-outline" [ngClass]="{'green-text':adbService.wifiEnabled,'white-text':!adbService.wifiEnabled}" position="bottom" tooltip="Enable Wireless mode. ( Experimental ) ">
@@ -96,7 +98,7 @@
     <i (click)="maximizeApp()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Maximize the app to fill your screen.">
       aspect_ratio
     </i>
-    <i (click)="closeApp()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Close the app.">
+    <i (click)="closeAppModal.openModal()" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Close the app.">
       close
     </i>
   </div>
@@ -396,6 +398,20 @@
 </mz-modal>
 
 
+<mz-modal #closeAppModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Close SideQuest</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Are you sure you want to close SideQuest? This will cancel any running tasks.
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Cancel</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="closeApp()">Exit SideQuest Now</button>
+  </mz-modal-footer>
+</mz-modal>
+
+
 <mz-modal #installAPKModal [fixedFooter]="true">
   <mz-modal-header>
     <h4>Patch Completed - Now Install the Custom Song APK</h4>
@@ -417,6 +433,109 @@
   </mz-modal-footer>
 </mz-modal>
 
+
+<mz-modal #scrcpyModal [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Stream Options</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    <div class="row">
+      <div class="col s6 fixed-height">
+        Always On Top
+        <div class="grey-text small">
+          Make scrcpy window always on top (above other windows).
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        <div class="switch">
+          <label>
+            Off
+            <input type="checkbox" [(ngModel)]="scrcpy_options.always_on_top"/>
+            <span class="lever"></span>
+            On
+          </label>
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        Bit Rate
+        <div class="grey-text small">
+          Encode the video at the given bit-rate, expressed in bits/s. Unit suffixes are supported: 'K' (x1000) and 'M' (x1000000).
+        </div>
+      </div>
+      <div class="col s6 input-field fixed-height">
+          <input id="bit_rate_" [(ngModel)]="scrcpy_options.bit_rate" type="text"/>
+          <label for="bit_rate_" class="active">Bit Rate</label>
+      </div>
+      <div class="col s6 fixed-height">
+        Crop
+        <div class="grey-text small">
+          Crop the device screen on the server. The values are expressed in the device natural orientation (typically, portrait for a phone, landscape for a tablet). Any MaxSize value is computed on the cropped size.
+        </div>
+      </div>
+      <div class="col s6 input-field fixed-height">
+        <input id="crop_" [(ngModel)]="scrcpy_options.crop" type="text"/>
+        <label for="crop_" class="active">Crop</label>
+      </div>
+      <div class="col s6 fixed-height">
+        Fullscreen
+        <div class="grey-text small">
+          Start in fullscreen.
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        <div class="switch">
+          <label>
+            Off
+            <input type="checkbox" [(ngModel)]="scrcpy_options.fullscreen"/>
+            <span class="lever"></span>
+            On
+          </label>
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        No Input
+        <div class="grey-text small">
+          Disable device control (mirror the device in read-only).
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        <div class="switch">
+          <label>
+            Off
+            <input type="checkbox" [(ngModel)]="scrcpy_options.no_control"/>
+            <span class="lever"></span>
+            On
+          </label>
+        </div>
+      </div>
+      <div class="col s6 fixed-height">
+        Max FPS
+        <div class="grey-text small">
+          Limit the frame rate of screen capture. 0 is unlimited.
+        </div>
+      </div>
+      <div class="col s6 input-field fixed-height">
+        <input id="max_fps_" [(ngModel)]="scrcpy_options.max_fps" type="text"/>
+        <label for="max_fps_" class="active">Max FPS</label>
+      </div>
+      <div class="col s6 fixed-height">
+        Max Size
+        <div class="grey-text small">
+          Limit both the width and height of the video to value. The other dimension is computed so that the device aspect-ratio is preserved. 0 is unlimited.
+        </div>
+      </div>
+      <div class="col s6 input-field fixed-height">
+        <input id="max_size_" [(ngModel)]="scrcpy_options.max_size" type="text"/>
+        <label for="max_size_" class="active">Max Size</label>
+      </div>
+    </div>
+  </mz-modal-content>
+  <mz-modal-footer>
+    <div class="left margin-left"><br>Put your headset on before clicking Start Stream</div>
+    <button mz-button class="pink-button" mz-modal-close (click)="appService.runScrCpy(scrcpy_options)">Start Stream</button>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+  </mz-modal-footer>
+</mz-modal>
 
 <mz-modal #autoFixModal [fixedFooter]="true">
   <mz-modal-header>

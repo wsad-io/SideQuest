@@ -26,6 +26,9 @@
   margin-right: 13px;
   margin-left: 13px
 }
+.margin-left{
+  margin-left: 1em;
+}
 .pointer{
   cursor: pointer;
 }
@@ -208,6 +211,9 @@
 }
 .sync-songs{
   right: 15px;
+}
+.fixed-height{
+  height: 120px;
 }
 .sync-songs-now,.beast-saber-buttons {
   top: 83px;

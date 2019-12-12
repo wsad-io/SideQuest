@@ -263,12 +263,36 @@ export class AppService {
         return `${packageString} ${nodeString} ${computerString}`;
     }
 
-    runScrCpy() {
-        this.exec('' + this.scrcpyBinaryPath + ' -c 1280:720:1500:550 -n -b 10M', function(err, stdout, stderr) {
-            if (err) {
-                console.log(err);
+    runScrCpy(options: any) {
+        this.exec(
+            '' +
+                this.scrcpyBinaryPath +
+                ' --crop ' +
+                options.crop +
+                ' ' +
+                ' -b ' +
+                options.bit_rate +
+                ' ' +
+                (options.max_size ? ' --max-fps ' + options.max_fps + ' ' : '') +
+                (options.max_size ? ' --max-size ' + options.max_size + ' ' : '') +
+                (options.always_on_top ? '--always-on-top' : '') +
+                ' ' +
+                (options.fullscreen ? '-f' : '') +
+                ' ' +
+                (options.no_control ? '-n' : '') +
+                ' --window-title "SideQuest Stream"',
+            function(err, stdout, stderr) {
+                if (stderr) {
+                    console.log(stderr);
+                }
+                if (stdout) {
+                    console.log(stdout);
+                }
+                if (err) {
+                    console.log(err);
+                }
             }
-        });
+        );
     }
 
     downloadScrCpyBinary() {
