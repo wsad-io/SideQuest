@@ -281,6 +281,7 @@ export class AppService {
                 ' ' +
                 (options.no_control ? '-n' : '') +
                 ' --window-title "SideQuest Stream"';
+            console.log(command);
             this.exec(command, function(err, stdout, stderr) {
                 if (err) {
                     return reject({ err, stderr, command });
