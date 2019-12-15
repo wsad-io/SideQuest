@@ -116,6 +116,13 @@ export class HeaderComponent implements OnInit {
         }
     }
 
+    runscrcpy() {
+        this.appService
+            .runScrCpy(this.scrcpy_options)
+            .then(() => this.statusService.showStatus('Stream closed.'))
+            .catch(e => this.statusService.showStatus('ScrCpy Error: ' + JSON.stringify(e), true));
+    }
+
     ngAfterViewInit() {
         //this.appService.setTitleEle(this.header.nativeElement);
         //this.dragAndDropService.setupDragAndDrop(this.mainLogo.nativeElement);

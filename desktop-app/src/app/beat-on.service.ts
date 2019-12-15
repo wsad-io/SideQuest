@@ -116,11 +116,11 @@ export class BeatOnService {
             })
             .catch(e => {
                 console.log(e);
-                this.statusService.showStatus(
-                    'Your PC and quest should be on the same network! Try to Ping your Quest IP address. ' +
-                        (e.message ? e.message : e.code ? e.code : e.toString()),
-                    true
-                );
+                // this.statusService.showStatus(
+                //     'Your PC and quest should be on the same network! Try to Ping your Quest IP address. ' +
+                //         (e.message ? e.message : e.code ? e.code : e.toString()),
+                //     true
+                // );
             });
     }
     async syncSongs(adbService) {

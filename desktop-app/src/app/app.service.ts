@@ -264,35 +264,32 @@ export class AppService {
     }
 
     runScrCpy(options: any) {
-        this.exec(
-            '' +
-                this.scrcpyBinaryPath +
-                ' --crop ' +
-                options.crop +
-                ' ' +
-                ' -b ' +
-                options.bit_rate +
-                ' ' +
-                (options.max_size ? ' --max-fps ' + options.max_fps + ' ' : '') +
-                (options.max_size ? ' --max-size ' + options.max_size + ' ' : '') +
-                (options.always_on_top ? '--always-on-top' : '') +
-                ' ' +
-                (options.fullscreen ? '-f' : '') +
-                ' ' +
-                (options.no_control ? '-n' : '') +
-                ' --window-title "SideQuest Stream"',
-            function(err, stdout, stderr) {
-                if (stderr) {
-                    console.log(stderr);
+        return new Promise((resolve, reject) => {
+            this.exec(
+                '' +
+                    this.scrcpyBinaryPath +
+                    ' --crop ' +
+                    options.crop +
+                    ' ' +
+                    ' -b ' +
+                    options.bit_rate +
+                    ' ' +
+                    (options.max_size ? ' --max-fps ' + options.max_fps + ' ' : '') +
+                    (options.max_size ? ' --max-size ' + options.max_size + ' ' : '') +
+                    (options.always_on_top ? '--always-on-top' : '') +
+                    ' ' +
+                    (options.fullscreen ? '-f' : '') +
+                    ' ' +
+                    (options.no_control ? '-n' : '') +
+                    ' --window-title "SideQuest Stream"',
+                function(err, stdout, stderr) {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(stdout);
                 }
-                if (stdout) {
-                    console.log(stdout);
-                }
-                if (err) {
-                    console.log(err);
-                }
-            }
-        );
+            );
+        });
     }
 
     downloadScrCpyBinary() {
