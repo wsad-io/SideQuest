@@ -23,6 +23,7 @@ declare const process;
 export class HeaderComponent implements OnInit {
     @ViewChild('header', { static: false }) header;
     @ViewChild('syncSongsModal', { static: false }) syncSongsModal;
+    @ViewChild('bookmarksModal', { static: false }) bookmarksModal;
     @ViewChild('installAPKModal', { static: false }) installAPKModal;
     @ViewChild('autoFixModal', { static: false }) autoFixModal;
     @ViewChild('beatOnModal', { static: false }) beatOnModal;
@@ -121,6 +122,13 @@ export class HeaderComponent implements OnInit {
             .runScrCpy(this.scrcpy_options)
             .then(() => this.statusService.showStatus('Stream closed.'))
             .catch(e => this.statusService.showStatus('ScrCpy Error: ' + JSON.stringify(e), true));
+    }
+
+    gogo(e) {
+        if (e.keyCode === 13) {
+            this.webService.loadUrl(this.webService.currentAddress);
+            this.bookmarksModal.closeModal();
+        }
     }
 
     ngAfterViewInit() {
