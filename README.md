@@ -3,7 +3,7 @@
 
 [Latest Download](https://sidequestvr.com/#/download) | [Discord](https://discord.gg/pqUz9F7) | [Patreon](https://www.patreon.com/TheExpanseVR) | [Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=744A6C394Q8JG&source=url)
 
-![Image](https://i.imgur.com/288M0zG.png)
+![Image](https://i.imgur.com/AlYMbTj.png)
 
 
 
@@ -117,29 +117,3 @@ yarn reset
 
 We are pretty relaxed at this point, in that we will accept arbitrary PRs, but all collaborators must agree on a way forward. We live by the [Contributor Covenant](https://www.contributor-covenant.org/)
 
-## More Info:
-
-[Oculus Go ADB Driver](https://developer.oculus.com/downloads/package/oculus-go-adb-drivers/)
-
-[Device Setup - Oculus Go - Developer Mode](https://developer.oculus.com/documentation/mobilesdk/latest/concepts/mobile-device-setup-go/)
-
-[OculusQuest subreddit](https://www.reddit.com/r/OculusQuest/)
-
-[OculusGo subreddit](https://www.reddit.com/r/OculusGo)
-
-[Oculus TV subreddit](https://www.reddit.com/r/oculustv/)
-
-[Guide: Launching Android apps in vrshell.desktop instead of Oculus TV](https://www.reddit.com/r/OculusGo/comments/ba6ul9/guide_launching_android_apps_in_vrshelldesktop/)
-
-[Android Subreddit Curated Apps](https://www.reddit.com/r/android/wiki/apps)
-
-[Games that can now be played with Oculus TV as of 1.1.17](https://www.reddit.com/comments/9uney8)
-
-[Oculus TV media app compatibility list](https://www.reddit.com/comments/9x07yj)
-
-## Credits
-
-This program uses code not created by the SideQuest Team these include:
-
--   [Songe Converter](https://github.com/lolPants/songe-converter) By [@lolPants](https://github.com/lolPants) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/songe-converter-license)
--   [QuestSaberPatch](https://github.com/trishume/QuestSaberPatch) By [@trishume](https://github.com/trishume) Licenses can be found [here](https://github.com/the-expanse/SideQuest/blob/master/licenses/QuestSaberPatch-license)
