@@ -95,6 +95,7 @@ export class ElectronService {
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
             if (data) {
+                console.log(data);
                 let url = data.split('#');
                 switch (url[0]) {
                     case 'sidequest://repo/':
@@ -170,7 +171,6 @@ export class ElectronService {
                         this.synthriderService.downloadSong(url[1], this.adbService);
 
                         break;
-
                     case 'sidequest://synthriders-multi/':
                         this.statusService.showStatus('SynthRiders download started... See the tasks screen for more info.');
                         try {

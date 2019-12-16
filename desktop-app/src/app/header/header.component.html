@@ -368,6 +368,9 @@
     <div class="chip pointer orange white-text"
          mzTooltip tooltip="adb kill-server" position="bottom"
          (click)="adbCommandToRun = 'adb kill-server';runAdbCommand()">Reset ADB</div>
+    <div class="chip pointer red white-text"
+         mzTooltip tooltip="adb reboot" position="bottom"
+         (click)="adbCommandToRun = 'adb reboot';runAdbCommand()">Reboot Headset</div>
     <div class="button-section">
       <div class="input-field">
         <input id="adbCommand"  type="text" [(ngModel)]="adbCommandToRun" placeholder="Command To Run..."/>

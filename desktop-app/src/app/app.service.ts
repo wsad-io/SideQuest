@@ -266,8 +266,9 @@ export class AppService {
     runScrCpy(options: any) {
         return new Promise((resolve, reject) => {
             let command =
+                '"' +
                 this.scrcpyBinaryPath +
-                ' --crop ' +
+                '" --crop ' +
                 options.crop +
                 ' ' +
                 ' -b ' +
