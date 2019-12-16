@@ -95,7 +95,6 @@ export class ElectronService {
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
             if (data) {
-                console.log(data);
                 let url = data.split('#');
                 switch (url[0]) {
                     case 'sidequest://repo/':
