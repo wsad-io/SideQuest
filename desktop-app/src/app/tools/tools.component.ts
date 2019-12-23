@@ -4,6 +4,7 @@ import { AdbClientService } from '../adb-client.service';
 import { LoadingSpinnerService } from '../loading-spinner.service';
 import { StatusBarService } from '../status-bar.service';
 import { BsaberService } from '../bsaber.service';
+import { RepoService } from '../repo.service';
 enum FFR {
     OFF,
     LOW,
@@ -60,7 +61,8 @@ export class ToolsComponent implements OnInit {
         public adbService: AdbClientService,
         private spinnerService: LoadingSpinnerService,
         private statusService: StatusBarService,
-        private bsaberService: BsaberService
+        private bsaberService: BsaberService,
+        public repoService: RepoService
     ) {
         this.appService.resetTop();
         appService.webService.isWebviewOpen = false;

@@ -62,10 +62,13 @@ function createWindow() {
     mainWindow.webContents.session.on('will-download', (evt, item, webContents) => {
         let url = item.getURL();
         let etx = path.extname(url.split('?')[0]).toLowerCase();
-        console.log(url, item.getFilename());
+
         if (~url.indexOf('https://beatsaver.com/cdn')) {
             // beat saber mods /songs
             mainWindow.webContents.send('open-url', 'sidequest://bsaber/#' + url);
+        } else if (~url.indexOf('http://songbeater.com/')) {
+            // songbeater mods /songs
+            mainWindow.webContents.send('open-url', 'sidequest://songbeater/#' + url);
         } else if (~url.indexOf('https://synthriderz.com/')) {
             // synthriderz mods /songs
             mainWindow.webContents.send('open-url', 'sidequest://synthriders/#' + url);

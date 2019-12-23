@@ -9,6 +9,7 @@ import { WebviewService } from './webview.service';
 import { Router } from '@angular/router';
 import { BeatOnService } from './beat-on.service';
 import { SynthriderService } from './synthrider.service';
+import { SongBeaterService } from './song-beater.service';
 
 @Injectable({
     providedIn: 'root',
@@ -26,7 +27,8 @@ export class ElectronService {
         private webviewService: WebviewService,
         private beatonService: BeatOnService,
         private router: Router,
-        private synthriderService: SynthriderService
+        private synthriderService: SynthriderService,
+        private songbeaterService: SongBeaterService
     ) {
         this.setupIPC();
     }
@@ -68,7 +70,6 @@ export class ElectronService {
             this.spinnerService.showLoader();
             this.spinnerService.setMessage('Do you want to install this file?<br><br>' + data);
             this.spinnerService.setupConfirm().then(() => {
-                this.spinnerService.hideLoader();
                 this.adbService.installAPK(data);
             });
         });
@@ -97,9 +98,6 @@ export class ElectronService {
             if (data) {
                 let url = data.split('#');
                 switch (url[0]) {
-                    case 'sidequest://repo/':
-                        this.repoService.addRepo(url[1]);
-                        break;
                     case 'sidequest://unload/':
                         this.adbService.uninstallAPK(url[1]);
                         break;
@@ -165,6 +163,10 @@ export class ElectronService {
                         //   this[service][method].call.apply(parts);
                         // }
                         break;
+                    case 'sidequest://songbeater/':
+                        this.statusService.showStatus('SongBeater download started... See the tasks screen for more info.');
+                        this.songbeaterService.downloadSong(url[1], this.adbService);
+                        break;
                     case 'sidequest://synthriders/':
                         this.statusService.showStatus('SynthRiders download started... See the tasks screen for more info.');
                         this.synthriderService.downloadSong(url[1], this.adbService);
@@ -192,7 +194,21 @@ export class ElectronService {
                         break;
                     case 'sidequest://bsaber/':
                         this.statusService.showStatus('Song download started... See the tasks screen for more info.');
-                        this.beatonService.downloadSong(url[1], this.adbService);
+                        if (!~this.adbService.devicePackages.indexOf('com.playito.songbeater')) {
+                            this.spinnerService.showLoader();
+                            this.spinnerService.setMessage('Send this to Song Beater?<br><br>' + data);
+                            this.spinnerService
+                                .setupConfirm()
+                                .then(() => {
+                                    this.songbeaterService.downloadSong(url[1], this.adbService);
+                                })
+                                .catch(() => {
+                                    this.beatonService.downloadSong(url[1], this.adbService);
+                                });
+                        } else {
+                            this.beatonService.downloadSong(url[1], this.adbService);
+                        }
+                        this.webviewService.isWebviewLoading = false;
                         break;
                     case 'sidequest://firefox-skybox/':
                         this.statusService.showStatus(

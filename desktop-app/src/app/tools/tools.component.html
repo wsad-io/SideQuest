@@ -26,7 +26,16 @@
 
 
       <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Manage 3rd Party Repos</div>
+      WARNING: these are deprecated and may be removed in a future release.
       <div class="button-section">
+
+        <div *ngFor="let repo of repoService.repos; let i = index" >
+          <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+               [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
+               routerLink="/apps/{{i}}"
+          >{{repo.name}}</div
+          >&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
         <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
              [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
              routerLink="/repos"
@@ -161,18 +170,18 @@
         <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
              [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1536)">1536</div>
       </div>
-      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Destroy The World</div>
-      Click this to release all the goblins and endanger the future of humanity. Do not do this!
-      <div class="button-section">
-        <div class="switch">
-          <label>
-            Bad
-            <input type="checkbox" [(ngModel)]="appService.hideNSFW" (change)="setHideNSFW()"/>
-            <span class="lever"></span>
-            Safe
-          </label>
-        </div>
-      </div>
+<!--      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Destroy The World</div>-->
+<!--      Click this to release all the goblins and endanger the future of humanity. Do not do this!-->
+<!--      <div class="button-section">-->
+<!--        <div class="switch">-->
+<!--          <label>-->
+<!--            Bad-->
+<!--            <input type="checkbox" [(ngModel)]="appService.hideNSFW" (change)="setHideNSFW()"/>-->
+<!--            <span class="lever"></span>-->
+<!--            Safe-->
+<!--          </label>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
   </div>
 
