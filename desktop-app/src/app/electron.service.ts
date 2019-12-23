@@ -163,7 +163,7 @@ export class ElectronService {
                         this.statusService.showStatus('Song download started... See the tasks screen for more info.');
                         if (~this.adbService.devicePackages.indexOf('com.playito.songbeater')) {
                             this.spinnerService.showLoader();
-                            this.spinnerService.setMessage('Send this to Song Beater?<br><br>' + data);
+                            this.spinnerService.setMessage('Send this to Song Beater instead of BMBF?<br><br>' + data);
                             this.spinnerService
                                 .setupConfirm()
                                 .then(() => {
