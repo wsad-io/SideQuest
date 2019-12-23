@@ -130,39 +130,6 @@ export class ElectronService {
                             this.statusService.showStatus('Launcher already installed!');
                         }
                         break;
-                    case 'sidequest://navigate/':
-                        this.router.navigateByUrl(url[1]);
-                        this.appService.showBack = true;
-                        this.webviewService.isWebviewLoading = false;
-                        break;
-                    case 'sidequest://api/':
-                        // grab and parse a url like this - sidequest://api/#adbService:installAPK:<url_of_apk>:true
-                        // let parts = url[1].split(':');
-                        // let service = parts.unshift();
-                        // let method = parts.unshift();
-                        // if (
-                        //   service &&
-                        //   this[service] &&
-                        //   method &&
-                        //   this[service][method] &&
-                        //   typeof this[service][method] === 'function'
-                        // ) {
-                        //   parts = parts.map(p => {
-                        //     switch (p) {
-                        //       case 'null':
-                        //         return null;
-                        //       case 'true':
-                        //         return true;
-                        //       case 'false':
-                        //         return false;
-                        //       default:
-                        //         return p.trim();
-                        //     }
-                        //   });
-                        //   console.log(parts, service, method);
-                        //   this[service][method].call.apply(parts);
-                        // }
-                        break;
                     case 'sidequest://songbeater/':
                         this.statusService.showStatus('SongBeater download started... See the tasks screen for more info.');
                         this.songbeaterService.downloadSong(url[1], this.adbService);
