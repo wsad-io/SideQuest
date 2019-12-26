@@ -403,7 +403,7 @@ export class AdbClientService {
                     (status.percent === 1
                         ? showTotal + 'Installing Apk... '
                         : showTotal + 'Downloading APK... ' + Math.round(status.percent * 100) + '% ') +
-                    '<span style="font-style:italic">' +
+                    ' <span style="font-style:italic">' +
                     filePath +
                     '</span>';
             })
@@ -413,7 +413,15 @@ export class AdbClientService {
                         return this.beatonService.setBeatOnPermission(this);
                     }
                     if (filePath.toLowerCase().indexOf('pavlov') > -1) {
-                        return this.setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO');
+                        return this.setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO')
+                            .then(() => this.setPermission('com.vankrupt.pavlov', 'android.permission.READ_EXTERNAL_STORAGE'))
+                            .then(() => this.setPermission('com.vankrupt.pavlov', 'android.permission.WRITE_EXTERNAL_STORAGE'))
+                            .then(() =>
+                                this.adbCommand('shell', {
+                                    serial: this.deviceSerial,
+                                    command: 'echo Dave >> /sdcard/pavlov.name.txt',
+                                })
+                            );
                     }
                 })
                 .catch(e => {
