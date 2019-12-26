@@ -412,6 +412,9 @@ export class AdbClientService {
                     if (filePath.indexOf('com.weloveoculus.BMBF') > -1) {
                         return this.beatonService.setBeatOnPermission(this);
                     }
+                    if (filePath.toLowerCase().indexOf('pavlov') > -1) {
+                        return this.setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO');
+                    }
                 })
                 .catch(e => {
                     return Promise.reject(e.message ? e.message : e.code ? e.code : e.toString() + ' ' + filePath);

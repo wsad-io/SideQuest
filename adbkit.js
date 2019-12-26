@@ -152,7 +152,7 @@ module.exports = class ADB {
                     autocancel = setTimeout(() => {
                         clearInterval(interval);
                         cb();
-                    }, 40000);
+                    }, 90000);
                 });
                 transfer.on('end', () => {
                     clearTimeout(autocancel);
