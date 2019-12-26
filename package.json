@@ -27,7 +27,13 @@
         "win": {
             "artifactName": "${productName}-${version}-${arch}-${os}.${ext}",
             "target": [
-                "nsis"
+                "nsis",
+                {
+                    "target": "zip",
+                    "arch": [
+                        "ia32"
+                    ]
+                }
             ]
         },
         "linux": {
