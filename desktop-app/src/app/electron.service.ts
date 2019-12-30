@@ -95,6 +95,7 @@ export class ElectronService {
             }
         });
         this.appService.electron.ipcRenderer.on('open-url', (event, data) => {
+            console.log(data);
             if (data) {
                 let url = data.split('#');
                 switch (url[0]) {
@@ -152,7 +153,6 @@ export class ElectronService {
                                     .split('%22]')
                                     .join('"]')
                             );
-
                             this.installSynthridersMultiple(urls);
                         } catch (e) {
                             this.statusService.showStatus('Could not parse install url: ' + data, true);

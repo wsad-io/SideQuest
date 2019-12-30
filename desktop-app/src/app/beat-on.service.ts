@@ -67,7 +67,7 @@ export class BeatOnService {
                             )
                             .then(() => {
                                 this.spinnerService.hideLoader();
-                                this.statusService.showStatus('Beat On Installed!');
+                                this.statusService.showStatus('Installed!');
                             })
                             .catch(e => {
                                 this.spinnerService.hideLoader();
@@ -149,7 +149,7 @@ export class BeatOnService {
                 .then(() => {
                     setTimeout(() => {
                         this.spinnerService.hideLoader();
-                        this.statusService.showStatus('Songs synced to Beat On OK!');
+                        this.statusService.showStatus('Songs synced OK!');
                     }, 5000);
                 });
         }
@@ -286,7 +286,9 @@ export class BeatOnService {
                 } else {
                     reject(
                         new Error(
-                            'BeatOn not installed / enabled. Please enable Beat On and ensure your on the same wifi as your headset.'
+                            'Cant reach the unicorns, this is most lightly caused by a network issue. Please open BeatOn/BMBF inside the headset or from a browser at http://' +
+                                adbService.deviceIp +
+                                ':50000.'
                         )
                     );
                 }
