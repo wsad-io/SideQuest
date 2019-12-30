@@ -33,8 +33,6 @@ export class AppComponent {
     ngOnInit() {
         this.adbService
             .setupAdb()
-            // .then(() => this.bsaberSerivce.downloadQSP())
-            // .then(() => this.adbService.setupAdb())
             .then(() => this.adbService.connectedStatus())
             .then(() => this.bsaberSerivce.getMySongs())
             .then(() => (this.bsaberSerivce.jSon = this.bsaberSerivce.getAppJson()))

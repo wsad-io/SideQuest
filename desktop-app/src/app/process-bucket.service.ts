@@ -71,12 +71,11 @@ export class ProcessBucketService {
             resolve,
         });
         this.left_length = this.tasks.filter(t => t.status === 'Waiting...').length;
-        this.failed_length = this.tasks.filter(t => t.failed).length;
     }
 
     async processBucket() {
         const objects = this.tasks.filter(t => t.status === 'Waiting...');
-        const timeout = new Promise(resolve => setTimeout(() => resolve(), 1500));
+        const timeout = new Promise(resolve => setTimeout(() => resolve(), 1000));
         this.left_length = objects.length;
         if (objects.length) {
             this.is_running = true;
@@ -97,10 +96,16 @@ export class ProcessBucketService {
                 });
             this.tasks = this.tasks.filter(t => t !== task);
         } else {
-            let hasFailed = !!this.tasks.filter(t => t.failed).length;
+            let failed = this.tasks.filter(t => t.failed);
+            this.failed_length = failed.length;
+            let hasFailed = !!this.failed_length;
             if (this.is_running) {
                 this.statusService.showStatus(
-                    (hasFailed ? 'Some tasks failed. ' : 'All tasks completed! ') + 'See the tasks screen for more info.',
+                    hasFailed
+                        ? this.failed_length > 1
+                            ? 'Multiple tasks failed. Check the tasks screen for more info.'
+                            : 'A task failed. Check the tasks screen for more info. ' + failed[0].status
+                        : 'All tasks completed! ',
                     hasFailed
                 );
             }
