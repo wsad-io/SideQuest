@@ -136,7 +136,7 @@ function setupMenu() {
 
 const gotTheLock = app.requestSingleInstanceLock ? app.requestSingleInstanceLock() : true;
 let parseOpenUrl = argv => {
-    fs.writeFileSync(path.join(app.getPath('appData'), 'SideQuest', 'test_output_loaded.txt'), JSON.stringify(argv));
+    //fs.writeFileSync(path.join(app.getPath('appData'), 'SideQuest', 'test_output_loaded.txt'), JSON.stringify(argv));
     if (argv[1] && argv[1].length && argv[1].substr(0, 12) === 'sidequest://') {
         setTimeout(() => mainWindow.webContents.send('open-url', argv[1].toString()), 5000);
     }
