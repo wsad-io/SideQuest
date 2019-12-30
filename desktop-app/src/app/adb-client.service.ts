@@ -44,7 +44,7 @@ export class AdbClientService {
         private webService: WebviewService,
         public processService: ProcessBucketService
     ) {
-        this.lastConnectionCheck = performance.now() - 2500;
+        this.lastConnectionCheck = performance.now() - 1500;
         this.adbPath = appService.path.join(appService.appData, 'platform-tools');
         this.adbResolves = {};
         this.savePath = localStorage.getItem('save-path') || this.appService.path.join(this.appService.appData, 'tmp');
