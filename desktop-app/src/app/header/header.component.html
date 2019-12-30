@@ -74,6 +74,7 @@
       <i routerLink="tasks" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Running {{processService.left_length}} tasks.">
         playlist_add_check
       </i><span routerLink="tasks" mz-tooltip *ngIf="processService.left_length" position="bottom" tooltip="Running {{processService.left_length}} tasks." class="process-badge pink-button">{{processService.left_length>100?'99+':processService.left_length}}</span>
+      <span routerLink="tasks" mz-tooltip *ngIf="!processService.left_length&&processService.failed_length" position="bottom" tooltip="{{processService.failed_length}} failed tasks." class="process-badge pink-button">{{processService.failed_length>100?'99+':processService.failed_length}}</span>
       <i id="device-settings" routerLink="tools" mz-tooltip class="material-icons white-text no-outline" position="bottom" tooltip="Device Settings & Tools">
         build
       </i>

@@ -19,6 +19,7 @@ export class ProcessBucketService {
     tasks: ProcessTask[];
     is_running: boolean;
     left_length: number;
+    failed_length: number;
     constructor(private statusService: StatusBarService) {
         this.tasks = [];
         this.processBucket();
@@ -70,6 +71,7 @@ export class ProcessBucketService {
             resolve,
         });
         this.left_length = this.tasks.filter(t => t.status === 'Waiting...').length;
+        this.failed_length = this.tasks.filter(t => t.failed).length;
     }
 
     async processBucket() {

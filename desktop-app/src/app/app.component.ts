@@ -42,7 +42,7 @@ export class AppComponent {
                 if (!localStorage.getItem('first_run')) {
                     localStorage.setItem('first_run', 'true');
                     this.statusService.showStatus(
-                        'Thanks for downloading SideQuest! Please check the Setup & How To on the top right for a one time setup!'
+                        'Thanks for downloading SideQuest! Please click "Setup" on the top menu to begin and then "Sign Up" to get app updates, remote installing and more!'
                     );
                 }
 
