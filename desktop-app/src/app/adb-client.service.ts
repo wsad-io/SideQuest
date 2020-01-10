@@ -419,7 +419,7 @@ export class AdbClientService {
                             .then(() =>
                                 this.adbCommand('shell', {
                                     serial: this.deviceSerial,
-                                    command: 'echo Dave >> /sdcard/pavlov.name.txt',
+                                    command: 'echo Dave > /sdcard/pavlov.name.txt',
                                 })
                             );
                     }

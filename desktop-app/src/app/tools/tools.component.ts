@@ -244,7 +244,7 @@ export class ToolsComponent implements OnInit {
     setPavlovName() {
         this.adbService.adbCommand('shell', {
             serial: this.adbService.deviceSerial,
-            command: 'echo ' + this.pavlovName + ' >> /sdcard/pavlov.name.txt',
+            command: 'echo ' + this.pavlovName + ' > /sdcard/pavlov.name.txt',
         });
     }
     pasteToDevice() {
