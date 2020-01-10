@@ -118,6 +118,19 @@
           class="waves-effect waves-light btn margin-bottom margin-right pink-button"
           [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setFFR(FFR.HIGH_TOP)">High Top</div>
       </div>
+      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Set Video Capture Size</div>
+      This an increase the resolution of captured videos on the Quest
+      <div class="button-section">
+        <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
+             (click)="setCR(CR._480)">480</div>
+        <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
+             (click)="setCR(CR._720)">720</div>
+        <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
+             (click)="setCR(CR._1080)">1080</div>
+      </div>
       <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Set CPU and GPU level</div>
       This can improve performance for 2D apps & games.
       <div class="button-section">
@@ -165,16 +178,16 @@
         <div class="waves-effect waves-light btn set-svb margin-bottom margin-right pink-button"
              [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVB(SVB._25Mbps)">25Mbps</div>
       </div>
-      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Video Recording Resolution ( Go Only )</div>
-      This will increase the resolution of captured videos on Oculus Go.
-      <div class="button-section">
-        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
-             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1024)">Default</div>
-        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
-             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1024)">1024</div>
-        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"
-             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1536)">1536</div>
-      </div>
+<!--      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Video Recording Resolution ( Go Only )</div>-->
+<!--      This will increase the resolution of captured videos on Oculus Go.-->
+<!--      <div class="button-section">-->
+<!--        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"-->
+<!--             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1024)">Default</div>-->
+<!--        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"-->
+<!--             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1024)">1024</div>-->
+<!--        <div class="waves-effect waves-light btn set-svr margin-bottom margin-right pink-button"-->
+<!--             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}" (click)="setSVR(SVR._1536)">1536</div>-->
+<!--      </div>-->
 <!--      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Destroy The World</div>-->
 <!--      Click this to release all the goblins and endanger the future of humanity. Do not do this!-->
 <!--      <div class="button-section">-->
