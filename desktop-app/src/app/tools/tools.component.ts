@@ -56,6 +56,7 @@ export class ToolsComponent implements OnInit {
     SSO = SSO;
     CA = CA;
     GPU = GPU;
+    pavlovName;
     constructor(
         public appService: AppService,
         public adbService: AdbClientService,
@@ -235,7 +236,16 @@ export class ToolsComponent implements OnInit {
             });
     }
     setPavlovPermission() {
-        this.adbService.setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO');
+        return this.adbService
+            .setPermission('com.vankrupt.pavlov', 'android.permission.RECORD_AUDIO')
+            .then(() => this.adbService.setPermission('com.vankrupt.pavlov', 'android.permission.READ_EXTERNAL_STORAGE'))
+            .then(() => this.adbService.setPermission('com.vankrupt.pavlov', 'android.permission.WRITE_EXTERNAL_STORAGE'));
+    }
+    setPavlovName() {
+        this.adbService.adbCommand('shell', {
+            serial: this.adbService.deviceSerial,
+            command: 'echo ' + this.pavlovName + ' >> /sdcard/pavlov.name.txt',
+        });
     }
     pasteToDevice() {
         this._textToSend = this.textToSend.split('');

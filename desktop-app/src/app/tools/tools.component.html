@@ -44,12 +44,17 @@
       </div>
 
 
-      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Pavlov Audio</div>
+      <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Pavlov Settings</div>
       <div class="button-section">
         <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
              [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
              (click)="setPavlovPermission()"
-        >Grant Pavlov Audio Permission</div
+        >Grant Pavlov Permissions</div
+        >&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="waves-effect waves-light btn margin-bottom margin-right pink-button"
+             [ngClass]="{'button-dark-theme':appService.currentTheme === 'dark','button-light-theme':appService.currentTheme === 'light','waves-dark':true,'waves-light':false}"
+             (click)="changePavlov.openModal()"
+        >Change Pavlov Name </div
         >&nbsp;&nbsp;&nbsp;&nbsp;
       </div>
       <div class="section-title" [ngClass]="{'text-dark-theme':appService.currentTheme === 'dark','text-light-theme':appService.currentTheme === 'light'}">Chromatic Aberration</div>
@@ -188,3 +193,24 @@
 
 
 </div>
+
+
+<mz-modal #changePavlov [fixedFooter]="true">
+  <mz-modal-header>
+    <h4>Change Pavlov Name</h4>
+  </mz-modal-header>
+  <mz-modal-content>
+    Enter a name to set your name in Pavlov.
+    <br />
+    <div class="input-field repo-url">
+      <input id="repoUrl" type="text" [(ngModel)]="pavlovName"/>
+      <label for="repoUrl">Repo Url</label>
+    </div>
+
+
+  </mz-modal-content>
+  <mz-modal-footer>
+    <button mz-button [flat]="true" mz-modal-close>Close</button>
+    <button mz-button class="pink-button" mz-modal-close (click)="setPavlovName()">Save</button>
+  </mz-modal-footer>
+</mz-modal>
