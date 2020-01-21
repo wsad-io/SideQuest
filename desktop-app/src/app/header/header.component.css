@@ -196,7 +196,6 @@
 .add-repo,
 .sync-songs,
 .sync-songs-now,
-.update-available,
 .beast-saber-buttons,
 .back-webserver{
   position: absolute;
@@ -206,8 +205,8 @@
   -webkit-app-region: no-drag;
 }
 .update-available {
-  top: 6px;
-  right: 550px;
+  margin-top: -16px;
+  margin-right: 10px;
 }
 .sync-songs{
   right: 15px;

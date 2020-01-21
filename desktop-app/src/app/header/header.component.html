@@ -41,6 +41,9 @@
       <!--class="material-icons no-outline beaton-icon"-->
       <!--src="{{beatonService.beatOnEnabled?'assets/images/beaton.png':'assets/images/beatoff.png'}}"-->
       <!--position="bottom" tooltip="BeatOn mods & custom songs on Beat Saber"/>-->
+
+      <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
+                (click)="updateAvailable()" text="Update Available"></app-link>
       <i mz-tooltip routerLink="/webview" (click)="webService.loadUrl('https://sidequestvr.com')" class="material-icons white-text no-outline" position="bottom" tooltip="Home">
         home
       </i>
@@ -115,8 +118,6 @@
     <div *ngIf="appService.showRepo" (click)="addRepoModal.openModal()" class="waves-effect waves-light btn-flat add-repo small-button white-text">
       Add Repo
     </div>
-    <app-link *ngIf="appService.updateAvailable" class="waves-effect waves-light btn-flat update-available link small-button"
-              (click)="updateAvailable()" text="Update Available"></app-link>
     <div *ngIf="appService.showBrowserBar" class="beast-saber-buttons">
       <a class="waves-effect waves-light synthrideerz" (click)="webService.loadUrl('https://synthriderz.com/beatmaps/recent')">
         <img src="assets/images/Synth.png" class="responsive-img"/></a>&nbsp;&nbsp;&nbsp;
