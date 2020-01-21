@@ -829,6 +829,10 @@ export class AdbClientService {
                         let installableFiles = files.filter((val, index) => {
                             return Object.keys(typeBasedActions).includes(this.appService.path.extname(val));
                         });
+
+                        installableFiles.sort(function(a, b) {
+                            return a.endsWith('.apk') ? -1 : 1;
+                        });
                         installableFiles.forEach(file => {
                             typeBasedActions[this.appService.path.extname(file)](
                                 this.appService.path.join(this.appService.appData, 'tmp', file),
