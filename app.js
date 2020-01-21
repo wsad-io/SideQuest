@@ -77,7 +77,8 @@ function createWindow() {
             mainWindow.webContents.send('pre-open-url', url);
         } else if (~url.indexOf('ssl.hwcdn.net/')) {
             //itch.io
-            mainWindow.webContents.send('pre-open-url', url);
+            let name = item.getFilename();
+            mainWindow.webContents.send('pre-open-url', { url, name });
         }
         item.cancel();
     });

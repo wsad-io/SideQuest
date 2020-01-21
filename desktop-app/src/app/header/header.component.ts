@@ -52,6 +52,7 @@ export class HeaderComponent implements OnInit {
         max_size: '0',
         max_fps: '0',
     };
+
     constructor(
         public adbService: AdbClientService,
         public appService: AppService,
@@ -67,6 +68,7 @@ export class HeaderComponent implements OnInit {
     ) {
         this.osPlatform = this.appService.os.platform();
     }
+
     ngOnInit() {}
 
     connectWifi() {
@@ -104,9 +106,11 @@ export class HeaderComponent implements OnInit {
                 this.statusService.showStatus(e, true);
             });
     }
+
     isConnected() {
         return this.adbService.deviceStatus === ConnectionStatus.CONNECTED;
     }
+
     updateAvailable() {
         if (process.platform == 'win32') {
             this.spinnerService.setMessage('Downloading update...');
@@ -175,11 +179,9 @@ export class HeaderComponent implements OnInit {
                 files.forEach(filepath => {
                     let install = this.adbService.installMultiFile(filepath);
                     if (install) {
-                        install
-                            .then(() => {})
-                            .catch(e => {
-                                this.statusService.showStatus(e.toString(), true);
-                            });
+                        install.catch(e => {
+                            this.statusService.showStatus(e.toString(), true);
+                        });
                     }
                 });
             }

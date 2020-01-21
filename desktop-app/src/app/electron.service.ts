@@ -67,10 +67,21 @@ export class ElectronService {
 
     setupIPC() {
         this.appService.electron.ipcRenderer.on('pre-open-url', (event, data) => {
+            console.log(data);
             this.spinnerService.showLoader();
-            this.spinnerService.setMessage('Do you want to install this file?<br><br>' + data);
+            this.spinnerService.setMessage('Do you want to install this file?<br><br>' + data.name);
             this.spinnerService.setupConfirm().then(() => {
-                this.adbService.installAPK(data);
+                switch (this.appService.path.extname(data.name)) {
+                    case '.zip':
+                        this.adbService.installZip(data.url);
+                        break;
+                    case '.obb':
+                        this.adbService.installObb(data.url);
+                        break;
+                    case '.apk':
+                        this.adbService.installAPK(data.url);
+                        break;
+                }
             });
         });
         this.appService.electron.ipcRenderer.on('update-status', (event, data) => {

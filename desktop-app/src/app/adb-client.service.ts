@@ -81,6 +81,7 @@ export class AdbClientService {
             case '.zip':
                 return this.installLocalZip(filepath, false, () => this.spinnerService.hideLoader());
         }
+        return Promise.resolve();
     }
     toggleWifiMode() {
         if (this.wifiEnabled) {
@@ -706,6 +707,24 @@ export class AdbClientService {
         }
         return p;
     }
+    installZip(url, number?: number, total?: number) {
+        return this.processService.addItem('file_install', async task => {
+            return this.appService
+                .downloadFile(
+                    url,
+                    url,
+                    url,
+                    downloadUrl => {
+                        return this.appService.path.join(this.appService.appData, 'download.zip');
+                    },
+                    task
+                )
+                .then(() => (task.status = 'File Downloaded OK!'))
+                .then((_path: string) =>
+                    this.installLocalZip(this.appService.path.join(this.appService.appData, 'download.zip'), false, () => {}, task)
+                );
+        });
+    }
     installObb(url, number?: number, total?: number) {
         return this.processService.addItem('file_install', async task => {
             return this.appService
@@ -779,42 +798,55 @@ export class AdbClientService {
         }
         return p;
     }
-    installLocalZip(filepath, dontCatchError, cb) {
+    async installLocalZip(filepath, dontCatchError, cb, task?) {
         const typeBasedActions = {
-            '.apk': function(filepath, bind) {
+            '.apk': filepath => {
                 this.installAPK(filepath, true);
             },
-            '.obb': function(filepath, bind) {
+            '.obb': filepath => {
                 if (this.appService.path.basename(filepath).match(/main.[0-9]{1,}.[a-z]{1,}.[A-z]{1,}.[A-z]{1,}.obb/)) {
-                    this.installLocalObb(filepath);
+                    this.processService.addItem('file_install', async task => {
+                        return this.installLocalObb(filepath, false, null, 1, 1, task);
+                    });
                 } else {
                     console.log('Invalid OBB');
                 }
             },
         };
 
-        this.cleanUpFolder();
-        this.appService.extract(filepath, { dir: this.appService.path.join(this.appService.appData, 'tmp') }, extractErr => {
-            if (!extractErr) {
-                console.log('Extracted Zip');
-                this.appService.fs.readdir(this.appService.path.join(this.appService.appData, 'tmp'), (readErr, files) => {
-                    let installableFiles = Object.keys(files).filter((val, index) => {
-                        return Object.keys(typeBasedActions).includes(this.appService.path.extname(files[index]));
-                    });
-                    installableFiles.forEach(file => {
-                        typeBasedActions[this.appService.path.extname(filepath)](filepath, this);
-                    });
-                });
-            } else {
-                console.warn(extractErr);
+        //this.cleanUpFolder();
+        return new Promise(resolve => {
+            if (task) {
+                task.status = 'Extracting zip file download...';
             }
+            this.appService.extract(filepath, { dir: this.appService.path.join(this.appService.appData, 'tmp') }, extractErr => {
+                if (!extractErr) {
+                    if (task) {
+                        task.status = 'Extracted Zip!';
+                    }
+                    resolve();
+                    this.appService.fs.readdir(this.appService.path.join(this.appService.appData, 'tmp'), (readErr, files) => {
+                        let installableFiles = files.filter((val, index) => {
+                            return Object.keys(typeBasedActions).includes(this.appService.path.extname(val));
+                        });
+                        installableFiles.forEach(file => {
+                            typeBasedActions[this.appService.path.extname(file)](
+                                this.appService.path.join(this.appService.appData, 'tmp', file),
+                                this
+                            );
+                        });
+                    });
+                } else {
+                    console.warn(extractErr);
+                }
+            });
+            cb();
         });
-        cb();
     }
     cleanUpFolder(folderPath = this.appService.path.join(this.appService.appData, 'tmp')) {
         this.appService.fs.readdir(folderPath, (readErr, files) => {
             files.forEach((val, index) => {
-                this.appService.fs.unlink(folderPath + val, delErr => {
+                this.appService.fs.unlink(this.appService.path.join(folderPath, val), delErr => {
                     if (delErr) {
                         console.warn(delErr);
                     }
