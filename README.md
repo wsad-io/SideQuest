@@ -1,3 +1,5 @@
+Testing area for https://github.com/the-expanse/SideQuest - go there if you are looking for SideQuest, I'm likely to break shit here and Im only playing with it -  - will track owners branch though. This repo is for experimenting & testing off the mainline branch for my needs only.  - Please work with official and leave this alone.
+
 # SideQuest
 
 
